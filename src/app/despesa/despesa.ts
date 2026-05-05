@@ -1,6 +1,6 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, inject, ChangeDetectorRef } from '@angular/core'; // Adicionado ChangeDetectorRef
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 
@@ -15,6 +15,7 @@ export class Despesa implements OnInit {
   private platformId = inject(PLATFORM_ID);
   private http = inject(HttpClient);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef); // Injetado para forçar a atualização automática
 
   usuarioId: number = 0;
   usuarioNome: string = '';
@@ -24,7 +25,15 @@ export class Despesa implements OnInit {
   exibirInputCategoria = false;
   novaCategoriaNome = '';
 
-  dadosForm = { descricao: '', valor: 0, data: '', categoriaId: '' };
+  // LOGICA DE FORMULÁRIO: Incluído contaId
+  dadosForm = { 
+    descricao: '', 
+    valor: 0, 
+    data: new Date().toISOString().split('T')[0], 
+    categoriaId: '',
+    contaId: '' // Adicionado para vincular a conta na despesa
+  };
+  
   categorias: any[] = [];
   listaDespesas: any[] = [];
 
@@ -40,32 +49,46 @@ export class Despesa implements OnInit {
         return;
       }
 
-      this.carregarCategorias();
-      this.carregarDespesas();
-      this.carregarContas();
+      this.carregarDados();
     }
+  }
+
+  carregarDados() {
+    this.carregarCategorias();
+    this.carregarDespesas();
+    this.carregarContas();
   }
 
   toggleSidebar(): void {
     this.exibirSidebar = !this.exibirSidebar;
+    this.cdr.detectChanges();
   }
 
   carregarContas() {
     this.http.get<any[]>(`http://localhost:8080/api/contas/usuario/${this.usuarioId}`)
       .subscribe({
-        next: (res) => this.contasBancarias = res,
+        next: (res) => {
+          this.contasBancarias = res;
+          this.cdr.detectChanges(); // Atualiza saldos na sidebar
+        },
         error: (err) => console.error('Erro ao buscar contas', err)
       });
   }
 
   carregarCategorias() {
     this.http.get<any[]>(`http://localhost:8080/api/categorias/usuario/${this.usuarioId}`)
-      .subscribe(res => this.categorias = res);
+      .subscribe(res => {
+        this.categorias = res;
+        this.cdr.detectChanges();
+      });
   }
 
   carregarDespesas() {
     this.http.get<any[]>(`http://localhost:8080/api/despesas/usuario/${this.usuarioId}`)
-      .subscribe(res => this.listaDespesas = res);
+      .subscribe(res => {
+        this.listaDespesas = res;
+        this.cdr.detectChanges(); // Atualiza a tabela de despesas
+      });
   }
 
   salvarCategoria() {
@@ -76,18 +99,43 @@ export class Despesa implements OnInit {
       this.dadosForm.categoriaId = res.id;
       this.novaCategoriaNome = '';
       this.exibirInputCategoria = false;
+      this.cdr.detectChanges();
     });
   }
 
   salvarDespesa() {
-    const payload = { ...this.dadosForm, usuarioId: this.usuarioId };
+    if (!this.dadosForm.contaId) {
+      alert('Selecione uma conta para registrar a saída do valor!');
+      return;
+    }
+
+    const payload = { 
+      ...this.dadosForm, 
+      usuarioId: this.usuarioId,
+      categoriaId: Number(this.dadosForm.categoriaId),
+      contaId: Number(this.dadosForm.contaId)
+    };
+
     this.http.post('http://localhost:8080/api/despesas', payload).subscribe({
       next: () => {
-        this.carregarDespesas();
-        this.dadosForm = { descricao: '', valor: 0, data: '', categoriaId: '' };
+        alert('Despesa registrada!');
+        this.carregarDespesas(); // Recarrega lista
+        this.carregarContas();   // Recarrega saldos (diminuição do valor)
+        this.resetarFormulario();
       },
       error: (err) => console.error('Erro ao salvar despesa', err)
     });
+  }
+
+  resetarFormulario() {
+    this.dadosForm = { 
+      descricao: '', 
+      valor: 0, 
+      data: new Date().toISOString().split('T')[0], 
+      categoriaId: '',
+      contaId: '' 
+    };
+    this.cdr.detectChanges();
   }
 
   logout() {

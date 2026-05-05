@@ -1,6 +1,4 @@
 <div class="dashboard-wrapper">
-  <!-- Gabriel@1000.suzana -->
-
   <aside class="sidebar" [class.active]="exibirSidebar">
     <div class="sidebar-header">
       <img src="https://i.postimg.cc/Gt0P8dwD/unnamed.png" alt="Logo" class="sidebar-logo">
@@ -92,13 +90,24 @@
           <thead>
             <tr>
               <th>Data</th>
+              <th>Descrição</th>
               <th>Categoria</th>
+              <th>Valor</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let item of dadosDashboard.transacoes">
               <td>{{ item.data | date:'dd/MM' }}</td>
-              <td>{{ item.categoria }}</td>
+              <td>{{ item.descricao }}</td>
+              <td><span class="badge-categoria">{{ item.categoria }}</span></td>
+              <td [ngStyle]="{'color': item.tipo === 'RECEITA' ? '#28a745' : '#dc3545'}" style="font-weight: bold;">
+                {{ item.tipo === 'RECEITA' ? '+' : '-' }} {{ item.valor | currency:'BRL' }}
+              </td>
+            </tr>
+            <tr *ngIf="!dadosDashboard.transacoes || dadosDashboard.transacoes.length === 0">
+              <td colspan="4" style="text-align: center; color: #999; padding: 1.5rem;">
+                Nenhuma transação recente.
+              </td>
             </tr>
           </tbody>
         </table>

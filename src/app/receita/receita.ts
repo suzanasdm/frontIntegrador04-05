@@ -1,6 +1,6 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, inject, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 
@@ -15,6 +15,7 @@ export class Receita implements OnInit {
   private platformId = inject(PLATFORM_ID);
   private http = inject(HttpClient);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef); // Injetado para forçar a atualização da tela
 
   // Dados do Utilizador
   usuarioId: number = 0;
@@ -26,18 +27,18 @@ export class Receita implements OnInit {
   categorias: any[] = [];
   listaReceitas: any[] = [];
 
-  // Estados de UI (Padrão visual Despesa)
+  // Estados de UI
   exibirSidebar: boolean = false;
   exibirInputCategoria: boolean = false;
   novaCategoriaNome: string = '';
 
-  // LOGICA DE CONTAS: Adicionado contaId ao formulário
+  // LOGICA DE FORMULÁRIO
   dadosForm = { 
     descricao: '', 
     valor: 0, 
     data: new Date().toISOString().split('T')[0], 
     categoriaId: '',
-    contaId: '' // Campo que armazenará o ID da conta selecionada
+    contaId: '' 
   };
 
   ngOnInit(): void {
@@ -58,6 +59,7 @@ export class Receita implements OnInit {
 
   toggleSidebar(): void {
     this.exibirSidebar = !this.exibirSidebar;
+    this.cdr.detectChanges(); // Garante que a sidebar abra/feche suavemente
   }
 
   carregarDados() {
@@ -66,23 +68,31 @@ export class Receita implements OnInit {
     this.carregarContas();
   }
 
-  // LOGICA DE CONTAS: Busca as contas do usuário para preencher o Select e a Sidebar
   carregarContas() {
     this.http.get<any[]>(`http://localhost:8080/api/contas/usuario/${this.usuarioId}`)
       .subscribe({
-        next: (res) => this.contasBancarias = res,
+        next: (res) => {
+          this.contasBancarias = res;
+          this.cdr.detectChanges(); // Atualiza os saldos na sidebar automaticamente
+        },
         error: (err) => console.error('Erro ao buscar contas', err)
       });
   }
 
   carregarCategorias() {
     this.http.get<any[]>(`http://localhost:8080/api/categorias/usuario/${this.usuarioId}`)
-      .subscribe(res => this.categorias = res);
+      .subscribe(res => {
+        this.categorias = res;
+        this.cdr.detectChanges();
+      });
   }
 
   carregarReceitas() {
     this.http.get<any[]>(`http://localhost:8080/api/receitas/usuario/${this.usuarioId}`)
-      .subscribe(res => this.listaReceitas = res);
+      .subscribe(res => {
+        this.listaReceitas = res;
+        this.cdr.detectChanges(); // Faz as novas receitas aparecerem na tabela na hora
+      });
   }
 
   salvarCategoria() {
@@ -93,10 +103,10 @@ export class Receita implements OnInit {
       this.dadosForm.categoriaId = res.id;
       this.novaCategoriaNome = '';
       this.exibirInputCategoria = false;
+      this.cdr.detectChanges();
     });
   }
 
-  // LOGICA DE CONTAS: Salva a receita enviando o contaId para atualizar o saldo no Java
   salvarReceita() {
     if (!this.dadosForm.contaId) {
       alert('Selecione uma conta bancária para receber o valor!');
@@ -107,14 +117,14 @@ export class Receita implements OnInit {
       ...this.dadosForm, 
       usuarioId: this.usuarioId,
       categoriaId: Number(this.dadosForm.categoriaId),
-      contaId: Number(this.dadosForm.contaId) // Envia o ID numérico
+      contaId: Number(this.dadosForm.contaId)
     };
     
     this.http.post('http://localhost:8080/api/receitas', payload).subscribe({
       next: () => {
         alert('Receita registrada e saldo atualizado!');
-        this.carregarReceitas();
-        this.carregarContas(); // Recarrega as contas para atualizar o saldo na Sidebar
+        this.carregarReceitas(); // Dispara o carregar que já tem o detectChanges
+        this.carregarContas();   // Dispara o carregar que já tem o detectChanges
         this.resetarFormulario();
       },
       error: (err) => console.error('Erro ao salvar receita', err)
@@ -129,6 +139,7 @@ export class Receita implements OnInit {
       categoriaId: '',
       contaId: '' 
     };
+    this.cdr.detectChanges();
   }
 
   logout() {
