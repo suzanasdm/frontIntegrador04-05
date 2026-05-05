@@ -1,0 +1,123 @@
+/* Fundo da tela */
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f8f9fc; /* Cinza bem claro do fundo */
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Card Branco */
+.login-card {
+  background: white;
+  padding: 40px;
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+  border-radius: 4px;
+}
+
+/* Estilo do Logo e Nome */
+.logo-container img {
+  width: 120px;
+  margin-bottom: 5px;
+}
+
+.brand-name {
+  color: #c5a86a; /* Dourado do logo */
+  font-size: 28px;
+  font-weight: 400;
+  margin-bottom: 40px;
+}
+
+/* O Segredo da Borda Interrompida */
+.input-group {
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.input-group label {
+  position: absolute;
+  top: -10px; /* Sobe para cima da borda */
+  left: 12px;
+  background: white; /* Cor de fundo igual ao card para "apagar" a borda */
+  padding: 0 6px;
+  font-size: 13px;
+  color: #d4bc82; /* Dourado mais claro dos labels */
+  font-weight: 500;
+  z-index: 1;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 15px;
+  color: #333;
+  box-sizing: border-box;
+  outline: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02); /* Sombra interna leve */
+}
+
+.input-group input::placeholder {
+  color: #bcbcbc;
+}
+
+/* Ícone do Olho */
+.password-wrapper {
+  position: relative;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #ccc;
+  cursor: pointer;
+  font-style: normal;
+}
+
+/* Links Pequenos */
+.forgot-link {
+  display: block;
+  text-align: left;
+  font-size: 11px;
+  color: #bcbcbc;
+  text-decoration: none;
+  margin-top: 5px;
+}
+
+/* Botão Verde-Água */
+.btn-entrar {
+  background-color: #409687; /* Cor exata da imagem */
+  color: white;
+  border: none;
+  padding: 12px 60px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: 0.3s;
+  box-shadow: 0 4px 6px rgba(64, 150, 135, 0.2);
+}
+
+.btn-entrar:hover {
+  background-color: #347d6f;
+  transform: translateY(-1px);
+}
+
+/* Texto debaixo */
+.footer-links {
+  margin-top: 40px;
+  font-size: 12px;
+  color: #bcbcbc;
+}
+
+.footer-links a {
+  color: #bcbcbc;
+  text-decoration: none;
+  font-weight: bold;
+}

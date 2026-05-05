@@ -1,0 +1,118 @@
+<div class="page-wrapper">
+
+  <aside class="sidebar" [class.active]="exibirSidebar">
+    <div class="sidebar-header">
+      <img src="https://i.postimg.cc/Gt0P8dwD/unnamed.png" alt="Logo" class="sidebar-logo">
+      <button class="btn-close-sidebar" (click)="toggleSidebar()">✕</button>
+    </div>
+
+    <div class="sidebar-profile">
+      <div class="user-avatar">{{ usuarioNome.charAt(0) }}</div>
+      <p class="greeting">Bem-vindo,</p>
+      <h3>{{ usuarioNome }}</h3>
+      <p class="user-mail">{{ usuarioCompleto.email }}</p>
+    </div>
+
+    <hr class="sidebar-divider">
+
+    <div class="sidebar-accounts">
+      <h4>Minhas Contas</h4>
+      <div class="acc-card" *ngFor="let conta of contasBancarias">
+        <span class="bank-name">{{ conta.banco }}</span>
+        <span class="acc-info">Ag: {{ conta.agencia }} | C: {{ conta.numeroConta }}</span>
+        <span class="acc-value">{{ conta.saldo | currency:'BRL' }}</span>
+      </div>
+      <p *ngIf="contasBancarias.length === 0" class="empty-msg">Nenhuma conta cadastrada.</p>
+    </div>
+
+    <button class="logout-btn-sidebar" (click)="logout()">Sair da Conta</button>
+  </aside>
+
+  <div class="sidebar-overlay" *ngIf="exibirSidebar" (click)="toggleSidebar()"></div>
+
+  <header class="main-header">
+    <div class="logo">
+      <img src="https://i.postimg.cc/Gt0P8dwD/unnamed.png" alt="CyberSoft" (click)="toggleSidebar()" style="cursor: pointer;">
+    </div>
+    <nav class="nav-menu">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-card">Dashboard</a>
+      <a routerLink="/receitas" routerLinkActive="active" class="nav-card">Receita</a>
+      <a routerLink="/despesas" routerLinkActive="active" class="nav-card">Despesa</a>
+      <a routerLink="/orcamentos" routerLinkActive="active" class="nav-card">Orçamentos</a>
+      <a routerLink="/relatorios" routerLinkActive="active" class="nav-card">Relatórios</a>
+      <a routerLink="/contasbancarias" routerLinkActive="active" class="nav-card">Contas Bancarias</a>
+    </nav>
+    <div class="header-actions">
+      <button class="btn-login" (click)="logout()">Sair</button>
+      <button class="btn-signup">Cadastrar</button>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="toggle-group">
+      <button class="toggle-btn" routerLink="/receitas">Receita</button>
+      <button class="toggle-btn active">Despesa</button>
+    </div>
+
+    <h1 class="page-title">Despesa</h1>
+
+    <div class="form-card">
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Descrição</label>
+          <input type="text" [(ngModel)]="dadosForm.descricao" placeholder="Casa">
+        </div>
+
+        <div class="form-field">
+          <label>Valor</label>
+          <input type="number" [(ngModel)]="dadosForm.valor" placeholder="R$ 0,00">
+        </div>
+
+        <div class="form-field">
+          <label>Data</label>
+          <div class="date-wrapper">
+            <input type="date" [(ngModel)]="dadosForm.data">
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Categoria</label>
+          <div class="cat-wrapper">
+            <select [(ngModel)]="dadosForm.categoriaId" *ngIf="!exibirInputCategoria">
+              <option value="" disabled selected>Selecione</option>
+              <option *ngFor="let c of categorias" [value]="c.id">{{c.nome}}</option>
+            </select>
+            <input type="text" [(ngModel)]="novaCategoriaNome" *ngIf="exibirInputCategoria" placeholder="Nova categoria...">
+            <button class="btn-plus" (click)="exibirInputCategoria ? salvarCategoria() : exibirInputCategoria = true">
+              {{ exibirInputCategoria ? 'OK' : '+' }}
+            </button>
+          </div>
+        </div>
+      </div>
+      <button class="btn-salvar" (click)="salvarDespesa()">Salvar</button>
+    </div>
+
+    <div class="table-card">
+      <h2 class="table-title">Despesas</h2>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Descrição</th>
+            <th>Categoria</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of listaDespesas">
+            <td>{{ item.descricao }}</td>
+            <td>{{ item.categoria?.nome }}</td>
+            <td class="val-despesa">{{ item.valor | currency:'BRL' }}</td>
+          </tr>
+          <tr *ngIf="listaDespesas.length === 0">
+            <td colspan="3" class="empty-row">Nenhuma despesa cadastrada.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>

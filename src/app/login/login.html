@@ -1,0 +1,43 @@
+<div class="login-wrapper">
+  <div class="login-card">
+
+    <div class="logo-container">
+      <img src="https://i.postimg.cc/Gt0P8dwD/unnamed.png" alt="CyberSoft Logo">
+      <h1 class="brand-name">CyberSoft</h1>
+    </div>
+
+    <form class="form-login" (ngSubmit)="onLogin()">
+
+      <div class="input-group">
+        <label>Email</label>
+        <input
+          type="email"
+          name="email"
+          [(ngModel)]="loginData.email"
+          placeholder="Digite seu email">
+      </div>
+
+      <div class="input-group">
+        <label>Senha</label>
+        <div class="password-wrapper">
+          <input
+            type="password"
+            name="senha"
+            [(ngModel)]="loginData.senha"
+            placeholder="Digite sua senha">
+        </div>
+        <a href="#" class="forgot-link">esqueci a senha!</a>
+      </div>
+
+      <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+      <button type="submit" class="btn-entrar">Entrar</button>
+
+      <div class="footer-links">
+        <p>Não possui conta?
+          <a [routerLink]="['/cadastro']">Cadastre-se aqui.</a>
+        </p>
+      </div>
+    </form>
+  </div>
+</div>

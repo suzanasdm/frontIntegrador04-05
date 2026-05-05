@@ -1,0 +1,51 @@
+<div class="dashboard-wrapper">
+  <header class="main-header">
+
+    <nav class="nav-menu">
+      <a routerLink="/login" routerLinkActive="active">Voltar</a>
+
+
+</nav>
+
+
+
+  <main class="content-centered">
+    <div class="register-card">
+      <div class="brand-header">
+        <img src="https://i.postimg.cc/Gt0P8dwD/unnamed.png" alt="Logo">
+        <h2 class="brand-name">CyberSoft</h2>
+      </div>
+
+      <form [formGroup]="cadastroForm" (ngSubmit)="cadastrar()" class="form-container">
+        <div class="form-group">
+          <label>Nome</label>
+          <input type="text" formControlName="nome" placeholder="digite seu nome">
+          <span class="error-msg" *ngIf="cadastroForm.get('nome')?.invalid && cadastroForm.get('nome')?.touched">
+            Nome é obrigatório
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label>E-mail</label>
+          <input type="email" formControlName="email" placeholder="digite seu e-mail">
+        </div>
+
+        <div class="form-group">
+          <label>Senha</label>
+          <input type="password" formControlName="senha" placeholder="digite sua senha">
+        </div>
+
+        <div class="form-group">
+          <label>Confirmar senha</label>
+          <input type="password" formControlName="confirmarSenha" placeholder="confirme sua senha">
+          <span class="error-msg" *ngIf="cadastroForm.hasError('naoConfere') && cadastroForm.get('confirmarSenha')?.touched">
+            As senhas não coincidem
+          </span>
+        </div>
+
+        <button type="submit" class="btn-submit" [disabled]="cadastroForm.invalid">
+          Cadastrar
+        </button>
+      </form>
+    </div>
+  </main>
