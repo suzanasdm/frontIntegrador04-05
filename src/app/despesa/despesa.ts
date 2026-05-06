@@ -1,6 +1,6 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, PLATFORM_ID, inject, ChangeDetectorRef } from '@angular/core'; // Adicionado ChangeDetectorRef
+import { Component, OnInit, PLATFORM_ID, inject, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 
@@ -15,27 +15,31 @@ export class Despesa implements OnInit {
   private platformId = inject(PLATFORM_ID);
   private http = inject(HttpClient);
   private router = inject(Router);
-  private cdr = inject(ChangeDetectorRef); // Injetado para forçar a atualização automática
+  private cdr = inject(ChangeDetectorRef);
 
+  // Dados do Utilizador
   usuarioId: number = 0;
   usuarioNome: string = '';
   usuarioCompleto: any = {};
+
+  // Listas
   contasBancarias: any[] = [];
+  categorias: any[] = [];
+  listaDespesas: any[] = [];
+
+  // Estados de UI
   exibirSidebar: boolean = false;
   exibirInputCategoria = false;
   novaCategoriaNome = '';
 
-  // LOGICA DE FORMULÁRIO: Incluído contaId
+  // Formulário ajustado com contaId
   dadosForm = { 
     descricao: '', 
     valor: 0, 
     data: new Date().toISOString().split('T')[0], 
     categoriaId: '',
-    contaId: '' // Adicionado para vincular a conta na despesa
+    contaId: '' 
   };
-  
-  categorias: any[] = [];
-  listaDespesas: any[] = [];
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -48,7 +52,6 @@ export class Despesa implements OnInit {
         this.router.navigate(['/login']);
         return;
       }
-
       this.carregarDados();
     }
   }
@@ -69,7 +72,7 @@ export class Despesa implements OnInit {
       .subscribe({
         next: (res) => {
           this.contasBancarias = res;
-          this.cdr.detectChanges(); // Atualiza saldos na sidebar
+          this.cdr.detectChanges();
         },
         error: (err) => console.error('Erro ao buscar contas', err)
       });
@@ -87,7 +90,7 @@ export class Despesa implements OnInit {
     this.http.get<any[]>(`http://localhost:8080/api/despesas/usuario/${this.usuarioId}`)
       .subscribe(res => {
         this.listaDespesas = res;
-        this.cdr.detectChanges(); // Atualiza a tabela de despesas
+        this.cdr.detectChanges(); // Garante que a conta apareça na tabela na hora
       });
   }
 
@@ -104,6 +107,7 @@ export class Despesa implements OnInit {
   }
 
   salvarDespesa() {
+    // Validação importante: Despesa precisa de uma conta de onde sair o dinheiro
     if (!this.dadosForm.contaId) {
       alert('Selecione uma conta para registrar a saída do valor!');
       return;
@@ -113,14 +117,14 @@ export class Despesa implements OnInit {
       ...this.dadosForm, 
       usuarioId: this.usuarioId,
       categoriaId: Number(this.dadosForm.categoriaId),
-      contaId: Number(this.dadosForm.contaId)
+      contaId: Number(this.dadosForm.contaId) // Converte para número para o Java
     };
 
     this.http.post('http://localhost:8080/api/despesas', payload).subscribe({
       next: () => {
-        alert('Despesa registrada!');
-        this.carregarDespesas(); // Recarrega lista
-        this.carregarContas();   // Recarrega saldos (diminuição do valor)
+        alert('Despesa registrada e saldo atualizado!');
+        this.carregarDespesas(); 
+        this.carregarContas();   
         this.resetarFormulario();
       },
       error: (err) => console.error('Erro ao salvar despesa', err)
