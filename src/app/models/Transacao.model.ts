@@ -1,7 +1,19 @@
 export interface Transacao {
-    descricao: string;
-    valor: number;
-    data: string; // No TS usamos string para datas vindas do input date (yyyy-mm-dd)
-    contaId: number;
-    categoriaId: number;
+
+  id?: number;
+
+  descricao: string;
+
+  valor: number;
+
+  data: string;
+
+  tipo?: 'RECEITA' | 'DESPESA';
+
+  fitId?: string;
+
+  contaId: number;
+
+  categoriaId?: number;
+
 }
