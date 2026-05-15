@@ -31,17 +31,27 @@
         </div>
 
         <div class="form-group">
-          <label>Senha</label>
-          <input type="password" formControlName="senha" placeholder="digite sua senha">
-        </div>
+        <label>Senha</label>
+        <input type="password" formControlName="senha" placeholder="digite sua senha">
 
-        <div class="form-group">
-          <label>Confirmar senha</label>
-          <input type="password" formControlName="confirmarSenha" placeholder="confirme sua senha">
-          <span class="error-msg" *ngIf="cadastroForm.hasError('naoConfere') && cadastroForm.get('confirmarSenha')?.touched">
-            As senhas não coincidem
-          </span>
+        <span
+          class="error-msg"
+          *ngIf="cadastroForm.get('senha')?.invalid && cadastroForm.get('senha')?.touched"
+        >
+          A senha deve ter no mínimo 8 caracteres, uma letra maiúscula, um número e um caractere especial.
+        </span>
         </div>
+        <div class="form-group">
+  <label>Confirmar senha</label>
+  <input type="password" formControlName="confirmarSenha" placeholder="confirme sua senha">
+
+  <span
+    class="error-msg"
+    *ngIf="cadastroForm.hasError('naoConfere') && cadastroForm.get('confirmarSenha')?.touched"
+  >
+    As senhas não coincidem.
+  </span>
+</div>
 
         <button type="submit" class="btn-submit" [disabled]="cadastroForm.invalid">
           Cadastrar

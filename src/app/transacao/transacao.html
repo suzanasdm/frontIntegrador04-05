@@ -21,7 +21,7 @@
 
     </div>
 
-    <!-- PERFIL -->
+
 
     <div class="sidebar-profile">
 
@@ -45,7 +45,7 @@
 
     <hr class="sidebar-divider">
 
-    <!-- CONTAS -->
+
 
     <div class="sidebar-accounts">
 
@@ -94,7 +94,7 @@
 
   </aside>
 
-  <!-- OVERLAY -->
+
 
   <div
     class="sidebar-overlay"
@@ -102,7 +102,7 @@
     (click)="toggleSidebar()"
   ></div>
 
-  <!-- HEADER -->
+
 
   <header class="main-header">
 
@@ -194,7 +194,7 @@
 
   </header>
 
-  <!-- CONTEÚDO -->
+
 
   <main class="main-content">
 
@@ -210,13 +210,13 @@
       Transações
     </h1>
 
-    <!-- FORM IMPORTAÇÃO -->
+
 
     <div class="form-card">
 
       <div class="form-grid">
 
-        <!-- CONTA -->
+
 
         <div class="form-field">
 
@@ -253,29 +253,28 @@
 
         <div class="form-field">
 
-          <label>
-            Arquivo OFX
-          </label>
+          <div class="form-field">
 
-          <input
-            type="file"
-            (change)="selecionarArquivo($event)"
-          >
+  <label>
+    Arquivo OFX
+  </label>
 
-        </div>
+  <input
+    type="file"
+    accept=".ofx"
+    (change)="selecionarArquivo($event)"
+  >
 
-      </div>
+</div>
 
-      <button
-        class="btn-salvar"
-        (click)="importarOFX()"
-        style="background-color: #409687;"
-      >
-
-        Importar OFX
-
-      </button>
-
+<button
+  type="button"
+  class="btn-salvar"
+  (click)="importarOFX()"
+  style="background-color: #409687;"
+>
+  Importar OFX
+</button>
     </div>
 
     <!-- TABELA -->
@@ -368,6 +367,6 @@
 
     </div>
 
-  </main>
+
 
 </div>
