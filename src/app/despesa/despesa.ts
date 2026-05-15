@@ -33,12 +33,12 @@ export class Despesa implements OnInit {
   novaCategoriaNome = '';
 
   // Formulário ajustado com contaId
-  dadosForm = { 
-    descricao: '', 
-    valor: 0, 
-    data: new Date().toISOString().split('T')[0], 
+  dadosForm = {
+    descricao: '',
+    valor: 0,
+    data: new Date().toISOString().split('T')[0],
     categoriaId: '',
-    contaId: '' 
+    contaId: ''
   };
 
   ngOnInit(): void {
@@ -78,13 +78,18 @@ export class Despesa implements OnInit {
       });
   }
 
-  carregarCategorias() {
-    this.http.get<any[]>(`http://localhost:8080/api/categorias/usuario/${this.usuarioId}`)
-      .subscribe(res => {
+ carregarCategorias() {
+  this.http.get<any[]>(`http://localhost:8080/api/categorias/usuario/${this.usuarioId}/tipo/DESPESA`)
+    .subscribe({
+      next: (res) => {
         this.categorias = res;
         this.cdr.detectChanges();
-      });
-  }
+      },
+      error: (err) => {
+        console.error('Erro ao carregar categorias de despesa:', err);
+      }
+    });
+}
 
   carregarDespesas() {
     this.http.get<any[]>(`http://localhost:8080/api/despesas/usuario/${this.usuarioId}`)
@@ -95,16 +100,22 @@ export class Despesa implements OnInit {
   }
 
   salvarCategoria() {
-    if (!this.novaCategoriaNome) return;
-    const payload = { nome: this.novaCategoriaNome, usuarioId: this.usuarioId };
-    this.http.post('http://localhost:8080/api/categorias', payload).subscribe((res: any) => {
-      this.categorias.push(res);
-      this.dadosForm.categoriaId = res.id;
-      this.novaCategoriaNome = '';
-      this.exibirInputCategoria = false;
-      this.cdr.detectChanges();
-    });
-  }
+  if (!this.novaCategoriaNome) return;
+
+  const payload = {
+    nome: this.novaCategoriaNome,
+    tipo: 'DESPESA',
+    usuarioId: this.usuarioId
+  };
+
+  this.http.post('http://localhost:8080/api/categorias', payload).subscribe((res: any) => {
+    this.categorias.push(res);
+    this.dadosForm.categoriaId = res.id;
+    this.novaCategoriaNome = '';
+    this.exibirInputCategoria = false;
+    this.cdr.detectChanges();
+  });
+}
 
   salvarDespesa() {
     // Validação importante: Despesa precisa de uma conta de onde sair o dinheiro
@@ -113,8 +124,8 @@ export class Despesa implements OnInit {
       return;
     }
 
-    const payload = { 
-      ...this.dadosForm, 
+    const payload = {
+      ...this.dadosForm,
       usuarioId: this.usuarioId,
       categoriaId: Number(this.dadosForm.categoriaId),
       contaId: Number(this.dadosForm.contaId) // Converte para número para o Java
@@ -123,8 +134,8 @@ export class Despesa implements OnInit {
     this.http.post('http://localhost:8080/api/despesas', payload).subscribe({
       next: () => {
         alert('Despesa registrada e saldo atualizado!');
-        this.carregarDespesas(); 
-        this.carregarContas();   
+        this.carregarDespesas();
+        this.carregarContas();
         this.resetarFormulario();
       },
       error: (err) => console.error('Erro ao salvar despesa', err)
@@ -132,12 +143,12 @@ export class Despesa implements OnInit {
   }
 
   resetarFormulario() {
-    this.dadosForm = { 
-      descricao: '', 
-      valor: 0, 
-      data: new Date().toISOString().split('T')[0], 
+    this.dadosForm = {
+      descricao: '',
+      valor: 0,
+      data: new Date().toISOString().split('T')[0],
       categoriaId: '',
-      contaId: '' 
+      contaId: ''
     };
     this.cdr.detectChanges();
   }
