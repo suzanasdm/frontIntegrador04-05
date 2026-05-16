@@ -1,11 +1,8 @@
 <div class="page-wrapper">
 
-  <!-- SIDEBAR -->
-
   <aside class="sidebar" [class.active]="exibirSidebar">
 
     <div class="sidebar-header">
-
       <img
         src="https://i.postimg.cc/Gt0P8dwD/unnamed.png"
         alt="Logo"
@@ -18,13 +15,9 @@
       >
         ✕
       </button>
-
     </div>
 
-
-
     <div class="sidebar-profile">
-
       <div class="user-avatar">
         {{ usuarioNome.charAt(0) }}
       </div>
@@ -40,15 +33,11 @@
       <p class="user-mail">
         {{ usuarioCompleto.email }}
       </p>
-
     </div>
 
     <hr class="sidebar-divider">
 
-
-
     <div class="sidebar-accounts">
-
       <h4>
         Minhas Contas
       </h4>
@@ -57,32 +46,25 @@
         class="acc-card"
         *ngFor="let conta of contasBancarias"
       >
-
         <span class="bank-name">
           {{ conta.banco }}
         </span>
 
         <span class="acc-info">
-          Ag: {{ conta.agencia }}
-          |
-          C: {{ conta.numeroConta }}
+          Ag: {{ conta.agencia }} | C: {{ conta.numeroConta }}
         </span>
 
         <span class="acc-value">
           {{ conta.saldo | currency:'BRL' }}
         </span>
-
       </div>
 
       <p
         *ngIf="contasBancarias.length === 0"
         class="empty-msg"
       >
-
         Nenhuma conta cadastrada.
-
       </p>
-
     </div>
 
     <button
@@ -94,27 +76,20 @@
 
   </aside>
 
-
-
   <div
     class="sidebar-overlay"
     *ngIf="exibirSidebar"
     (click)="toggleSidebar()"
   ></div>
 
-
-
   <header class="main-header">
 
     <div class="logo">
-
       <img
         src="https://i.postimg.cc/Gt0P8dwD/unnamed.png"
         alt="CyberSoft"
         (click)="toggleSidebar()"
-        style="cursor: pointer;"
       >
-
     </div>
 
     <nav class="nav-menu">
@@ -178,7 +153,6 @@
     </nav>
 
     <div class="header-actions">
-
       <button
         class="btn-login"
         (click)="logout()"
@@ -189,45 +163,28 @@
       <button class="btn-signup">
         Cadastrar
       </button>
-
     </div>
 
   </header>
 
-
-
   <main class="main-content">
 
-    <div class="toggle-group">
-
-      <button class="toggle-btn active">
-        Importar OFX
-      </button>
-
-    </div>
 
     <h1 class="page-title">
       Transações
     </h1>
 
-
-
     <div class="form-card">
 
       <div class="form-grid">
 
-
-
         <div class="form-field">
-
           <label>
             Conta Bancária
           </label>
 
           <div class="cat-wrapper">
-
             <select [(ngModel)]="dadosForm.contaId">
-
               <option value="" disabled selected>
                 Selecione a conta
               </option>
@@ -236,48 +193,35 @@
                 *ngFor="let conta of contasBancarias"
                 [value]="conta.id"
               >
-
-                {{ conta.banco }}
-                (Saldo:
-                {{ conta.saldo | currency:'BRL' }})
-
+                {{ conta.banco }} (Saldo: {{ conta.saldo | currency:'BRL' }})
               </option>
-
             </select>
-
           </div>
-
         </div>
 
-        <!-- ARQUIVO -->
-
         <div class="form-field">
+          <label>
+            Arquivo OFX
+          </label>
 
-          <div class="form-field">
+          <input
+            type="file"
+            accept=".ofx"
+            (change)="selecionarArquivo($event)"
+          >
+        </div>
 
-  <label>
-    Arquivo OFX
-  </label>
+      </div>
 
-  <input
-    type="file"
-    accept=".ofx"
-    (change)="selecionarArquivo($event)"
-  >
+      <button
+        type="button"
+        class="btn-salvar"
+        (click)="importarOFX()"
+      >
+        Importar OFX
+      </button>
 
-</div>
-
-<button
-  type="button"
-  class="btn-salvar"
-  (click)="importarOFX()"
-  style="background-color: #409687;"
->
-  Importar OFX
-</button>
     </div>
-
-    <!-- TABELA -->
 
     <div class="table-card">
 
@@ -288,27 +232,12 @@
       <table class="data-table">
 
         <thead>
-
           <tr>
-
-            <th>
-              Data
-            </th>
-
-            <th>
-              Descrição
-            </th>
-
-            <th>
-              Tipo
-            </th>
-
-            <th>
-              Valor
-            </th>
-
+            <th>Data</th>
+            <th>Descrição</th>
+            <th>Tipo</th>
+            <th>Valor</th>
           </tr>
-
         </thead>
 
         <tbody>
@@ -316,7 +245,7 @@
           <tr *ngFor="let item of listaTransacoes">
 
             <td>
-              {{ item.data }}
+              {{ item.data | date:'dd/MM/yyyy' }}
             </td>
 
             <td>
@@ -324,41 +253,31 @@
             </td>
 
             <td>
-
               <span
                 class="badge"
                 [style.background]="item.tipo === 'RECEITA' ? '#d1fae5' : '#fee2e2'"
                 [style.color]="item.tipo === 'RECEITA' ? '#065f46' : '#991b1b'"
               >
-
                 {{ item.tipo }}
-
               </span>
-
             </td>
 
             <td
               [style.color]="item.tipo === 'RECEITA' ? '#409687' : '#ef4444'"
               style="font-weight: bold;"
             >
-
               {{ item.valor | currency:'BRL' }}
-
             </td>
 
           </tr>
 
           <tr *ngIf="listaTransacoes.length === 0">
-
             <td
               colspan="4"
               class="empty-row"
             >
-
               Nenhuma transação encontrada.
-
             </td>
-
           </tr>
 
         </tbody>
@@ -367,6 +286,6 @@
 
     </div>
 
-
+  </main>
 
 </div>

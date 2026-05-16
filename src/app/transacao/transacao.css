@@ -220,41 +220,21 @@
 }
 
 /* CONTEÚDO */
+/* CONTEÚDO */
 
 .main-content {
-  padding: 36px 60px;
+  padding: 32px 40px 60px;
   text-align: center;
-}
-
-/* TOGGLE */
-
-.toggle-group {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-.toggle-btn {
-  padding: 10px 60px;
-  border: 1px solid #ccc;
-  background: white;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.toggle-btn.active {
-  background: #409687;
-  color: white;
-  border-color: #409687;
 }
 
 /* TÍTULO */
 
 .page-title {
-  font-size: 64px;
+  font-size: 56px;
   font-weight: 800;
   color: #333;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
+  line-height: 1;
 }
 
 /* FORM */
@@ -262,9 +242,9 @@
 .form-card {
   background: white;
   border: 1px solid #ddd;
-  border-radius: 15px;
-  padding: 30px;
-  max-width: 700px;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 900px;
   margin: 0 auto 32px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
@@ -272,57 +252,64 @@
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 28px;
+  align-items: end;
   text-align: left;
 }
 
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .form-field label {
-  color: #555;
-  font-size: 14px;
+  color: #444;
+  font-size: 15px;
+  font-weight: 500;
 }
 
 .form-field input,
 .form-field select {
-  padding: 12px;
+  width: 100%;
+  min-height: 50px;
+  padding: 12px 14px;
   border: 1px solid #ddd;
   border-radius: 8px;
   outline: none;
+  background: white;
+  font-size: 14px;
 }
 
 .form-field input:focus,
 .form-field select:focus {
   border-color: #409687;
+  box-shadow: 0 0 0 2px rgba(64, 150, 135, 0.12);
 }
 
-/* WRAPPER */
-
 .cat-wrapper {
-  display: flex;
-  gap: 5px;
+  width: 100%;
 }
 
 /* BOTÃO */
 
 .btn-salvar {
+  width: 100%;
+  max-width: 360px;
   background: #409687;
   color: white;
-  padding: 12px 100px;
+  padding: 14px 24px;
   border: none;
   border-radius: 8px;
   font-size: 18px;
-  margin-top: 30px;
+  margin: 32px auto 0;
   cursor: pointer;
   transition: 0.3s;
+  display: block;
 }
 
 .btn-salvar:hover {
-  opacity: 0.9;
+  background: #337a6e;
 }
 
 /* TABELA */
@@ -330,57 +317,83 @@
 .table-card {
   background: white;
   border: 1px solid #ddd;
-  border-radius: 15px;
-  padding: 24px;
-  max-width: 1000px;
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 900px;
   margin: 0 auto;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  overflow-x: auto;
 }
 
 .table-title {
-  font-size: 20px;
-  margin-bottom: 20px;
+  font-size: 24px;
+  margin-bottom: 24px;
   text-align: center;
+  color: #111;
 }
 
 .data-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .data-table th {
   text-align: left;
-  padding: 15px;
+  padding: 14px 16px;
   border-bottom: 2px solid #eee;
-  color: #444;
+  color: #333;
+  font-size: 15px;
 }
 
 .data-table td {
-  padding: 15px;
+  padding: 16px;
   border-bottom: 1px solid #eee;
   text-align: left;
-  color: #666;
+  color: #555;
+  vertical-align: middle;
+  word-break: break-word;
+}
+
+.data-table th:nth-child(1),
+.data-table td:nth-child(1) {
+  width: 18%;
+}
+
+.data-table th:nth-child(2),
+.data-table td:nth-child(2) {
+  width: 42%;
+}
+
+.data-table th:nth-child(3),
+.data-table td:nth-child(3) {
+  width: 20%;
+}
+
+.data-table th:nth-child(4),
+.data-table td:nth-child(4) {
+  width: 20%;
 }
 
 /* BADGE */
 
 .badge {
-  padding: 6px 12px;
+  display: inline-block;
+  padding: 7px 13px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: bold;
+  white-space: nowrap;
 }
 
 /* LINHA VAZIA */
 
 .empty-row {
-  text-align: center;
+  text-align: center !important;
   color: #aaa;
   padding: 24px 0;
 }
-
 /* RESPONSIVO */
-
 @media (max-width: 900px) {
 
   .main-header {
@@ -395,16 +408,29 @@
   }
 
   .main-content {
-    padding: 20px;
+    padding: 24px 16px 40px;
   }
 
   .page-title {
     font-size: 42px;
   }
 
-  .form-grid {
-    grid-template-columns: 1fr;
+  .form-card,
+  .table-card {
+    max-width: 100%;
+    padding: 22px;
   }
 
-}
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
 
+  .btn-salvar {
+    max-width: 100%;
+  }
+
+  .data-table {
+    min-width: 650px;
+  }
+}
