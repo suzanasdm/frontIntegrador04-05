@@ -231,10 +231,11 @@
 
       <table class="data-table">
 
-        <thead>
+              <thead>
           <tr>
             <th>Data</th>
             <th>Descrição</th>
+            <th>Conta</th>
             <th>Tipo</th>
             <th>Valor</th>
           </tr>
@@ -248,32 +249,37 @@
               {{ item.data | date:'dd/MM/yyyy' }}
             </td>
 
-            <td>
-              {{ item.descricao }}
-            </td>
+           <td>
+                {{ item.descricao }}
+              </td>
 
-            <td>
-              <span
-                class="badge"
-                [style.background]="item.tipo === 'RECEITA' ? '#d1fae5' : '#fee2e2'"
-                [style.color]="item.tipo === 'RECEITA' ? '#065f46' : '#991b1b'"
+              <td>
+                {{ item.conta?.banco || 'Sem conta' }}
+              </td>
+
+              <td>
+                <span
+                  class="badge"
+                  [style.background]="item.tipo === 'RECEITA' ? '#d1fae5' : '#fee2e2'"
+                  [style.color]="item.tipo === 'RECEITA' ? '#065f46' : '#991b1b'"
+                >
+                  {{ item.tipo }}
+                </span>
+              </td>
+
+                          <td
+                [style.color]="item.tipo === 'RECEITA' ? '#409687' : '#ef4444'"
+                style="font-weight: bold;"
               >
-                {{ item.tipo }}
-              </span>
-            </td>
-
-            <td
-              [style.color]="item.tipo === 'RECEITA' ? '#409687' : '#ef4444'"
-              style="font-weight: bold;"
-            >
-              {{ item.valor | currency:'BRL' }}
-            </td>
+                {{ item.tipo === 'RECEITA' ? '+' : '-' }}
+                {{ item.valor < 0 ? (item.valor * -1 | currency:'BRL') : (item.valor | currency:'BRL') }}
+              </td>
 
           </tr>
 
           <tr *ngIf="listaTransacoes.length === 0">
             <td
-              colspan="4"
+              colspan="5"
               class="empty-row"
             >
               Nenhuma transação encontrada.
