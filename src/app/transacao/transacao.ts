@@ -40,12 +40,13 @@ export class Transacao implements OnInit {
 
   usuarioCompleto: any = {};
 
+contasBancarias: any[] = [];
+categorias: any[] = [];
 
-  contasBancarias: any[] = [];
+listaTransacoes: any[] = [];
+listaTransacoesFiltradas: any[] = [];
 
-  categorias: any[] = [];
-
-  listaTransacoes: any[] = [];
+filtroTipo: string = 'TODOS';
 
 
 
@@ -153,12 +154,13 @@ export class Transacao implements OnInit {
 
   }
 
- carregarTransacoes(): void {
+carregarTransacoes(): void {
   this.http.get<any[]>(
     `http://localhost:8080/api/transacoes/usuario/${this.usuarioId}`
   ).subscribe({
     next: (res) => {
       this.listaTransacoes = res;
+      this.aplicarFiltroTipo();
       this.cdr.detectChanges();
     },
     error: (err) => {
@@ -166,7 +168,21 @@ export class Transacao implements OnInit {
     }
   });
 }
+alterarFiltroTipo(tipo: string): void {
+  this.filtroTipo = tipo;
+  this.aplicarFiltroTipo();
+}
 
+aplicarFiltroTipo(): void {
+  if (this.filtroTipo === 'TODOS') {
+    this.listaTransacoesFiltradas = this.listaTransacoes;
+    return;
+  }
+
+  this.listaTransacoesFiltradas = this.listaTransacoes.filter(
+    item => item.tipo === this.filtroTipo
+  );
+}
 
  salvarTransacao(): void {
   if (!this.dadosForm.contaId) {

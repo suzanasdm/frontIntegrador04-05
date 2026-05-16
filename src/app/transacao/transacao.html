@@ -170,6 +170,7 @@
   <main class="main-content">
 
 
+
     <h1 class="page-title">
       Transações
     </h1>
@@ -225,13 +226,41 @@
 
     <div class="table-card">
 
+
       <h2 class="table-title">
         Transações Importadas
       </h2>
+<div class="toggle-group">
+      <button
+        type="button"
+        class="toggle-btn"
+        [class.active]="filtroTipo === 'TODOS'"
+        (click)="alterarFiltroTipo('TODOS')"
+      >
+        Todos
+      </button>
 
+      <button
+        type="button"
+        class="toggle-btn"
+        [class.active]="filtroTipo === 'RECEITA'"
+        (click)="alterarFiltroTipo('RECEITA')"
+      >
+        Receitas
+      </button>
+
+      <button
+        type="button"
+        class="toggle-btn"
+        [class.active]="filtroTipo === 'DESPESA'"
+        (click)="alterarFiltroTipo('DESPESA')"
+      >
+        Despesas
+      </button>
+    </div>
       <table class="data-table">
 
-              <thead>
+        <thead>
           <tr>
             <th>Data</th>
             <th>Descrição</th>
@@ -243,41 +272,41 @@
 
         <tbody>
 
-          <tr *ngFor="let item of listaTransacoes">
+          <tr *ngFor="let item of listaTransacoesFiltradas">
 
             <td>
               {{ item.data | date:'dd/MM/yyyy' }}
             </td>
 
-           <td>
-                {{ item.descricao }}
-              </td>
+            <td>
+              {{ item.descricao }}
+            </td>
 
-              <td>
-                {{ item.conta?.banco || 'Sem conta' }}
-              </td>
+            <td>
+              {{ item.conta?.banco || 'Sem conta' }}
+            </td>
 
-              <td>
-                <span
-                  class="badge"
-                  [style.background]="item.tipo === 'RECEITA' ? '#d1fae5' : '#fee2e2'"
-                  [style.color]="item.tipo === 'RECEITA' ? '#065f46' : '#991b1b'"
-                >
-                  {{ item.tipo }}
-                </span>
-              </td>
-
-                          <td
-                [style.color]="item.tipo === 'RECEITA' ? '#409687' : '#ef4444'"
-                style="font-weight: bold;"
+            <td>
+              <span
+                class="badge"
+                [style.background]="item.tipo === 'RECEITA' ? '#d1fae5' : '#fee2e2'"
+                [style.color]="item.tipo === 'RECEITA' ? '#065f46' : '#991b1b'"
               >
-                {{ item.tipo === 'RECEITA' ? '+' : '-' }}
-                {{ item.valor < 0 ? (item.valor * -1 | currency:'BRL') : (item.valor | currency:'BRL') }}
-              </td>
+                {{ item.tipo }}
+              </span>
+            </td>
+
+            <td
+              [style.color]="item.tipo === 'RECEITA' ? '#409687' : '#ef4444'"
+              style="font-weight: bold;"
+            >
+              {{ item.tipo === 'RECEITA' ? '+' : '-' }}
+              {{ item.valor < 0 ? (item.valor * -1 | currency:'BRL') : (item.valor | currency:'BRL') }}
+            </td>
 
           </tr>
 
-          <tr *ngIf="listaTransacoes.length === 0">
+          <tr *ngIf="listaTransacoesFiltradas.length === 0">
             <td
               colspan="5"
               class="empty-row"
