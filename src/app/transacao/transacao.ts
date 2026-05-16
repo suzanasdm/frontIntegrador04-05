@@ -90,9 +90,6 @@ export class Transacao implements OnInit {
 
   }
 
-  // =========================
-  // SIDEBAR
-  // =========================
 
   toggleSidebar(): void {
 
@@ -101,10 +98,6 @@ export class Transacao implements OnInit {
     this.cdr.detectChanges();
 
   }
-
-  // =========================
-  // CARREGAR DADOS
-  // =========================
 
   carregarDados(): void {
 
@@ -162,7 +155,7 @@ export class Transacao implements OnInit {
 
  carregarTransacoes(): void {
   this.http.get<any[]>(
-    'http://localhost:8080/api/transacoes'
+    `http://localhost:8080/api/transacoes/usuario/${this.usuarioId}`
   ).subscribe({
     next: (res) => {
       this.listaTransacoes = res;
@@ -196,7 +189,7 @@ export class Transacao implements OnInit {
 
   console.log('Dados enviados para transação:', payload);
 
-  this.http.post('http://localhost:8080/api/transacoes', payload).subscribe({
+  this.http.post(`http://localhost:8080/api/transacoes/usuario/${this.usuarioId}`, payload).subscribe({
     next: () => {
       alert('Transação salva!');
 
@@ -240,6 +233,11 @@ importarOFX(): void {
   formData.append(
     'contaId',
     this.dadosForm.contaId.toString()
+  );
+
+  formData.append(
+    'usuarioId',
+    this.usuarioId.toString()
   );
 
   this.http.post('http://localhost:8080/api/ofx/upload', formData, {
