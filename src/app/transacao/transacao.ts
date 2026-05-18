@@ -32,9 +32,7 @@ export class Transacao implements OnInit {
 
   private cdr = inject(ChangeDetectorRef);
 
-  // =========================
-  // USUÁRIO
-  // =========================
+
 
   usuarioId: number = 0;
 
@@ -42,27 +40,19 @@ export class Transacao implements OnInit {
 
   usuarioCompleto: any = {};
 
-  // =========================
-  // LISTAS
-  // =========================
+contasBancarias: any[] = [];
+categorias: any[] = [];
 
-  contasBancarias: any[] = [];
+listaTransacoes: any[] = [];
+listaTransacoesFiltradas: any[] = [];
 
-  categorias: any[] = [];
+filtroTipo: string = 'TODOS';
 
-  listaTransacoes: any[] = [];
 
-  // =========================
-  // UI
-  // =========================
 
   exibirSidebar: boolean = false;
 
   arquivoOFX!: File;
-
-  // =========================
-  // FORM
-  // =========================
 
   dadosForm = {
     descricao: '',
@@ -73,9 +63,6 @@ export class Transacao implements OnInit {
     tipo: 'DESPESA'
   };
 
-  // =========================
-  // INIT
-  // =========================
 
   ngOnInit(): void {
 
@@ -104,9 +91,6 @@ export class Transacao implements OnInit {
 
   }
 
-  // =========================
-  // SIDEBAR
-  // =========================
 
   toggleSidebar(): void {
 
@@ -115,10 +99,6 @@ export class Transacao implements OnInit {
     this.cdr.detectChanges();
 
   }
-
-  // =========================
-  // CARREGAR DADOS
-  // =========================
 
   carregarDados(): void {
 
@@ -174,148 +154,128 @@ export class Transacao implements OnInit {
 
   }
 
-  carregarTransacoes(): void {
-
-    this.http.get<any[]>(
-      `http://localhost:8080/transacao`
-    ).subscribe({
-
-      next: (res) => {
-
-        this.listaTransacoes = res;
-
-        this.cdr.detectChanges();
-
-      },
-
-      error: (err) => {
-        console.error(err);
-      }
-
-    });
-
-  }
-
-  // =========================
-  // SALVAR
-  // =========================
-
-  salvarTransacao(): void {
-
-    if (!this.dadosForm.contaId) {
-
-      alert('Selecione uma conta');
-
-      return;
-
+carregarTransacoes(): void {
+  this.http.get<any[]>(
+    `http://localhost:8080/api/transacoes/usuario/${this.usuarioId}`
+  ).subscribe({
+    next: (res) => {
+      this.listaTransacoes = res;
+      this.aplicarFiltroTipo();
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      console.error('Erro ao carregar transações:', err);
     }
+  });
+}
+alterarFiltroTipo(tipo: string): void {
+  this.filtroTipo = tipo;
+  this.aplicarFiltroTipo();
+}
 
-    const payload = {
-
-      ...this.dadosForm,
-
-      categoriaId: Number(
-        this.dadosForm.categoriaId
-      ),
-
-      contaId: Number(
-        this.dadosForm.contaId
-      )
-
-    };
-
-    this.http.post(
-      'http://localhost:8080/transacao',
-      payload
-    ).subscribe({
-
-      next: () => {
-
-        alert('Transação salva!');
-
-        this.carregarTransacoes();
-
-        this.carregarContas();
-
-        this.resetarFormulario();
-
-      },
-
-      error: (err) => {
-        console.error(err);
-      }
-
-    });
-
+aplicarFiltroTipo(): void {
+  if (this.filtroTipo === 'TODOS') {
+    this.listaTransacoesFiltradas = this.listaTransacoes;
+    return;
   }
 
-  // =========================
-  // OFX
-  // =========================
+  this.listaTransacoesFiltradas = this.listaTransacoes.filter(
+    item => item.tipo === this.filtroTipo
+  );
+}
 
-  selecionarArquivo(event: any): void {
-
-    this.arquivoOFX =
-      event.target.files[0];
-
+ salvarTransacao(): void {
+  if (!this.dadosForm.contaId) {
+    alert('Selecione uma conta');
+    return;
   }
 
-  importarOFX(): void {
+  if (!this.dadosForm.categoriaId) {
+    alert('Selecione uma categoria');
+    return;
+  }
 
-    if (!this.arquivoOFX) {
+  const payload = {
+    descricao: this.dadosForm.descricao,
+    valor: Number(this.dadosForm.valor),
+    data: this.dadosForm.data + 'T00:00:00',
+    categoriaId: Number(this.dadosForm.categoriaId),
+    contaId: Number(this.dadosForm.contaId)
+  };
 
-      alert('Selecione um arquivo OFX');
+  console.log('Dados enviados para transação:', payload);
 
-      return;
+  this.http.post(`http://localhost:8080/api/transacoes/usuario/${this.usuarioId}`, payload).subscribe({
+    next: () => {
+      alert('Transação salva!');
 
+      this.carregarTransacoes();
+      this.carregarContas();
+      this.resetarFormulario();
+    },
+    error: (err) => {
+      console.error('Erro ao salvar transação:', err);
+      console.error('Status:', err.status);
+      console.error('Mensagem:', err.error);
+
+      alert(err.error || 'Erro ao salvar transação.');
     }
+  });
+}
 
-    if (!this.dadosForm.contaId) {
+ selecionarArquivo(event: any): void {
+  const arquivoSelecionado = event.target.files[0];
 
-      alert('Selecione uma conta');
+  if (arquivoSelecionado) {
+    this.arquivoOFX = arquivoSelecionado;
+  }
+}
 
-      return;
-
-    }
-
-    const formData = new FormData();
-
-    formData.append(
-      'file',
-      this.arquivoOFX
-    );
-
-    formData.append(
-      'contaId',
-      this.dadosForm.contaId
-    );
-
-    this.http.post(
-      'http://localhost:8080/ofx/upload',
-      formData
-    ).subscribe({
-
-      next: () => {
-
-        alert('OFX importado com sucesso!');
-
-        this.carregarTransacoes();
-
-        this.carregarContas();
-
-      },
-
-      error: (err) => {
-        console.error(err);
-      }
-
-    });
-
+importarOFX(): void {
+  if (!this.arquivoOFX) {
+    alert('Selecione um arquivo OFX.');
+    return;
   }
 
-  // =========================
-  // RESET
-  // =========================
+  if (!this.dadosForm.contaId) {
+    alert('Selecione uma conta bancária antes de importar o OFX.');
+    return;
+  }
+
+  const formData = new FormData();
+
+  formData.append('file', this.arquivoOFX);
+
+  formData.append(
+    'contaId',
+    this.dadosForm.contaId.toString()
+  );
+
+  formData.append(
+    'usuarioId',
+    this.usuarioId.toString()
+  );
+
+  this.http.post('http://localhost:8080/api/ofx/upload', formData, {
+    responseType: 'text'
+  }).subscribe({
+    next: (res) => {
+      console.log('OFX importado:', res);
+      alert(res);
+
+      this.carregarTransacoes();
+      this.carregarContas();
+
+      this.arquivoOFX = undefined as any;
+      this.dadosForm.contaId = '';
+    },
+    error: (err) => {
+      console.error('Erro ao importar OFX:', err);
+      alert(err.error || 'Erro ao importar OFX.');
+    }
+  });
+}
+
 
   resetarFormulario(): void {
 
@@ -341,9 +301,6 @@ export class Transacao implements OnInit {
 
   }
 
-  // =========================
-  // LOGOUT
-  // =========================
 
   logout(): void {
 

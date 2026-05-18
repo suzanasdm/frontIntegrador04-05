@@ -33,12 +33,12 @@ export class Receita implements OnInit {
   novaCategoriaNome: string = '';
 
   // LOGICA DE FORMULÁRIO
-  dadosForm = { 
-    descricao: '', 
-    valor: 0, 
-    data: new Date().toISOString().split('T')[0], 
+  dadosForm = {
+    descricao: '',
+    valor: 0,
+    data: new Date().toISOString().split('T')[0],
     categoriaId: '',
-    contaId: '' 
+    contaId: ''
   };
 
   ngOnInit(): void {
@@ -80,12 +80,17 @@ export class Receita implements OnInit {
   }
 
   carregarCategorias() {
-    this.http.get<any[]>(`http://localhost:8080/api/categorias/usuario/${this.usuarioId}`)
-      .subscribe(res => {
+  this.http.get<any[]>(`http://localhost:8080/api/categorias/usuario/${this.usuarioId}/tipo/RECEITA`)
+    .subscribe({
+      next: (res) => {
         this.categorias = res;
         this.cdr.detectChanges();
-      });
-  }
+      },
+      error: (err) => {
+        console.error('Erro ao carregar categorias de receita:', err);
+      }
+    });
+}
 
   carregarReceitas() {
     this.http.get<any[]>(`http://localhost:8080/api/receitas/usuario/${this.usuarioId}`)
@@ -96,16 +101,22 @@ export class Receita implements OnInit {
   }
 
   salvarCategoria() {
-    if (!this.novaCategoriaNome) return;
-    const payload = { nome: this.novaCategoriaNome, usuarioId: this.usuarioId };
-    this.http.post('http://localhost:8080/api/categorias', payload).subscribe((res: any) => {
-      this.categorias.push(res);
-      this.dadosForm.categoriaId = res.id;
-      this.novaCategoriaNome = '';
-      this.exibirInputCategoria = false;
-      this.cdr.detectChanges();
-    });
-  }
+  if (!this.novaCategoriaNome) return;
+
+  const payload = {
+    nome: this.novaCategoriaNome,
+    tipo: 'RECEITA',
+    usuarioId: this.usuarioId
+  };
+
+  this.http.post('http://localhost:8080/api/categorias', payload).subscribe((res: any) => {
+    this.categorias.push(res);
+    this.dadosForm.categoriaId = res.id;
+    this.novaCategoriaNome = '';
+    this.exibirInputCategoria = false;
+    this.cdr.detectChanges();
+  });
+}
 
   salvarReceita() {
     if (!this.dadosForm.contaId) {
@@ -113,13 +124,13 @@ export class Receita implements OnInit {
       return;
     }
 
-    const payload = { 
-      ...this.dadosForm, 
+    const payload = {
+      ...this.dadosForm,
       usuarioId: this.usuarioId,
       categoriaId: Number(this.dadosForm.categoriaId),
       contaId: Number(this.dadosForm.contaId)
     };
-    
+
     this.http.post('http://localhost:8080/api/receitas', payload).subscribe({
       next: () => {
         alert('Receita registrada e saldo atualizado!');
@@ -132,12 +143,12 @@ export class Receita implements OnInit {
   }
 
   resetarFormulario() {
-    this.dadosForm = { 
-      descricao: '', 
-      valor: 0, 
-      data: new Date().toISOString().split('T')[0], 
+    this.dadosForm = {
+      descricao: '',
+      valor: 0,
+      data: new Date().toISOString().split('T')[0],
       categoriaId: '',
-      contaId: '' 
+      contaId: ''
     };
     this.cdr.detectChanges();
   }
