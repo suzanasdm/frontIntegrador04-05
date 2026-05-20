@@ -1,6 +1,8 @@
 <div class="page-wrapper">
 
+
   <aside class="sidebar" [class.active]="exibirSidebar">
+
 
     <div class="sidebar-header">
       <img
@@ -8,6 +10,7 @@
         alt="Logo"
         class="sidebar-logo"
       >
+
 
       <button
         class="btn-close-sidebar"
@@ -17,30 +20,37 @@
       </button>
     </div>
 
+
     <div class="sidebar-profile">
       <div class="user-avatar">
         {{ usuarioNome.charAt(0) }}
       </div>
 
+
       <p class="greeting">
         Bem-vindo,
       </p>
 
+
       <h3>
         {{ usuarioNome }}
       </h3>
+
 
       <p class="user-mail">
         {{ usuarioCompleto.email }}
       </p>
     </div>
 
+
     <hr class="sidebar-divider">
+
 
     <div class="sidebar-accounts">
       <h4>
         Minhas Contas
       </h4>
+
 
       <div
         class="acc-card"
@@ -50,14 +60,17 @@
           {{ conta.banco }}
         </span>
 
+
         <span class="acc-info">
           Ag: {{ conta.agencia }} | C: {{ conta.numeroConta }}
         </span>
+
 
         <span class="acc-value">
           {{ conta.saldo | currency:'BRL' }}
         </span>
       </div>
+
 
       <p
         *ngIf="contasBancarias.length === 0"
@@ -67,6 +80,7 @@
       </p>
     </div>
 
+
     <button
       class="logout-btn-sidebar"
       (click)="logout()"
@@ -74,7 +88,9 @@
       Sair da Conta
     </button>
 
+
   </aside>
+
 
   <div
     class="sidebar-overlay"
@@ -82,7 +98,9 @@
     (click)="toggleSidebar()"
   ></div>
 
+
   <header class="main-header">
+
 
     <div class="logo">
       <img
@@ -92,7 +110,9 @@
       >
     </div>
 
+
     <nav class="nav-menu">
+
 
       <a
         routerLink="/dashboard"
@@ -102,6 +122,7 @@
         Dashboard
       </a>
 
+
       <a
         routerLink="/receitas"
         routerLinkActive="active"
@@ -109,6 +130,7 @@
       >
         Receita
       </a>
+
 
       <a
         routerLink="/despesas"
@@ -118,6 +140,7 @@
         Despesa
       </a>
 
+
       <a
         routerLink="/orcamentos"
         routerLinkActive="active"
@@ -125,6 +148,7 @@
       >
         Orçamentos
       </a>
+
 
       <a
         routerLink="/relatorios"
@@ -134,6 +158,7 @@
         Relatórios
       </a>
 
+
       <a
         routerLink="/contasbancarias"
         routerLinkActive="active"
@@ -141,6 +166,7 @@
       >
         Contas Bancárias
       </a>
+
 
       <a
         routerLink="/transacao"
@@ -150,7 +176,9 @@
         Transações
       </a>
 
+
     </nav>
+
 
     <div class="header-actions">
       <button
@@ -160,14 +188,20 @@
         Sair
       </button>
 
+
       <button class="btn-signup">
         Cadastrar
       </button>
     </div>
 
+
   </header>
 
+
   <main class="main-content">
+
+
+
 
 
 
@@ -175,20 +209,25 @@
       Transações
     </h1>
 
+
     <div class="form-card">
 
+
       <div class="form-grid">
+
 
         <div class="form-field">
           <label>
             Conta Bancária
           </label>
 
+
           <div class="cat-wrapper">
             <select [(ngModel)]="dadosForm.contaId">
               <option value="" disabled selected>
                 Selecione a conta
               </option>
+
 
               <option
                 *ngFor="let conta of contasBancarias"
@@ -200,10 +239,12 @@
           </div>
         </div>
 
+
         <div class="form-field">
           <label>
             Arquivo OFX
           </label>
+
 
           <input
             type="file"
@@ -212,7 +253,9 @@
           >
         </div>
 
+
       </div>
+
 
       <button
         type="button"
@@ -222,9 +265,13 @@
         Importar OFX
       </button>
 
+
     </div>
 
+
     <div class="table-card">
+
+
 
 
       <h2 class="table-title">
@@ -240,6 +287,7 @@
         Todos
       </button>
 
+
       <button
         type="button"
         class="toggle-btn"
@@ -248,6 +296,7 @@
       >
         Receitas
       </button>
+
 
       <button
         type="button"
@@ -260,6 +309,7 @@
     </div>
       <table class="data-table">
 
+
         <thead>
           <tr>
             <th>Data</th>
@@ -270,21 +320,27 @@
           </tr>
         </thead>
 
+
         <tbody>
 
+
           <tr *ngFor="let item of listaTransacoesFiltradas">
+
 
             <td>
               {{ item.data | date:'dd/MM/yyyy' }}
             </td>
 
+
             <td>
               {{ item.descricao }}
             </td>
 
+
             <td>
               {{ item.conta?.banco || 'Sem conta' }}
             </td>
+
 
             <td>
               <span
@@ -296,6 +352,7 @@
               </span>
             </td>
 
+
             <td
               [style.color]="item.tipo === 'RECEITA' ? '#409687' : '#ef4444'"
               style="font-weight: bold;"
@@ -304,7 +361,9 @@
               {{ item.valor < 0 ? (item.valor * -1 | currency:'BRL') : (item.valor | currency:'BRL') }}
             </td>
 
+
           </tr>
+
 
           <tr *ngIf="listaTransacoesFiltradas.length === 0">
             <td
@@ -315,12 +374,20 @@
             </td>
           </tr>
 
+
         </tbody>
+
 
       </table>
 
+
     </div>
+
 
   </main>
 
+
 </div>
+
+
+
