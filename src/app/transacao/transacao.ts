@@ -156,7 +156,7 @@ filtroTipo: string = 'TODOS';
 
 carregarTransacoes(): void {
   this.http.get<any[]>(
-    `http://localhost:8080/api/transacoes/usuario/${this.usuarioId}`
+    `http://localhost:8080/api/movimentacoes/usuario/${this.usuarioId}`
   ).subscribe({
     next: (res) => {
       this.listaTransacoes = res;
@@ -164,7 +164,7 @@ carregarTransacoes(): void {
       this.cdr.detectChanges();
     },
     error: (err) => {
-      console.error('Erro ao carregar transações:', err);
+      console.error('Erro ao carregar movimentações:', err);
     }
   });
 }
