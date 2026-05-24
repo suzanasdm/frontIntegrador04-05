@@ -351,9 +351,15 @@ importarOFX(): void {
       this.dadosForm.contaId = '';
     },
     error: (err) => {
-      console.error('Erro ao importar OFX:', err);
-      alert(err.error || 'Erro ao importar OFX.');
-    }
+  console.error('Erro ao importar OFX:', err);
+
+  const mensagem =
+    err.error?.message ||
+    err.error ||
+    'Erro ao importar OFX.';
+
+  alert(mensagem);
+}
   });
 }
 

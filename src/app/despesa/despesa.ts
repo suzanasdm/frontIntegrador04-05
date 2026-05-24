@@ -102,6 +102,30 @@ export class Despesa implements OnInit {
   salvarCategoria() {
   if (!this.novaCategoriaNome) return;
 
+   if (!this.dadosForm.descricao.trim()) {
+  alert('Informe a descrição da despesa.');
+  return;
+}
+
+if (!this.dadosForm.valor || Number(this.dadosForm.valor) <= 0) {
+  alert('Informe um valor maior que zero.');
+  return;
+}
+
+if (!this.dadosForm.data) {
+  alert('Informe a data da despesa.');
+  return;
+}
+
+if (!this.dadosForm.categoriaId) {
+  alert('Selecione uma categoria.');
+  return;
+}
+
+if (!this.dadosForm.contaId) {
+  alert('Selecione uma conta bancária.');
+  return;
+}
   const payload = {
     nome: this.novaCategoriaNome,
     tipo: 'DESPESA',
@@ -138,7 +162,10 @@ export class Despesa implements OnInit {
         this.carregarContas();
         this.resetarFormulario();
       },
-      error: (err) => console.error('Erro ao salvar despesa', err)
+      error: (err) => {
+  console.error('Erro ao salvar despesa', err);
+  alert(err.error?.message || 'Erro ao salvar despesa.');
+}
     });
   }
 
