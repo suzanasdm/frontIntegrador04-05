@@ -124,6 +124,31 @@ export class Receita implements OnInit {
       return;
     }
 
+      if (!this.dadosForm.descricao.trim()) {
+  alert('Informe a descrição da receita.');
+  return;
+}
+
+if (!this.dadosForm.valor || Number(this.dadosForm.valor) <= 0) {
+  alert('Informe um valor maior que zero.');
+  return;
+}
+
+if (!this.dadosForm.data) {
+  alert('Informe a data da receita.');
+  return;
+}
+
+if (!this.dadosForm.categoriaId) {
+  alert('Selecione uma categoria.');
+  return;
+}
+
+if (!this.dadosForm.contaId) {
+  alert('Selecione uma conta bancária.');
+  return;
+}
+
     const payload = {
       ...this.dadosForm,
       usuarioId: this.usuarioId,
@@ -138,7 +163,10 @@ export class Receita implements OnInit {
         this.carregarContas();   // Dispara o carregar que já tem o detectChanges
         this.resetarFormulario();
       },
-      error: (err) => console.error('Erro ao salvar receita', err)
+      error: (err) => {
+  console.error('Erro ao salvar receita', err);
+  alert(err.error?.message || 'Erro ao salvar receita.');
+}
     });
   }
 
