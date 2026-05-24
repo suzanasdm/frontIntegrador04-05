@@ -6,6 +6,7 @@ import { Despesa } from './despesa/despesa';
 import { Cadastro } from './cadastro/cadastro';
 import { Contabancaria } from './contabancaria/contabancaria';
 import { Transacao } from './transacao/transacao';
+import { FluxoCaixa } from './fluxo-caixa/fluxo-caixa';
 
 export const routes: Routes = [
     {path: '', redirectTo: 'login', pathMatch: 'full'},
@@ -15,5 +16,7 @@ export const routes: Routes = [
     {path: 'dashboard', component: Dashboard },
     {path: 'receitas',component: Receita},
     {path: 'despesas', component: Despesa},
-    {path: 'transacoes', component: Transacao}
+    {path: 'transacoes', component: Transacao},
+    {path: 'fluxo-caixa', component: FluxoCaixa}
+
 ];
