@@ -364,6 +364,8 @@
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
+  min-width: 980px;
+
 }
 
 .data-table th {
@@ -477,4 +479,72 @@
   .data-table {
     min-width: 760px;
   }
+}
+.acoes {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-editar,
+.btn-excluir {
+  border: none;
+  padding: 7px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-editar {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.btn-excluir {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.edit-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 1000px;
+  margin: 0 auto 32px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.edit-title {
+  font-size: 24px;
+  margin-bottom: 24px;
+  color: #333;
+}
+
+.edit-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.btn-salvar-edicao {
+  background: #409687;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-cancelar-edicao {
+  background: white;
+  color: #555;
+  border: 1px solid #ddd;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
 }

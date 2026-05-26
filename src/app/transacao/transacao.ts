@@ -59,13 +59,22 @@ categorias: any[] = [];
 listaTransacoes: any[] = [];
 listaTransacoesFiltradas: any[] = [];
 
+itemEditando: any = null;
+
+categoriasEdicao: any[] = [];
+
+formEdicao = {
+  id: null as number | null,
+  origem: '',
+  descricao: '',
+  valor: 0,
+  data: '',
+  tipo: '',
+  categoriaId: '',
+  contaId: ''
+};
 
 filtroTipo: string = 'TODOS';
-
-
-
-
-
 
   exibirSidebar: boolean = false;
 
@@ -137,7 +146,186 @@ filtroTipo: string = 'TODOS';
 
   }
 
+abrirEdicao(item: any): void {
+  this.itemEditando = item;
 
+  this.formEdicao = {
+    id: item.id,
+    origem: item.origem,
+    descricao: item.descricao,
+    valor: item.valor,
+    data: item.data ? item.data.substring(0, 10) : '',
+    tipo: item.tipo,
+    categoriaId: item.categoriaId || '',
+    contaId: item.contaId || ''
+  };
+
+  this.carregarCategoriasPorTipoEdicao();
+}
+
+carregarCategoriasPorTipoEdicao(): void {
+  if (!this.formEdicao.tipo) {
+    this.categoriasEdicao = [];
+    return;
+  }
+
+  this.http.get<any[]>(
+    `http://localhost:8080/api/categorias/usuario/${this.usuarioId}/tipo/${this.formEdicao.tipo}`
+  ).subscribe({
+    next: (res) => {
+      this.categoriasEdicao = res;
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      console.error('Erro ao carregar categorias da edição:', err);
+    }
+  });
+}
+cancelarEdicao(): void {
+  this.itemEditando = null;
+
+  this.formEdicao = {
+    id: null,
+    origem: '',
+    descricao: '',
+    valor: 0,
+    data: '',
+    tipo: '',
+    categoriaId: '',
+    contaId: ''
+  };
+
+  this.categoriasEdicao = [];
+}
+salvarEdicao(): void {
+  if (!this.formEdicao.id) {
+    alert('Nenhum item selecionado para edição.');
+    return;
+  }
+
+  if (!this.formEdicao.descricao.trim()) {
+    alert('Informe a descrição.');
+    return;
+  }
+
+  if (!this.formEdicao.tipo) {
+    alert('Informe o tipo.');
+    return;
+  }
+
+  if (this.formEdicao.origem !== 'OFX') {
+    if (!this.formEdicao.valor || Number(this.formEdicao.valor) <= 0) {
+      alert('Informe um valor maior que zero.');
+      return;
+    }
+
+    if (!this.formEdicao.data) {
+      alert('Informe a data.');
+      return;
+    }
+
+    if (!this.formEdicao.categoriaId) {
+      alert('Selecione uma categoria.');
+      return;
+    }
+
+    if (!this.formEdicao.contaId) {
+      alert('Selecione uma conta bancária.');
+      return;
+    }
+  }
+
+  if (this.formEdicao.origem === 'OFX') {
+    this.salvarEdicaoOFX();
+    return;
+  }
+
+  if (this.itemEditando.tipo === 'RECEITA') {
+    this.salvarEdicaoReceita();
+    return;
+  }
+
+  if (this.itemEditando.tipo === 'DESPESA') {
+    this.salvarEdicaoDespesa();
+    return;
+  }
+}
+salvarEdicaoOFX(): void {
+  const payload = {
+    descricao: this.formEdicao.descricao,
+    tipo: this.formEdicao.tipo,
+    categoriaId: this.formEdicao.categoriaId ? Number(this.formEdicao.categoriaId) : null,
+    usuarioId: this.usuarioId
+  };
+
+  this.http.put(
+    `http://localhost:8080/api/transacoes/${this.formEdicao.id}`,
+    payload
+  ).subscribe({
+    next: () => {
+      alert('Transação OFX atualizada com sucesso.');
+      this.cancelarEdicao();
+      this.carregarTransacoes();
+    },
+    error: (err) => {
+      console.error('Erro ao editar transação OFX:', err);
+      alert(err.error?.message || 'Erro ao editar transação OFX.');
+    }
+  });
+}
+
+salvarEdicaoReceita(): void {
+  const payload = {
+    descricao: this.formEdicao.descricao,
+    valor: Number(this.formEdicao.valor),
+    data: this.formEdicao.data,
+    usuarioId: this.usuarioId,
+    categoriaId: Number(this.formEdicao.categoriaId),
+    contaId: Number(this.formEdicao.contaId)
+  };
+
+  this.http.put(
+    `http://localhost:8080/api/receitas/${this.formEdicao.id}`,
+    payload
+  ).subscribe({
+    next: () => {
+      alert('Receita atualizada com sucesso.');
+      this.cancelarEdicao();
+      this.carregarTransacoes();
+      this.carregarContas();
+    },
+    error: (err) => {
+      console.error('Erro ao editar receita:', err);
+      alert(err.error?.message || 'Erro ao editar receita.');
+    }
+  });
+}
+salvarEdicaoDespesa(): void {
+  const payload = {
+    descricao: this.formEdicao.descricao,
+    valor: Number(this.formEdicao.valor),
+    data: this.formEdicao.data,
+    usuarioId: this.usuarioId,
+    categoriaId: Number(this.formEdicao.categoriaId),
+    contaId: Number(this.formEdicao.contaId)
+  };
+
+  this.http.put(
+    `http://localhost:8080/api/despesas/${this.formEdicao.id}`,
+    payload
+  ).subscribe({
+    next: () => {
+      alert('Despesa atualizada com sucesso.');
+      this.cancelarEdicao();
+      this.carregarTransacoes();
+      this.carregarContas();
+    },
+    error: (err) => {
+      console.error('Erro ao editar despesa:', err);
+      alert(err.error?.message || 'Erro ao editar despesa.');
+    }
+  });
+}
   carregarDados(): void {
 
 
@@ -152,8 +340,76 @@ filtroTipo: string = 'TODOS';
 
   }
 
+excluirMovimentacao(item: any): void {
+  const confirmar = confirm(
+    `Deseja realmente excluir "${item.descricao}"?`
+  );
 
-  carregarContas(): void {
+  if (!confirmar) {
+    return;
+  }
+
+  if (item.origem === 'OFX') {
+    this.excluirOFX(item.id);
+    return;
+  }
+
+  if (item.tipo === 'RECEITA') {
+    this.excluirReceita(item.id);
+    return;
+  }
+
+  if (item.tipo === 'DESPESA') {
+    this.excluirDespesa(item.id);
+    return;
+  }
+}
+excluirOFX(id: number): void {
+  this.http.delete(
+    `http://localhost:8080/api/transacoes/${id}/usuario/${this.usuarioId}`
+  ).subscribe({
+    next: () => {
+      alert('Transação OFX excluída com sucesso.');
+      this.carregarTransacoes();
+    },
+    error: (err) => {
+      console.error('Erro ao excluir OFX:', err);
+      alert(err.error?.message || 'Erro ao excluir transação OFX.');
+    }
+  });
+}
+
+excluirReceita(id: number): void {
+  this.http.delete(
+    `http://localhost:8080/api/receitas/${id}/usuario/${this.usuarioId}`
+  ).subscribe({
+    next: () => {
+      alert('Receita excluída com sucesso.');
+      this.carregarTransacoes();
+      this.carregarContas();
+    },
+    error: (err) => {
+      console.error('Erro ao excluir receita:', err);
+      alert(err.error?.message || 'Erro ao excluir receita.');
+    }
+  });
+}
+
+excluirDespesa(id: number): void {
+  this.http.delete(
+    `http://localhost:8080/api/despesas/${id}/usuario/${this.usuarioId}`
+  ).subscribe({
+    next: () => {
+      alert('Despesa excluída com sucesso.');
+      this.carregarTransacoes();
+      this.carregarContas();
+    },
+    error: (err) => {
+      console.error('Erro ao excluir despesa:', err);
+      alert(err.error?.message || 'Erro ao excluir despesa.');
+    }
+  });
+}carregarContas(): void {
 
 
     this.http.get<any[]>(

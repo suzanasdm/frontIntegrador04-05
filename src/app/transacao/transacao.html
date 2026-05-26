@@ -267,7 +267,108 @@
 
 
     </div>
+    <div
+  class="edit-card"
+  *ngIf="itemEditando"
+>
 
+  <h2 class="edit-title">
+    Editar movimentação
+  </h2>
+
+  <div class="form-grid">
+
+    <div class="form-field">
+      <label>Descrição</label>
+      <input
+        type="text"
+        [(ngModel)]="formEdicao.descricao"
+        placeholder="Descrição"
+      >
+    </div>
+
+    <div class="form-field">
+      <label>Data</label>
+      <input
+        type="date"
+        [(ngModel)]="formEdicao.data"
+        [disabled]="formEdicao.origem === 'OFX'"
+      >
+    </div>
+
+    <div class="form-field">
+      <label>Valor</label>
+      <input
+        type="number"
+        [(ngModel)]="formEdicao.valor"
+        [disabled]="formEdicao.origem === 'OFX'"
+      >
+    </div>
+
+    <div class="form-field">
+      <label>Tipo</label>
+      <select
+        [(ngModel)]="formEdicao.tipo"
+        (change)="carregarCategoriasPorTipoEdicao()"
+      >
+        <option value="RECEITA">Receita</option>
+        <option value="DESPESA">Despesa</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label>Categoria</label>
+      <select [(ngModel)]="formEdicao.categoriaId">
+        <option value="">
+          Sem categoria
+        </option>
+
+        <option
+          *ngFor="let categoria of categoriasEdicao"
+          [value]="categoria.id"
+        >
+          {{ categoria.nome }}
+        </option>
+      </select>
+    </div>
+
+    <div class="form-field" *ngIf="formEdicao.origem !== 'OFX'">
+      <label>Conta bancária</label>
+      <select [(ngModel)]="formEdicao.contaId">
+        <option value="">
+          Selecione a conta
+        </option>
+
+        <option
+          *ngFor="let conta of contasBancarias"
+          [value]="conta.id"
+        >
+          {{ conta.banco }} - {{ conta.numeroConta }}
+        </option>
+      </select>
+    </div>
+
+  </div>
+
+  <div class="edit-actions">
+    <button
+      type="button"
+      class="btn-salvar-edicao"
+      (click)="salvarEdicao()"
+    >
+      Salvar alterações
+    </button>
+
+    <button
+      type="button"
+      class="btn-cancelar-edicao"
+      (click)="cancelarEdicao()"
+    >
+      Cancelar
+    </button>
+  </div>
+
+</div>
 
     <div class="table-card">
 
@@ -310,16 +411,17 @@
       <table class="data-table">
 
 
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Descrição</th>
-            <th>Conta</th>
-            <th>Tipo</th>
-            <th>Valor</th>
-          </tr>
-        </thead>
-
+     <thead>
+  <tr>
+    <th>Data</th>
+    <th>Descrição</th>
+    <th>Conta</th>
+    <th>Tipo</th>
+    <th>Origem</th>
+    <th>Valor</th>
+    <th>Ações</th>
+  </tr>
+</thead>
 
         <tbody>
 
@@ -358,15 +460,32 @@
             >
               {{ item.tipo === 'RECEITA' ? '+' : '-' }}
               {{ item.valor < 0 ? (item.valor * -1 | currency:'BRL') : (item.valor | currency:'BRL') }}
-            </td>
 
+            </td>
+              <td class="acoes">
+  <button
+    type="button"
+    class="btn-editar"
+    (click)="abrirEdicao(item)"
+  >
+    Editar
+  </button>
+
+  <button
+    type="button"
+    class="btn-excluir"
+    (click)="excluirMovimentacao(item)"
+  >
+    Excluir
+  </button>
+</td>
 
           </tr>
 
 
           <tr *ngIf="listaTransacoesFiltradas.length === 0">
             <td
-              colspan="5"
+              colspan="7"
               class="empty-row"
             >
               Nenhuma transação encontrada.
