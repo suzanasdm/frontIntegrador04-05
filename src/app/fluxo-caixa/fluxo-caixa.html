@@ -1,0 +1,312 @@
+<div class="page-wrapper">
+
+  <aside class="sidebar" [class.active]="exibirSidebar">
+
+    <div class="sidebar-header">
+      <img
+        src="https://i.postimg.cc/Gt0P8dwD/unnamed.png"
+        alt="Logo"
+        class="sidebar-logo"
+      >
+
+      <button
+        class="btn-close-sidebar"
+        (click)="toggleSidebar()"
+      >
+        ✕
+      </button>
+    </div>
+
+    <div class="sidebar-profile">
+      <div class="user-avatar">
+        {{ usuarioNome.charAt(0) }}
+      </div>
+
+      <p class="greeting">
+        Bem-vindo,</p>
+
+      <h3>{{ usuarioNome }}</h3>
+
+      <p class="user-mail">
+        {{ usuarioCompleto.email }}
+      </p>
+    </div>
+
+    <hr class="sidebar-divider">
+
+    <div class="sidebar-accounts">
+      <h4>Minhas Contas</h4>
+
+      <div
+        class="acc-card"
+        *ngFor="let conta of contasBancarias"
+      >
+        <span class="bank-name">
+          {{ conta.banco }}
+        </span>
+
+        <span class="acc-info">
+          Ag: {{ conta.agencia }} | C: {{ conta.numeroConta }}
+        </span>
+
+        <span class="acc-value">
+          {{ conta.saldo | currency:'BRL' }}
+        </span>
+      </div>
+
+      <p
+        *ngIf="contasBancarias.length === 0"
+        class="empty-msg"
+      >
+        Nenhuma conta cadastrada.
+      </p>
+    </div>
+
+    <button
+      class="logout-btn-sidebar"
+      (click)="logout()"
+    >
+      Sair da Conta
+    </button>
+
+  </aside>
+
+  <div
+    class="sidebar-overlay"
+    *ngIf="exibirSidebar"
+    (click)="toggleSidebar()"
+  ></div>
+
+  <header class="main-header">
+
+    <div class="logo">
+      <img
+        src="https://i.postimg.cc/Gt0P8dwD/unnamed.png"
+        alt="CyberSoft"
+        (click)="toggleSidebar()"
+      >
+    </div>
+
+    <nav class="nav-menu">
+
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-card">
+        Dashboard
+      </a>
+
+      <a routerLink="/receitas" routerLinkActive="active" class="nav-card">
+        Receita
+      </a>
+
+      <a routerLink="/despesas" routerLinkActive="active" class="nav-card">
+        Despesa
+      </a>
+
+      <a routerLink="/fluxo-caixa" routerLinkActive="active" class="nav-card">
+        Fluxo de Caixa
+      </a>
+
+      <a routerLink="/orcamentos" routerLinkActive="active" class="nav-card">
+        Orçamentos
+      </a>
+
+      <a routerLink="/relatorios" routerLinkActive="active" class="nav-card">
+        Relatórios
+      </a>
+
+      <a routerLink="/contasbancarias" routerLinkActive="active" class="nav-card">
+        Contas Bancárias
+      </a>
+
+      <a routerLink="/transacoes" routerLinkActive="active" class="nav-card">
+        Transações
+      </a>
+
+    </nav>
+
+    <div class="header-actions">
+      <button
+        class="btn-login"
+        (click)="logout()"
+      >
+        Sair
+      </button>
+    </div>
+
+  </header>
+
+  <main class="main-content">
+
+    <h1 class="page-title">
+      Fluxo de Caixa
+    </h1>
+
+    <p class="page-subtitle">
+      Consulte entradas, saídas e saldo em um período específico.
+    </p>
+
+    <div class="filter-card">
+
+      <div class="filter-grid">
+
+        <div class="form-field">
+          <label>Data inicial</label>
+          <input
+            type="date"
+            [(ngModel)]="filtro.inicio"
+          >
+        </div>
+
+        <div class="form-field">
+          <label>Data final</label>
+          <input
+            type="date"
+            [(ngModel)]="filtro.fim"
+          >
+        </div>
+
+        <button
+          type="button"
+          class="btn-consultar"
+          (click)="consultarFluxoCaixa()"
+        >
+          {{ carregando ? 'Consultando...' : 'Consultar' }}
+        </button>
+
+      </div>
+
+    </div>
+
+    <div
+      class="summary-grid"
+      *ngIf="resultado"
+    >
+
+      <div class="summary-card">
+        <span class="summary-label">
+          Entradas
+        </span>
+
+        <strong class="summary-value positive">
+          {{ resultado.entradas | currency:'BRL' }}
+        </strong>
+      </div>
+
+      <div class="summary-card">
+        <span class="summary-label">
+          Saídas
+        </span>
+
+        <strong class="summary-value negative">
+          {{ resultado.saidas | currency:'BRL' }}
+        </strong>
+      </div>
+
+      <div class="summary-card">
+        <span class="summary-label">
+          Saldo do Período
+        </span>
+
+        <strong
+          class="summary-value"
+          [class.positive]="resultado.saldo >= 0"
+          [class.negative]="resultado.saldo < 0"
+        >
+          {{ resultado.saldo | currency:'BRL' }}
+        </strong>
+      </div>
+
+      <div class="summary-card">
+        <span class="summary-label">
+          Movimentações
+        </span>
+
+        <strong class="summary-value neutral">
+          {{ resultado.quantidadeMovimentacoes }}
+        </strong>
+      </div>
+
+    </div>
+
+    <div
+      class="table-card"
+      *ngIf="resultado"
+    >
+
+      <h2 class="table-title">
+        Movimentações do Período
+      </h2>
+
+      <table class="data-table">
+
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Descrição</th>
+            <th>Conta</th>
+            <th>Tipo</th>
+            <th>Origem</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr *ngFor="let item of resultado.movimentacoes">
+
+            <td>
+              {{ item.data | date:'dd/MM/yyyy' }}
+            </td>
+
+            <td>
+              {{ item.descricao }}
+            </td>
+
+            <td>
+              {{ item.conta || 'Sem conta' }}
+            </td>
+
+            <td>
+              <span
+                class="badge"
+                [class.receita]="item.tipo === 'RECEITA'"
+                [class.despesa]="item.tipo === 'DESPESA'"
+              >
+                {{ item.tipo }}
+              </span>
+            </td>
+
+            <td>
+              <span class="badge-origem">
+                {{ item.origem }}
+              </span>
+            </td>
+
+            <td
+              class="valor"
+              [class.positive]="item.tipo === 'RECEITA'"
+              [class.negative]="item.tipo === 'DESPESA'"
+            >
+              {{ item.tipo === 'RECEITA' ? '+' : '-' }}
+              {{ item.valor | currency:'BRL' }}
+            </td>
+
+          </tr>
+
+          <tr *ngIf="resultado.movimentacoes.length === 0">
+            <td
+              colspan="6"
+              class="empty-row"
+            >
+              Nenhuma movimentação encontrada nesse período.
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </main>
+
+</div>

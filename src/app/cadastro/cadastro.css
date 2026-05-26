@@ -1,0 +1,256 @@
+
+.dashboard-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;      
+  background-color: #ffffff;
+  font-family: sans-serif;
+}
+
+
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 5%;
+  border-bottom: 1px solid #ddd;
+}
+
+.logo img {
+  width: 45px;
+}
+
+
+.dashboard-wrapper {
+  display: flex;
+  justify-content: center;   
+  align-items: center;       
+  min-height: 100vh;         
+  background-color: #ffffff;
+  font-family: sans-serif;
+  position: relative;       
+}
+
+
+.nav-menu {
+  position: absolute;       
+  top: 20px;                
+  left: 20px;               
+  z-index: 10;              
+}
+
+.nav-menu a {
+  text-decoration: none;
+  color: #439381;        
+  font-size: 14px;
+  font-weight: bold;
+
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.nav-menu a:hover {
+  opacity: 0.8;
+}
+
+
+.content-centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+
+.dashboard-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #ffffff;
+  font-family: sans-serif;
+  position: relative;
+}
+
+
+.nav-menu {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  z-index: 10;
+}
+
+.nav-menu a {
+  text-decoration: none;
+  color: #439381;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+
+.register-card {
+  width: 100%;
+
+  max-width: 520px; 
+  
+
+  border: 1px solid #333;
+  background: #fff;
+  border-radius: 4px;
+  
+
+  padding: 50px 60px; 
+  
+  box-sizing: border-box;
+  text-align: center;
+  
+
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+
+.brand-header {
+  margin-bottom: 40px;
+}
+
+.brand-header img {
+  width: 90px;
+  margin-bottom: 15px;
+}
+
+.brand-name {
+  color: #bfa15f;
+  font-size: 28px;
+  font-weight: 500;
+  margin: 0;
+}
+
+
+.form-group {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 14px; /* Inputs um pouco mais altos */
+  border: 1px solid #d4d4a8;
+  border-radius: 8px;
+  box-sizing: border-box;
+  outline: none;
+  font-size: 15px;
+}
+
+/* Botão de Cadastro Largo */
+.btn-submit {
+  width: 100%; /* Botão ocupando a largura total do conteúdo interno */
+  background-color: #439381;
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background 0.3s ease;
+}
+
+.btn-submit:hover {
+  background-color: #367a6b;
+}
+
+.btn-submit:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.content-centered {
+  flex: 1;              
+  display: flex;
+  justify-content: center;
+  align-items: center;     
+  padding: 20px;
+}
+
+
+.register-card {
+  width: 100%;
+  max-width: 480px;
+  border: 1px solid #333;
+  padding: 40px;
+  text-align: center;
+  background: #fff;
+  border-radius: 4px;
+}
+
+
+.brand-header img {
+  width: 80px;
+  margin-bottom: 10px;
+}
+
+.brand-name {
+  color: #bfa15f; 
+  font-size: 24px;
+  margin-bottom: 30px;
+  font-weight: 500;
+}
+
+.form-group {
+  text-align: left;
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d4d4a8; 
+  border-radius: 8px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+
+.btn-submit {
+  width: 100%;
+  max-width: 250px;
+  background-color: #439381; 
+  border: none;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 25px;
+  box-shadow: 0 4px 10px rgba(67, 147, 129, 0.2);
+  transition: opacity 0.2s;
+}
+
+.btn-submit:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.error-msg {
+  color: #e74c3c;
+  font-size: 11px;
+  margin-top: 4px;
+  display: block;
+}
