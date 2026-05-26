@@ -1,6 +1,13 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, PLATFORM_ID, inject, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  PLATFORM_ID,
+  inject,
+  ChangeDetectorRef
+} from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 
@@ -12,27 +19,42 @@ import { Router, RouterModule } from '@angular/router';
   styleUrl: './despesa.css',
 })
 export class Despesa implements OnInit {
+
   private platformId = inject(PLATFORM_ID);
   private http = inject(HttpClient);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
-  // Dados do Utilizador
+  // =========================
+  // DADOS USUÁRIO
+  // =========================
+
   usuarioId: number = 0;
   usuarioNome: string = '';
   usuarioCompleto: any = {};
 
-  // Listas
+  // =========================
+  // LISTAS
+  // =========================
+
   contasBancarias: any[] = [];
   categorias: any[] = [];
   listaDespesas: any[] = [];
 
-  // Estados de UI
-  exibirSidebar: boolean = false;
-  exibirInputCategoria = false;
-  novaCategoriaNome = '';
+  // =========================
+  // CONTROLE UI
+  // =========================
 
-  // Formulário ajustado com contaId
+  exibirSidebar: boolean = false;
+
+  exibirInputCategoria: boolean = false;
+
+  novaCategoriaNome: string = '';
+
+  // =========================
+  // FORMULÁRIO
+  // =========================
+
   dadosForm = {
     descricao: '',
     valor: 0,
@@ -41,9 +63,18 @@ export class Despesa implements OnInit {
     contaId: ''
   };
 
+  // =========================
+  // INIT
+  // =========================
+
   ngOnInit(): void {
+
     if (isPlatformBrowser(this.platformId)) {
-      const user = JSON.parse(localStorage.getItem('usuarioLogado') || '{}');
+
+      const user = JSON.parse(
+        localStorage.getItem('usuarioLogado') || '{}'
+      );
+
       this.usuarioId = user.id;
       this.usuarioNome = user.nome || 'Usuário';
       this.usuarioCompleto = user;
@@ -52,137 +83,298 @@ export class Despesa implements OnInit {
         this.router.navigate(['/login']);
         return;
       }
+
       this.carregarDados();
     }
   }
 
-  carregarDados() {
+  // =========================
+  // CARREGAR DADOS
+  // =========================
+
+  carregarDados(): void {
     this.carregarCategorias();
     this.carregarDespesas();
     this.carregarContas();
   }
+
+  // =========================
+  // SIDEBAR
+  // =========================
 
   toggleSidebar(): void {
     this.exibirSidebar = !this.exibirSidebar;
     this.cdr.detectChanges();
   }
 
-  carregarContas() {
-    this.http.get<any[]>(`http://localhost:8080/api/contas/usuario/${this.usuarioId}`)
-      .subscribe({
-        next: (res) => {
-          this.contasBancarias = res;
-          this.cdr.detectChanges();
-        },
-        error: (err) => console.error('Erro ao buscar contas', err)
-      });
-  }
+  // =========================
+  // CONTAS
+  // =========================
 
- carregarCategorias() {
-  this.http.get<any[]>(`http://localhost:8080/api/categorias/usuario/${this.usuarioId}/tipo/DESPESA`)
+  carregarContas(): void {
+
+    this.http.get<any[]>(
+      `http://localhost:8080/api/contas/usuario/${this.usuarioId}`
+    )
     .subscribe({
+
       next: (res) => {
-        this.categorias = res;
+
+        this.contasBancarias = res;
+
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('Erro ao carregar categorias de despesa:', err);
-      }
-    });
-}
 
-  carregarDespesas() {
-    this.http.get<any[]>(`http://localhost:8080/api/despesas/usuario/${this.usuarioId}`)
-      .subscribe(res => {
-        this.listaDespesas = res;
-        this.cdr.detectChanges(); // Garante que a conta apareça na tabela na hora
-      });
+      error: (err) => {
+        console.error('Erro ao carregar contas:', err);
+      }
+
+    });
   }
 
-  salvarCategoria() {
-  if (!this.novaCategoriaNome) return;
+  // =========================
+  // CATEGORIAS
+  // =========================
 
-   if (!this.dadosForm.descricao.trim()) {
-  alert('Informe a descrição da despesa.');
-  return;
-}
+  carregarCategorias(): void {
 
-if (!this.dadosForm.valor || Number(this.dadosForm.valor) <= 0) {
-  alert('Informe um valor maior que zero.');
-  return;
-}
+    this.http.get<any[]>(
+      `http://localhost:8080/api/categorias/usuario/${this.usuarioId}/tipo/DESPESA`
+    )
+    .subscribe({
 
-if (!this.dadosForm.data) {
-  alert('Informe a data da despesa.');
-  return;
-}
+      next: (res) => {
 
-if (!this.dadosForm.categoriaId) {
-  alert('Selecione uma categoria.');
-  return;
-}
+        this.categorias = res;
 
-if (!this.dadosForm.contaId) {
-  alert('Selecione uma conta bancária.');
-  return;
-}
-  const payload = {
-    nome: this.novaCategoriaNome,
-    tipo: 'DESPESA',
-    usuarioId: this.usuarioId
-  };
+        this.cdr.detectChanges();
+      },
 
-  this.http.post('http://localhost:8080/api/categorias', payload).subscribe((res: any) => {
-    this.categorias.push(res);
-    this.dadosForm.categoriaId = res.id;
-    this.novaCategoriaNome = '';
-    this.exibirInputCategoria = false;
-    this.cdr.detectChanges();
-  });
-}
+      error: (err) => {
 
-  salvarDespesa() {
-    // Validação importante: Despesa precisa de uma conta de onde sair o dinheiro
-    if (!this.dadosForm.contaId) {
-      alert('Selecione uma conta para registrar a saída do valor!');
+        console.error('Erro ao carregar categorias:', err);
+      }
+
+    });
+  }
+
+  // =========================
+  // DESPESAS
+  // =========================
+
+  carregarDespesas(): void {
+
+    this.http.get<any[]>(
+      `http://localhost:8080/api/despesas/usuario/${this.usuarioId}`
+    )
+    .subscribe({
+
+      next: (res) => {
+
+        this.listaDespesas = res;
+
+        this.cdr.detectChanges();
+      },
+
+      error: (err) => {
+
+        console.error('Erro ao carregar despesas:', err);
+      }
+
+    });
+  }
+
+  // =========================
+  // SALVAR CATEGORIA
+  // =========================
+
+  salvarCategoria(): void {
+
+    if (!this.novaCategoriaNome.trim()) {
+
+      alert('Informe o nome da categoria.');
+
       return;
     }
 
     const payload = {
-      ...this.dadosForm,
-      usuarioId: this.usuarioId,
-      categoriaId: Number(this.dadosForm.categoriaId),
-      contaId: Number(this.dadosForm.contaId) // Converte para número para o Java
+
+      nome: this.novaCategoriaNome,
+
+      tipo: 'DESPESA',
+
+      usuarioId: this.usuarioId
     };
 
-    this.http.post('http://localhost:8080/api/despesas', payload).subscribe({
-      next: () => {
-        alert('Despesa registrada e saldo atualizado!');
-        this.carregarDespesas();
-        this.carregarContas();
-        this.resetarFormulario();
+    this.http.post(
+      'http://localhost:8080/api/categorias',
+      payload
+    )
+    .subscribe({
+
+      next: (res: any) => {
+
+        // adiciona na lista
+        this.categorias.push(res);
+
+        // seleciona automaticamente
+        this.dadosForm.categoriaId = res.id;
+
+        // limpa campo
+        this.novaCategoriaNome = '';
+
+        // fecha input
+        this.exibirInputCategoria = false;
+
+        this.cdr.detectChanges();
+
+        alert('Categoria cadastrada com sucesso!');
       },
+
       error: (err) => {
-  console.error('Erro ao salvar despesa', err);
-  alert(err.error?.message || 'Erro ao salvar despesa.');
-}
+
+        console.error('Erro ao salvar categoria:', err);
+
+        alert(
+          err.error?.message ||
+          'Erro ao cadastrar categoria.'
+        );
+      }
+
     });
   }
 
-  resetarFormulario() {
+  // =========================
+  // SALVAR DESPESA
+  // =========================
+
+  salvarDespesa(): void {
+
+    // DESCRIÇÃO
+
+    if (!this.dadosForm.descricao.trim()) {
+
+      alert('Informe a descrição da despesa.');
+
+      return;
+    }
+
+    // VALOR
+
+    if (!this.dadosForm.valor ||
+        Number(this.dadosForm.valor) <= 0) {
+
+      alert('Informe um valor maior que zero.');
+
+      return;
+    }
+
+    // DATA
+
+    if (!this.dadosForm.data) {
+
+      alert('Informe a data da despesa.');
+
+      return;
+    }
+
+    // CATEGORIA
+
+    if (!this.dadosForm.categoriaId) {
+
+      alert('Selecione uma categoria.');
+
+      return;
+    }
+
+    // CONTA
+
+    if (!this.dadosForm.contaId) {
+
+      alert('Selecione uma conta bancária.');
+
+      return;
+    }
+
+    // PAYLOAD
+
+    const payload = {
+
+      descricao: this.dadosForm.descricao,
+
+      valor: Number(this.dadosForm.valor),
+
+      data: this.dadosForm.data,
+
+      categoriaId: Number(this.dadosForm.categoriaId),
+
+      contaId: Number(this.dadosForm.contaId),
+
+      usuarioId: this.usuarioId
+    };
+
+    this.http.post(
+      'http://localhost:8080/api/despesas',
+      payload
+    )
+    .subscribe({
+
+      next: () => {
+
+        alert('Despesa registrada com sucesso!');
+
+        this.carregarDespesas();
+
+        this.carregarContas();
+
+        this.resetarFormulario();
+      },
+
+      error: (err) => {
+
+        console.error('Erro ao salvar despesa:', err);
+
+        alert(
+          err.error?.message ||
+          'Erro ao salvar despesa.'
+        );
+      }
+
+    });
+  }
+
+  // =========================
+  // RESETAR FORMULÁRIO
+  // =========================
+
+  resetarFormulario(): void {
+
     this.dadosForm = {
+
       descricao: '',
+
       valor: 0,
+
       data: new Date().toISOString().split('T')[0],
+
       categoriaId: '',
+
       contaId: ''
     };
+
     this.cdr.detectChanges();
   }
 
-  logout() {
+  // =========================
+  // LOGOUT
+  // =========================
+
+  logout(): void {
+
     if (isPlatformBrowser(this.platformId)) {
+
       localStorage.removeItem('usuarioLogado');
+
       this.router.navigate(['/login']);
     }
   }
