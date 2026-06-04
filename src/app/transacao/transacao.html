@@ -1,8 +1,6 @@
 <div class="page-wrapper">
 
-
   <aside class="sidebar" [class.active]="exibirSidebar">
-
 
     <div class="sidebar-header">
       <img
@@ -10,7 +8,6 @@
         alt="Logo"
         class="sidebar-logo"
       >
-
 
       <button
         class="btn-close-sidebar"
@@ -20,37 +17,30 @@
       </button>
     </div>
 
-
     <div class="sidebar-profile">
       <div class="user-avatar">
         {{ usuarioNome.charAt(0) }}
       </div>
 
-
       <p class="greeting">
         Bem-vindo,
       </p>
 
-
       <h3>
         {{ usuarioNome }}
       </h3>
-
 
       <p class="user-mail">
         {{ usuarioCompleto.email }}
       </p>
     </div>
 
-
     <hr class="sidebar-divider">
-
 
     <div class="sidebar-accounts">
       <h4>
         Minhas Contas
       </h4>
-
 
       <div
         class="acc-card"
@@ -60,17 +50,14 @@
           {{ conta.banco }}
         </span>
 
-
         <span class="acc-info">
           Ag: {{ conta.agencia }} | C: {{ conta.numeroConta }}
         </span>
-
 
         <span class="acc-value">
           {{ conta.saldo | currency:'BRL' }}
         </span>
       </div>
-
 
       <p
         *ngIf="contasBancarias.length === 0"
@@ -80,7 +67,6 @@
       </p>
     </div>
 
-
     <button
       class="logout-btn-sidebar"
       (click)="logout()"
@@ -88,9 +74,7 @@
       Sair da Conta
     </button>
 
-
   </aside>
-
 
   <div
     class="sidebar-overlay"
@@ -98,9 +82,7 @@
     (click)="toggleSidebar()"
   ></div>
 
-
   <header class="main-header">
-
 
     <div class="logo">
       <img
@@ -110,9 +92,7 @@
       >
     </div>
 
-
     <nav class="nav-menu">
-
 
       <a
         routerLink="/dashboard"
@@ -122,7 +102,6 @@
         Dashboard
       </a>
 
-
       <a
         routerLink="/receitas"
         routerLinkActive="active"
@@ -130,7 +109,6 @@
       >
         Receita
       </a>
-
 
       <a
         routerLink="/despesas"
@@ -140,7 +118,14 @@
         Despesa
       </a>
 
-      <a routerLink="/fluxo-caixa" routerLinkActive="active" class="nav-card">Fluxo de Caixa</a>
+      <a
+        routerLink="/fluxo-caixa"
+        routerLinkActive="active"
+        class="nav-card"
+      >
+        Fluxo de Caixa
+      </a>
+
       <a
         routerLink="/orcamentos"
         routerLinkActive="active"
@@ -148,7 +133,6 @@
       >
         Orçamentos
       </a>
-
 
       <a
         routerLink="/relatorios"
@@ -158,7 +142,6 @@
         Relatórios
       </a>
 
-
       <a
         routerLink="/contasbancarias"
         routerLinkActive="active"
@@ -166,7 +149,6 @@
       >
         Contas Bancárias
       </a>
-
 
       <a
         routerLink="/transacoes"
@@ -176,9 +158,7 @@
         Transações
       </a>
 
-
     </nav>
-
 
     <div class="header-actions">
       <button
@@ -187,45 +167,34 @@
       >
         Sair
       </button>
-
-
-
     </div>
-
 
   </header>
 
-
   <main class="main-content">
-
-
-
-
-
 
     <h1 class="page-title">
       Transações
     </h1>
 
-
     <div class="form-card">
 
-
       <div class="form-grid">
-
 
         <div class="form-field">
           <label>
             Conta Bancária
           </label>
 
-
           <div class="cat-wrapper">
             <select [(ngModel)]="dadosForm.contaId">
-              <option value="" disabled selected>
+              <option
+                value=""
+                disabled
+                selected
+              >
                 Selecione a conta
               </option>
-
 
               <option
                 *ngFor="let conta of contasBancarias"
@@ -237,12 +206,10 @@
           </div>
         </div>
 
-
         <div class="form-field">
           <label>
             Arquivo OFX
           </label>
-
 
           <input
             type="file"
@@ -251,9 +218,7 @@
           >
         </div>
 
-
       </div>
-
 
       <button
         type="button"
@@ -263,168 +228,188 @@
         Importar OFX
       </button>
 
-
-    </div>
-    <div
-  class="edit-card"
-  *ngIf="itemEditando"
->
-
-  <h2 class="edit-title">
-    Editar movimentação
-  </h2>
-
-  <p class="edit-subtitle">
-    Origem: {{ formEdicao.origem }} | Tipo atual: {{ itemEditando.tipo }}
-  </p>
-
-  <div class="form-grid">
-
-    <div class="form-field">
-      <label>Descrição</label>
-      <input
-        type="text"
-        [(ngModel)]="formEdicao.descricao"
-        placeholder="Descrição"
-      >
-    </div>
-
-    <div class="form-field">
-      <label>Data</label>
-      <input
-        type="date"
-        [(ngModel)]="formEdicao.data"
-        [disabled]="formEdicao.origem === 'OFX'"
-      >
-    </div>
-
-    <div class="form-field">
-      <label>Valor</label>
-      <input
-        type="number"
-        [(ngModel)]="formEdicao.valor"
-        [disabled]="formEdicao.origem === 'OFX'"
-      >
-    </div>
-
-    <div class="form-field">
-      <label>Tipo</label>
-
-      <select
-        [(ngModel)]="formEdicao.tipo"
-        (change)="carregarCategoriasPorTipoEdicao()"
-        [disabled]="formEdicao.origem === 'MANUAL'"
-      >
-        <option value="RECEITA">Receita</option>
-        <option value="DESPESA">Despesa</option>
-      </select>
-    </div>
-
-    <div class="form-field">
-      <label>Categoria</label>
-
-      <select [(ngModel)]="formEdicao.categoriaId">
-        <option value="">
-          Sem categoria
-        </option>
-
-        <option
-          *ngFor="let categoria of categoriasEdicao"
-          [value]="categoria.id"
-        >
-          {{ categoria.nome }}
-        </option>
-      </select>
     </div>
 
     <div
-      class="form-field"
-      *ngIf="formEdicao.origem !== 'OFX'"
+      class="edit-card"
+      *ngIf="itemEditando"
     >
-      <label>Conta bancária</label>
 
-      <select [(ngModel)]="formEdicao.contaId">
-        <option value="">
-          Selecione a conta
-        </option>
+      <h2 class="edit-title">
+        Editar movimentação
+      </h2>
 
-        <option
-          *ngFor="let conta of contasBancarias"
-          [value]="conta.id"
+      <p class="edit-subtitle">
+        Origem: {{ formEdicao.origem }} | Tipo atual: {{ itemEditando.tipo }}
+      </p>
+
+      <div class="form-grid">
+
+        <div class="form-field">
+          <label>
+            Descrição
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="formEdicao.descricao"
+            placeholder="Descrição"
+          >
+        </div>
+
+        <div class="form-field">
+          <label>
+            Data
+          </label>
+
+          <input
+            type="date"
+            [(ngModel)]="formEdicao.data"
+            [disabled]="formEdicao.origem === 'OFX'"
+          >
+        </div>
+
+        <div class="form-field">
+          <label>
+            Valor
+          </label>
+
+          <input
+            type="number"
+            [(ngModel)]="formEdicao.valor"
+            [disabled]="formEdicao.origem === 'OFX'"
+          >
+        </div>
+
+        <div class="form-field">
+          <label>
+            Tipo
+          </label>
+
+          <select
+            [(ngModel)]="formEdicao.tipo"
+            (change)="carregarCategoriasPorTipoEdicao()"
+            [disabled]="formEdicao.origem === 'MANUAL'"
+          >
+            <option value="RECEITA">
+              Receita
+            </option>
+
+            <option value="DESPESA">
+              Despesa
+            </option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label>
+            Categoria
+          </label>
+
+          <select [(ngModel)]="formEdicao.categoriaId">
+            <option value="">
+              Sem categoria
+            </option>
+
+            <option
+              *ngFor="let categoria of categoriasEdicao"
+              [value]="categoria.id"
+            >
+              {{ categoria.nome }}
+            </option>
+          </select>
+        </div>
+
+        <div
+          class="form-field"
+          *ngIf="formEdicao.origem !== 'OFX'"
         >
-          {{ conta.banco }} - {{ conta.numeroConta }}
-        </option>
-      </select>
+          <label>
+            Conta bancária
+          </label>
+
+          <select [(ngModel)]="formEdicao.contaId">
+            <option value="">
+              Selecione a conta
+            </option>
+
+            <option
+              *ngFor="let conta of contasBancarias"
+              [value]="conta.id"
+            >
+              {{ conta.banco }} - {{ conta.numeroConta }}
+            </option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="edit-actions">
+
+        <button
+          type="button"
+          class="btn-salvar-edicao"
+          (click)="salvarEdicao()"
+        >
+          Salvar alterações
+        </button>
+
+        <button
+          type="button"
+          class="btn-cancelar-edicao"
+          (click)="cancelarEdicao()"
+        >
+          Cancelar
+        </button>
+
+      </div>
+
     </div>
-
-  </div>
-
-  <div class="edit-actions">
-    <button
-      type="button"
-      class="btn-salvar-edicao"
-      (click)="salvarEdicao()"
-    >
-      Salvar alterações
-    </button>
-
-    <button
-      type="button"
-      class="btn-cancelar-edicao"
-      (click)="cancelarEdicao()"
-    >
-      Cancelar
-    </button>
-  </div>
-
-</div>
 
     <div class="table-card">
-
-
-
 
       <h2 class="table-title">
         Transações Importadas
       </h2>
 
-<div class="toggle-group">
-      <button
-        type="button"
-        class="toggle-btn"
-        [class.active]="filtroTipo === 'TODOS'"
-        (click)="alterarFiltroTipo('TODOS')"
-      >
-        Todos
-      </button>
+      <div class="toggle-group">
 
+        <button
+          type="button"
+          class="toggle-btn"
+          [class.active]="filtroTipo === 'TODOS'"
+          (click)="alterarFiltroTipo('TODOS')"
+        >
+          Todos
+        </button>
 
-      <button
-        type="button"
-        class="toggle-btn"
-        [class.active]="filtroTipo === 'RECEITA'"
-        (click)="alterarFiltroTipo('RECEITA')"
-      >
-        Receitas
-      </button>
+        <button
+          type="button"
+          class="toggle-btn"
+          [class.active]="filtroTipo === 'RECEITA'"
+          (click)="alterarFiltroTipo('RECEITA')"
+        >
+          Receitas
+        </button>
 
+        <button
+          type="button"
+          class="toggle-btn"
+          [class.active]="filtroTipo === 'DESPESA'"
+          (click)="alterarFiltroTipo('DESPESA')"
+        >
+          Despesas
+        </button>
 
-      <button
-        type="button"
-        class="toggle-btn"
-        [class.active]="filtroTipo === 'DESPESA'"
-        (click)="alterarFiltroTipo('DESPESA')"
-      >
-        Despesas
-      </button>
-    </div>
+      </div>
+
       <table class="data-table">
-
 
         <thead>
           <tr>
             <th>Data</th>
             <th>Descrição</th>
+            <th>Categoria</th>
             <th>Conta</th>
             <th>Tipo</th>
             <th>Valor</th>
@@ -432,22 +417,26 @@
           </tr>
         </thead>
 
-
         <tbody>
 
-
           <tr *ngFor="let item of listaTransacoesFiltradas">
-
 
             <td>
               {{ item.data | date:'dd/MM/yyyy' }}
             </td>
 
-
             <td>
               {{ item.descricao }}
             </td>
 
+            <td>
+              <span
+                class="categoria-badge"
+                [class.sem-categoria]="!item.categoriaId"
+              >
+                {{ item.categoria || 'Sem categoria' }}
+              </span>
+            </td>
 
             <td>
               {{ item.conta || 'Sem conta' }}
@@ -463,7 +452,6 @@
               </span>
             </td>
 
-
             <td
               [style.color]="item.tipo === 'RECEITA' ? '#409687' : '#ef4444'"
               style="font-weight: bold;"
@@ -471,48 +459,46 @@
               {{ item.tipo === 'RECEITA' ? '+' : '-' }}
               {{ item.valor < 0 ? (item.valor * -1 | currency:'BRL') : (item.valor | currency:'BRL') }}
             </td>
+
             <td class="acoes">
+
               <button
                 type="button"
                 class="btn-editar"
                 (click)="abrirEdicao(item)"
+                title="Editar"
               >
-              <i class="fa-regular fa-pen-to-square"></i>
+                <i class="fa-regular fa-pen-to-square"></i>
               </button>
+
               <button
                 type="button"
                 class="btn-excluir"
                 (click)="excluirMovimentacao(item)"
+                title="Excluir"
               >
                 <i class="fa-regular fa-trash-can"></i>
               </button>
+
             </td>
 
           </tr>
 
-
           <tr *ngIf="listaTransacoesFiltradas.length === 0">
             <td
-              colspan="6"
+              colspan="7"
               class="empty-row"
             >
               Nenhuma transação encontrada.
             </td>
           </tr>
 
-
         </tbody>
-
 
       </table>
 
     </div>
 
-
   </main>
 
-
 </div>
-
-
-
