@@ -388,7 +388,7 @@
             </td>
 
             <td>
-              {{ item.categoria?.nome || 'Sem categoria' }}
+             {{ item.categoria || 'Sem categoria' }}
             </td>
 
             <td>
@@ -416,7 +416,8 @@
                 'valor-despesa': item.tipo === 'DESPESA'
               }">
 
-              {{ item.valor | currency:'BRL' }}
+              {{ item.tipo === 'RECEITA' ? '+' : '-' }}
+                {{ item.valor | currency:'BRL' }}
 
             </td>
 
