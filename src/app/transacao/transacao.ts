@@ -273,7 +273,7 @@ salvarEdicao(): void {
     next: () => {
       alert('Transação OFX atualizada com sucesso.');
       this.cancelarEdicao();
-      this.carregarTransacoes();
+       this.recarregarAposEdicao();
     },
     error: (err) => {
       console.error('Erro ao editar transação OFX:', err);
@@ -299,7 +299,7 @@ salvarEdicaoReceita(): void {
     next: () => {
       alert('Receita atualizada com sucesso.');
       this.cancelarEdicao();
-      this.carregarTransacoes();
+      this.recarregarAposEdicao();
       this.carregarContas();
     },
     error: (err) => {
@@ -326,7 +326,7 @@ salvarEdicaoDespesa(): void {
     next: () => {
       alert('Despesa atualizada com sucesso.');
       this.cancelarEdicao();
-      this.carregarTransacoes();
+       this.recarregarAposEdicao();
       this.carregarContas();
     },
     error: (err) => {
@@ -334,6 +334,12 @@ salvarEdicaoDespesa(): void {
       alert(err.error?.message || 'Erro ao editar despesa.');
     }
   });
+}
+recarregarAposEdicao(): void {
+  this.filtroTipo = 'TODOS';
+  this.cancelarEdicao();
+  this.carregarTransacoes();
+  this.carregarContas();
 }
 carregarDados(): void {
 
