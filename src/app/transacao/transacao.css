@@ -619,3 +619,56 @@
     min-width: 1080px;
   }
 }
+
+
+.categoria-edicao-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.categoria-edicao-wrapper select {
+  flex: 1;
+}
+
+.btn-nova-categoria {
+  min-height: 50px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 8px;
+  background: #e0f2fe;
+  color: #075985;
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-nova-categoria:hover {
+  background: #bae6fd;
+}
+
+.nova-categoria-box {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.nova-categoria-box input {
+  flex: 1;
+}
+
+.btn-criar-categoria {
+  min-height: 50px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 8px;
+  background: #409687;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-criar-categoria:hover {
+  background: #337a6e;
+}

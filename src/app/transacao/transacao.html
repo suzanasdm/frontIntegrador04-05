@@ -302,24 +302,57 @@
         </div>
 
         <div class="form-field">
-          <label>
-            Categoria
-          </label>
+  <label>
+    Categoria
+  </label>
 
-          <select [(ngModel)]="formEdicao.categoriaId">
-            <option value="">
-              Sem categoria
-            </option>
+  <div class="categoria-edicao-wrapper">
 
-            <option
-              *ngFor="let categoria of categoriasEdicao"
-              [value]="categoria.id"
-            >
-              {{ categoria.nome }}
-            </option>
-          </select>
-        </div>
+    <select [(ngModel)]="formEdicao.categoriaId">
+      <option value="">
+        Sem categoria
+      </option>
 
+      <option
+        *ngFor="let categoria of categoriasEdicao"
+        [value]="categoria.id"
+      >
+        {{ categoria.nome }}
+      </option>
+    </select>
+
+    <button
+      type="button"
+      class="btn-nova-categoria"
+      (click)="toggleNovaCategoriaEdicao()"
+    >
+      + Nova
+    </button>
+
+  </div>
+
+  <div
+    class="nova-categoria-box"
+    *ngIf="exibirNovaCategoriaEdicao"
+  >
+
+    <input
+      type="text"
+      [(ngModel)]="novaCategoriaEdicao"
+      placeholder="Nome da nova categoria"
+    >
+
+    <button
+      type="button"
+      class="btn-criar-categoria"
+      (click)="criarCategoriaNaEdicao()"
+    >
+      Criar
+    </button>
+
+  </div>
+
+</div>
         <div
           class="form-field"
           *ngIf="formEdicao.origem !== 'OFX'"

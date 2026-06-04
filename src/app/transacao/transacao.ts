@@ -54,7 +54,8 @@ export class Transacao implements OnInit {
 
 contasBancarias: any[] = [];
 categorias: any[] = [];
-
+exibirNovaCategoriaEdicao: boolean = false;
+novaCategoriaEdicao: string = '';
 
 listaTransacoes: any[] = [];
 listaTransacoesFiltradas: any[] = [];
@@ -130,7 +131,15 @@ formEdicao = {
 
   }
 
+toggleNovaCategoriaEdicao(): void {
+  this.exibirNovaCategoriaEdicao = !this.exibirNovaCategoriaEdicao;
 
+  if (!this.exibirNovaCategoriaEdicao) {
+    this.novaCategoriaEdicao = '';
+  }
+
+  this.cdr.detectChanges();
+}
 
 
   toggleSidebar(): void {
@@ -164,6 +173,46 @@ abrirEdicao(item: any): void {
     const card = document.querySelector('.edit-card');
     card?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, 100);
+}
+criarCategoriaNaEdicao(): void {
+  if (!this.novaCategoriaEdicao.trim()) {
+    alert('Informe o nome da categoria.');
+    return;
+  }
+
+  if (!this.formEdicao.tipo) {
+    alert('Informe o tipo da movimentação antes de criar a categoria.');
+    return;
+  }
+
+  const payload = {
+    nome: this.novaCategoriaEdicao.trim(),
+    tipo: this.formEdicao.tipo,
+    usuarioId: this.usuarioId
+  };
+
+  this.http.post<any>(
+    'http://localhost:8080/api/categorias',
+    payload
+  ).subscribe({
+    next: (categoriaCriada) => {
+      alert('Categoria criada com sucesso.');
+
+      this.novaCategoriaEdicao = '';
+      this.exibirNovaCategoriaEdicao = false;
+
+      this.carregarCategoriasPorTipoEdicao();
+
+      setTimeout(() => {
+        this.formEdicao.categoriaId = String(categoriaCriada.id);
+        this.cdr.detectChanges();
+      }, 200);
+    },
+    error: (err) => {
+      console.error('Erro ao criar categoria:', err);
+      alert(err.error?.message || err.error || 'Erro ao criar categoria.');
+    }
+  });
 }
 
 carregarCategoriasPorTipoEdicao(): void {
@@ -200,6 +249,8 @@ cancelarEdicao(): void {
   };
 
   this.categoriasEdicao = [];
+  this.exibirNovaCategoriaEdicao = false;
+  this.novaCategoriaEdicao = '';
 
   this.cdr.detectChanges();
 }
