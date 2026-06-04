@@ -226,6 +226,7 @@ carregarTransacoes(): void {
     },
     error: (err) => {
       console.error('Erro ao carregar movimentações:', err);
+      alert(err.error?.message || 'Erro ao carregar movimentações.');
     }
   });
 }
