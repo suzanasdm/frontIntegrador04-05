@@ -1,13 +1,19 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnInit,
+  PLATFORM_ID
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router  , RouterModule} from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-orcamento',
   standalone: true,
-  imports: [CommonModule , FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './orcamento.html',
   styleUrl: './orcamento.css',
 })
@@ -21,23 +27,23 @@ export class Orcamento implements OnInit {
   usuarioId: number = 0;
   usuarioNome: string = '';
   usuarioCompleto: any = {};
-  
+
   contasBancarias: any[] = [];
   categorias: any[] = [];
   listaOrcamentos: any[] = [];
 
   exibirSidebar: boolean = false;
 
-  // Form estruturado para o OrcamentoDTO do Java
   dadosForm = {
     valorLimite: 0,
     categoriaId: '',
-    mesAno: new Date().toISOString().substring(0, 7) // Gera "2026-05" (Ano-Mês atual)
+    mesAno: this.obterMesAtual()
   };
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       const user = JSON.parse(localStorage.getItem('usuarioLogado') || '{}');
+
       this.usuarioId = user.id;
       this.usuarioNome = user.nome || 'Usuário';
       this.usuarioCompleto = user;
@@ -46,13 +52,23 @@ export class Orcamento implements OnInit {
         this.router.navigate(['/login']);
         return;
       }
+
       this.carregarDados();
     }
   }
 
-  carregarDados() {
+  obterMesAtual(): string {
+    const hoje = new Date();
+
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+
+    return `${ano}-${mes}`;
+  }
+
+  carregarDados(): void {
     this.carregarCategorias();
-    this.carregarContas(); // Mantém saldos atualizados na Sidebar
+    this.carregarContas();
     this.carregarOrcamentos();
   }
 
@@ -61,75 +77,124 @@ export class Orcamento implements OnInit {
     this.cdr.detectChanges();
   }
 
-  carregarContas() {
-    this.http.get<any[]>(`http://localhost:8080/api/contas/usuario/${this.usuarioId}`)
-      .subscribe({
-        next: (res) => { 
-          this.contasBancarias = res; 
-          this.cdr.detectChanges(); 
-        },
-        error: (err) => console.error('Erro ao buscar contas', err)
-      });
+  carregarContas(): void {
+    this.http.get<any[]>(
+      `http://localhost:8080/api/contas/usuario/${this.usuarioId}`
+    ).subscribe({
+      next: (res) => {
+        this.contasBancarias = res;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Erro ao buscar contas', err);
+      }
+    });
   }
 
-  carregarCategorias() {
-    this.http.get<any[]>(`http://localhost:8080/api/categorias/usuario/${this.usuarioId}`)
-      .subscribe(res => { 
-        this.categorias = res; 
-        this.cdr.detectChanges(); 
-      });
+  carregarCategorias(): void {
+    this.http.get<any[]>(
+      `http://localhost:8080/api/categorias/usuario/${this.usuarioId}/tipo/DESPESA`
+    ).subscribe({
+      next: (res) => {
+        this.categorias = res;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Erro ao buscar categorias de despesa', err);
+        alert(err.error?.message || 'Erro ao carregar categorias de despesa.');
+      }
+    });
   }
 
-  carregarOrcamentos() {
-    this.http.get<any[]>(`http://localhost:8080/api/orcamentos/usuario/${this.usuarioId}`)
-      .subscribe(res => {
+  carregarOrcamentos(): void {
+    if (!this.dadosForm.mesAno) {
+      return;
+    }
+
+    this.http.get<any[]>(
+      `http://localhost:8080/api/orcamentos/usuario/${this.usuarioId}?mesAno=${this.dadosForm.mesAno}`
+    ).subscribe({
+      next: (res) => {
         this.listaOrcamentos = res;
-        this.cdr.detectChanges(); // Renderiza as barras de progresso instantaneamente
-      });
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Erro ao buscar orçamentos', err);
+        alert(err.error?.message || 'Erro ao carregar orçamentos.');
+      }
+    });
   }
 
-  salvarOrcamento() {
-    if (!this.dadosForm.categoriaId || this.dadosForm.valorLimite <= 0) {
-      alert('Selecione uma categoria e insira um limite válido!');
+  salvarOrcamento(): void {
+    if (!this.dadosForm.categoriaId) {
+      alert('Selecione uma categoria.');
+      return;
+    }
+
+    if (!this.dadosForm.valorLimite || Number(this.dadosForm.valorLimite) <= 0) {
+      alert('Informe um limite maior que zero.');
+      return;
+    }
+
+    if (!this.dadosForm.mesAno) {
+      alert('Informe o mês de vigência.');
       return;
     }
 
     const payload = {
-      ...this.dadosForm,
+      valorLimite: Number(this.dadosForm.valorLimite),
       usuarioId: this.usuarioId,
-      categoriaId: Number(this.dadosForm.categoriaId)
+      categoriaId: Number(this.dadosForm.categoriaId),
+      mesAno: this.dadosForm.mesAno
     };
 
-    this.http.post('http://localhost:8080/api/orcamentos', payload).subscribe({
+    this.http.post(
+      'http://localhost:8080/api/orcamentos',
+      payload
+    ).subscribe({
       next: () => {
         alert('Orçamento definido com sucesso!');
-        this.carregarOrcamentos(); // Recarrega a lista trazendo a nova meta
-        this.resetarFormulario();
+
+        this.carregarOrcamentos();
+        this.resetarFormularioMantendoMes();
       },
-      error: (err) => console.error('Erro ao salvar orçamento', err)
+      error: (err) => {
+        console.error('Erro ao salvar orçamento', err);
+        alert(err.error?.message || 'Erro ao salvar orçamento.');
+      }
     });
   }
 
-  resetarFormulario() {
+  alterarMes(): void {
+    this.carregarOrcamentos();
+  }
+
+  resetarFormularioMantendoMes(): void {
+    const mesSelecionado = this.dadosForm.mesAno;
+
     this.dadosForm = {
       valorLimite: 0,
       categoriaId: '',
-      mesAno: new Date().toISOString().substring(0, 7)
+      mesAno: mesSelecionado
     };
+
     this.cdr.detectChanges();
   }
 
-  logout() {
+  calcularPorcentagem(gasto: number, limite: number): number {
+    if (!limite || limite === 0) {
+      return 0;
+    }
+
+    const porcentagem = (gasto / limite) * 100;
+
+    return porcentagem > 100 ? 100 : porcentagem;
+  }
+
+  logout(): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('usuarioLogado');
       this.router.navigate(['/login']);
     }
-  }
-
-  // Calcula a largura da barra de progresso sem deixar passar de 100% no CSS
-  calcularPorcentagem(gasto: number, limite: number): number {
-    if (!limite || limite === 0) return 0;
-    const porcentagem = (gasto / limite) * 100;
-    return porcentagem > 100 ? 100 : porcentagem;
   }
 }

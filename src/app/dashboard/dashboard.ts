@@ -81,14 +81,8 @@ categoriasReceitasGrafico: any[] = [];
   toggleSidebar(): void {
     this.exibirSidebar = !this.exibirSidebar;
   }
-montarGraficoPorTipo(tipo: 'RECEITA' | 'DESPESA'): any {
-  const transacoes = this.dadosDashboard?.transacoes || [];
-
-  const itensFiltrados = transacoes.filter(
-    (item: any) => item.tipo === tipo
-  );
-
-  if (itensFiltrados.length === 0) {
+montarGraficoPorCategoria(lista: any[]): any {
+  if (!lista || lista.length === 0) {
     return {
       categorias: [],
       style: {
@@ -97,35 +91,17 @@ montarGraficoPorTipo(tipo: 'RECEITA' | 'DESPESA'): any {
     };
   }
 
-  const agrupado: any = {};
-
-  itensFiltrados.forEach((item: any) => {
-    const categoria = item.categoria || 'Sem categoria';
-
-    if (!agrupado[categoria]) {
-      agrupado[categoria] = 0;
-    }
-
-    agrupado[categoria] += Number(item.valor);
-  });
-
-  const total = Object.values(agrupado)
-    .reduce((acc: number, valor: any) => acc + Number(valor), 0);
-
   let inicio = 0;
 
-  const categorias = Object.keys(agrupado).map((categoria, index) => {
-    const valor = agrupado[categoria];
-    const percentual = total > 0 ? (valor / total) * 100 : 0;
-
+  const categorias = lista.map((item: any, index: number) => {
+    const percentual = Number(item.percentual) || 0;
     const fim = inicio + percentual;
-    const cor = this.gerarCorCategoria(index);
 
     const itemGrafico = {
-      categoria,
-      valor,
-      percentual,
-      cor,
+      categoria: item.categoria || 'Sem categoria',
+      valor: Number(item.valor) || 0,
+      percentual: percentual,
+      cor: this.gerarCorCategoria(index),
       inicio,
       fim
     };
@@ -147,12 +123,16 @@ montarGraficoPorTipo(tipo: 'RECEITA' | 'DESPESA'): any {
   };
 }
 montarGraficosDashboard(): void {
-  const graficoDespesas = this.montarGraficoPorTipo('DESPESA');
+  const graficoDespesas = this.montarGraficoPorCategoria(
+    this.dadosDashboard.despesasPorCategoria || []
+  );
 
   this.categoriasDespesasGrafico = graficoDespesas.categorias;
   this.graficoDespesasStyle = graficoDespesas.style;
 
-  const graficoReceitas = this.montarGraficoPorTipo('RECEITA');
+  const graficoReceitas = this.montarGraficoPorCategoria(
+    this.dadosDashboard.receitasPorCategoria || []
+  );
 
   this.categoriasReceitasGrafico = graficoReceitas.categorias;
   this.graficoReceitasStyle = graficoReceitas.style;

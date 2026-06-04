@@ -1,124 +1,320 @@
 <div class="page-wrapper">
+
   <aside class="sidebar" [class.active]="exibirSidebar">
+
     <div class="sidebar-header">
-      <img src="https://i.postimg.cc/Gt0P8dwD/unnamed.png" alt="Logo" class="sidebar-logo">
-      <button class="btn-close-sidebar" (click)="toggleSidebar()">✕</button>
+      <img
+        src="https://i.postimg.cc/Gt0P8dwD/unnamed.png"
+        alt="Logo"
+        class="sidebar-logo"
+      >
+
+      <button
+        class="btn-close-sidebar"
+        (click)="toggleSidebar()"
+      >
+        ✕
+      </button>
     </div>
 
     <div class="sidebar-profile">
-      <div class="user-avatar">{{ usuarioNome.charAt(0) }}</div>
-      <p class="greeting">Bem-vindo,</p>
-      <h3>{{ usuarioNome }}</h3>
-      <p class="user-mail">{{ usuarioCompleto.email }}</p>
+      <div class="user-avatar">
+        {{ usuarioNome.charAt(0) }}
+      </div>
+
+      <p class="greeting">
+        Bem-vindo,
+      </p>
+
+      <h3>
+        {{ usuarioNome }}
+      </h3>
+
+      <p class="user-mail">
+        {{ usuarioCompleto.email }}
+      </p>
     </div>
 
     <hr class="sidebar-divider">
 
     <div class="sidebar-accounts">
-      <h4>Minhas Contas</h4>
-      <div class="acc-card" *ngFor="let conta of contasBancarias">
-        <span class="bank-name">{{ conta.banco }}</span>
-        <span class="acc-info">Ag: {{ conta.agencia }} | C: {{ conta.numeroConta }}</span>
-        <span class="acc-value">{{ conta.saldo | currency:'BRL' }}</span>
+      <h4>
+        Minhas Contas
+      </h4>
+
+      <div
+        class="acc-card"
+        *ngFor="let conta of contasBancarias"
+      >
+        <span class="bank-name">
+          {{ conta.banco }}
+        </span>
+
+        <span class="acc-info">
+          Ag: {{ conta.agencia }} | C: {{ conta.numeroConta }}
+        </span>
+
+        <span class="acc-value">
+          {{ conta.saldo | currency:'BRL' }}
+        </span>
       </div>
-      <p *ngIf="contasBancarias.length === 0" class="empty-msg">Nenhuma conta cadastrada.</p>
+
+      <p
+        *ngIf="contasBancarias.length === 0"
+        class="empty-msg"
+      >
+        Nenhuma conta cadastrada.
+      </p>
     </div>
 
-    <button class="logout-btn-sidebar" (click)="logout()">Sair da Conta</button>
+    <button
+      class="logout-btn-sidebar"
+      (click)="logout()"
+    >
+      Sair da Conta
+    </button>
+
   </aside>
 
-  <div class="sidebar-overlay" *ngIf="exibirSidebar" (click)="toggleSidebar()"></div>
+  <div
+    class="sidebar-overlay"
+    *ngIf="exibirSidebar"
+    (click)="toggleSidebar()"
+  ></div>
 
   <header class="main-header">
+
     <div class="logo">
-      <img src="https://i.postimg.cc/Gt0P8dwD/unnamed.png" alt="CyberSoft" (click)="toggleSidebar()" style="cursor: pointer;">
+      <img
+        src="https://i.postimg.cc/Gt0P8dwD/unnamed.png"
+        alt="CyberSoft"
+        (click)="toggleSidebar()"
+      >
     </div>
+
     <nav class="nav-menu">
 
-    <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-     <a routerLink="/receitas" routerLinkActive="active">Receita</a>
-      <a routerLink="/despesas" routerLinkActive="active">Despesa</a>
-      <a routerLink="/fluxo-caixa" routerLinkActive="active">Fluxo de Caixa</a>
-      <a routerLink="/orcamentos" routerLinkActive="active">Orçamentos</a>
-      <a routerLink="/relatorios" routerLinkActive="active">Relatórios</a>
-      <a routerLink="/contasbancarias" routerLinkActive="active">Contas Bancarias</a>
-      <a routerLink="/transacoes" routerLinkActive="active">Transações</a>
-      
+      <a
+        routerLink="/dashboard"
+        routerLinkActive="active"
+      >
+        Dashboard
+      </a>
+
+      <a
+        routerLink="/receitas"
+        routerLinkActive="active"
+      >
+        Receita
+      </a>
+
+      <a
+        routerLink="/despesas"
+        routerLinkActive="active"
+      >
+        Despesa
+      </a>
+
+      <a
+        routerLink="/fluxo-caixa"
+        routerLinkActive="active"
+      >
+        Fluxo de Caixa
+      </a>
+
+      <a
+        routerLink="/orcamentos"
+        routerLinkActive="active"
+      >
+        Orçamentos
+      </a>
+
+      <a
+        routerLink="/relatorios"
+        routerLinkActive="active"
+      >
+        Relatórios
+      </a>
+
+      <a
+        routerLink="/contasbancarias"
+        routerLinkActive="active"
+      >
+        Contas Bancárias
+      </a>
+
+      <a
+        routerLink="/transacoes"
+        routerLinkActive="active"
+      >
+        Transações
+      </a>
+
     </nav>
-    
+
     <div class="header-actions">
-      <button class="btn-login" (click)="logout()">Sair</button>
+      <button
+        class="btn-login"
+        (click)="logout()"
+      >
+        Sair
+      </button>
     </div>
+
   </header>
 
   <main class="main-content">
-    <div class="toggle-group">
-      <button class="toggle-btn" routerLink="/receitas">Receita</button>
-      <button class="toggle-btn" routerLink="/despesas">Despesa</button>
-      <button class="toggle-btn active">Orçamentos</button>
-    </div>
 
-    <h1 class="page-title"> Orçamentos</h1>
+    <h1 class="page-title">
+      Orçamentos
+    </h1>
 
     <div class="form-card">
+
       <div class="form-grid">
+
         <div class="form-field">
-          <label>Categoria Limite</label>
+          <label>
+            Categoria Limite
+          </label>
+
           <div class="cat-wrapper">
             <select [(ngModel)]="dadosForm.categoriaId">
-              <option value="" disabled selected>Selecione a Categoria</option>
-              <option *ngFor="let c of categorias" [value]="c.id">{{ c.nome }}</option>
+              <option
+                value=""
+                disabled
+              >
+                Selecione a Categoria
+              </option>
+
+              <option
+                *ngFor="let c of categorias"
+                [value]="c.id"
+              >
+                {{ c.nome }}
+              </option>
             </select>
           </div>
         </div>
 
         <div class="form-field">
-          <label>Definir Teto de Gastos</label>
-          <input type="number" [(ngModel)]="dadosForm.valorLimite" placeholder="R$ 0,00">
+          <label>
+            Definir Teto de Gastos
+          </label>
+
+          <input
+            type="number"
+            [(ngModel)]="dadosForm.valorLimite"
+            placeholder="R$ 0,00"
+            min="0"
+          >
         </div>
 
         <div class="form-field">
-          <label>Mês de Vigência</label>
+          <label>
+            Mês de Vigência
+          </label>
+
           <div class="date-wrapper">
-            <input type="month" [(ngModel)]="dadosForm.mesAno">
+            <input
+              type="month"
+              [(ngModel)]="dadosForm.mesAno"
+              (change)="alterarMes()"
+            >
           </div>
         </div>
+
       </div>
-      <button class="btn-salvar" (click)="salvarOrcamento()" style="background-color: #34495e;">
-        Configurar Limite
-      </button>
+
+      <div class="form-actions">
+        <button
+          class="btn-salvar"
+          (click)="salvarOrcamento()"
+        >
+          Configurar Limite
+        </button>
+      </div>
+
     </div>
 
     <div class="table-card">
-      <h2 class="table-title">Acompanhamento dos Limites Mensais</h2>
-      
-      <div class="orcamentos-list" style="display: flex; flex-direction: column; gap: 15px; padding: 10px 0;">
-        <div class="orcamento-item" *ngFor="let item of listaOrcamentos" style="border: 1px solid #eee; padding: 15px; border-radius: 8px; background: #fff;">
-          
-          <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px;">
-            <span>{{ item.categoria?.nome }} <small style="color: #888; font-weight: normal;">({{ item.mesAno }})</small></span>
-            <span [style.color]="item.valorGasto > item.valorLimite ? '#e74c3c' : '#2c3e50'">
-              {{ item.valorGasto | currency:'BRL' }} / {{ item.valorLimite | currency:'BRL' }}
+
+      <h2 class="table-title">
+        Acompanhamento dos Limites Mensais
+      </h2>
+
+      <div class="orcamentos-list">
+
+        <div
+          class="orcamento-item"
+          *ngFor="let item of listaOrcamentos"
+        >
+
+          <div class="orcamento-header">
+
+            <span class="orcamento-categoria">
+              {{ item.categoriaNome }}
+
+              <small class="orcamento-mes">
+                ({{ item.mesAno }})
+              </small>
             </span>
+
+            <span
+              class="orcamento-valores"
+              [class.ultrapassado]="item.status === 'ULTRAPASSADO'"
+            >
+              {{ item.valorGasto | currency:'BRL' }}
+              /
+              {{ item.valorLimite | currency:'BRL' }}
+            </span>
+
           </div>
 
-          <div style="background: #e0e0e0; border-radius: 6px; height: 12px; width: 100%; overflow: hidden;">
-            <div [style.width.%]="calcularPorcentagem(item.valorGasto, item.valorLimite)"
-                 [style.background-color]="item.valorGasto > item.valorLimite ? '#e74c3c' : '#2ecc71'"
-                 style="height: 100%; transition: width 0.4s ease-in-out;">
-            </div>
+          <div class="progress-track">
+            <div
+              class="progress-bar"
+              [style.width.%]="calcularPorcentagem(item.valorGasto, item.valorLimite)"
+              [class.progress-danger]="item.status === 'ULTRAPASSADO'"
+              [class.progress-warning]="item.status === 'ATENCAO'"
+              [class.progress-success]="item.status === 'DENTRO_DO_LIMITE'"
+            ></div>
           </div>
 
-          <div *ngIf="item.valorGasto > item.valorLimite" style="color: #e74c3c; font-size: 12px; font-weight: bold; margin-top: 5px;">
+          <div class="orcamento-info">
+
+            <span>
+              Usado:
+              {{ item.percentualUsado | number:'1.0-1' }}%
+            </span>
+
+            <span>
+              Restante:
+              {{ item.valorRestante | currency:'BRL' }}
+            </span>
+
+          </div>
+
+          <div
+            *ngIf="item.status === 'ULTRAPASSADO'"
+            class="orcamento-alert"
+          >
             ⚠️ Você ultrapassou o limite definido para esta categoria!
           </div>
+
         </div>
 
-        <div *ngIf="listaOrcamentos.length === 0" style="text-align: center; color: #888; padding: 20px;">
+        <div
+          *ngIf="listaOrcamentos.length === 0"
+          class="empty-orcamentos"
+        >
           Nenhum teto de gastos configurado para o período atual.
         </div>
+
       </div>
 
     </div>
+
   </main>
+
 </div>
