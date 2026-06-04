@@ -486,6 +486,8 @@
   display: flex;
   gap: 8px;
   align-items: center;
+  justify-content: flex-start;
+  white-space: nowrap;
 }
 
 .btn-excluir {
@@ -503,4 +505,76 @@
 
 .btn-excluir:hover {
   background: #fecaca;
+}
+
+.btn-editar {
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.btn-editar:hover {
+  background: #bae6fd;
+}
+
+.edit-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 1000px;
+  margin: 0 auto 32px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.edit-title {
+  font-size: 24px;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.edit-subtitle {
+  color: #777;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.edit-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.btn-salvar-edicao {
+  background: #409687;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-salvar-edicao:hover {
+  background: #337a6e;
+}
+
+.btn-cancelar-edicao {
+  background: white;
+  color: #555;
+  border: 1px solid #ddd;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-cancelar-edicao:hover {
+  background: #f9fafb;
 }

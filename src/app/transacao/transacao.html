@@ -265,7 +265,119 @@
 
 
     </div>
+    <div
+  class="edit-card"
+  *ngIf="itemEditando"
+>
 
+  <h2 class="edit-title">
+    Editar movimentação
+  </h2>
+
+  <p class="edit-subtitle">
+    Origem: {{ formEdicao.origem }} | Tipo atual: {{ itemEditando.tipo }}
+  </p>
+
+  <div class="form-grid">
+
+    <div class="form-field">
+      <label>Descrição</label>
+      <input
+        type="text"
+        [(ngModel)]="formEdicao.descricao"
+        placeholder="Descrição"
+      >
+    </div>
+
+    <div class="form-field">
+      <label>Data</label>
+      <input
+        type="date"
+        [(ngModel)]="formEdicao.data"
+        [disabled]="formEdicao.origem === 'OFX'"
+      >
+    </div>
+
+    <div class="form-field">
+      <label>Valor</label>
+      <input
+        type="number"
+        [(ngModel)]="formEdicao.valor"
+        [disabled]="formEdicao.origem === 'OFX'"
+      >
+    </div>
+
+    <div class="form-field">
+      <label>Tipo</label>
+
+      <select
+        [(ngModel)]="formEdicao.tipo"
+        (change)="carregarCategoriasPorTipoEdicao()"
+        [disabled]="formEdicao.origem === 'MANUAL'"
+      >
+        <option value="RECEITA">Receita</option>
+        <option value="DESPESA">Despesa</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label>Categoria</label>
+
+      <select [(ngModel)]="formEdicao.categoriaId">
+        <option value="">
+          Sem categoria
+        </option>
+
+        <option
+          *ngFor="let categoria of categoriasEdicao"
+          [value]="categoria.id"
+        >
+          {{ categoria.nome }}
+        </option>
+      </select>
+    </div>
+
+    <div
+      class="form-field"
+      *ngIf="formEdicao.origem !== 'OFX'"
+    >
+      <label>Conta bancária</label>
+
+      <select [(ngModel)]="formEdicao.contaId">
+        <option value="">
+          Selecione a conta
+        </option>
+
+        <option
+          *ngFor="let conta of contasBancarias"
+          [value]="conta.id"
+        >
+          {{ conta.banco }} - {{ conta.numeroConta }}
+        </option>
+      </select>
+    </div>
+
+  </div>
+
+  <div class="edit-actions">
+    <button
+      type="button"
+      class="btn-salvar-edicao"
+      (click)="salvarEdicao()"
+    >
+      Salvar alterações
+    </button>
+
+    <button
+      type="button"
+      class="btn-cancelar-edicao"
+      (click)="cancelarEdicao()"
+    >
+      Cancelar
+    </button>
+  </div>
+
+</div>
 
     <div class="table-card">
 
@@ -275,6 +387,7 @@
       <h2 class="table-title">
         Transações Importadas
       </h2>
+
 <div class="toggle-group">
       <button
         type="button"
@@ -359,19 +472,19 @@
               {{ item.valor < 0 ? (item.valor * -1 | currency:'BRL') : (item.valor | currency:'BRL') }}
             </td>
             <td class="acoes">
-             <!--<button
-                class="btn-edit"
-                (click)="editarTransacao(item)"
+              <button
+                type="button"
+                class="btn-editar"
+                (click)="abrirEdicao(item)"
               >
-                Editar
+              <i class="fa-regular fa-pen-to-square"></i>
               </button>
-              -->
               <button
                 type="button"
                 class="btn-excluir"
                 (click)="excluirMovimentacao(item)"
               >
-                🗑️
+                <i class="fa-regular fa-trash-can"></i>
               </button>
             </td>
 
@@ -392,7 +505,6 @@
 
 
       </table>
-
 
     </div>
 
