@@ -230,6 +230,79 @@ carregarTransacoes(): void {
     }
   });
 }
+excluirMovimentacao(item: any): void {
+  const confirmar = confirm(
+    'Deseja excluir esta movimentação?"$(item.descricao)?'
+  );
+   if (!confirmar) {
+    return;
+  }
+
+  if (item.origem === 'OFX') {
+    this.excluirOFX(item.id);
+    return;
+  }
+
+  if (item.origem === 'MANUAL' && item.tipo === 'RECEITA') {
+    this.excluirReceita(item.id);
+    return;
+  }
+
+  if (item.origem === 'MANUAL' && item.tipo === 'DESPESA') {
+    this.excluirDespesa(item.id);
+    return;
+  }
+
+  alert('Tipo de movimentação não reconhecido.');
+
+
+}
+
+excluirOFX(id: number): void {
+  this.http.delete(
+    `http://localhost:8080/api/transacoes/${id}/usuario/${this.usuarioId}`
+  ).subscribe({
+    next: () => {
+      alert('Transação OFX excluída com sucesso.');
+      this.carregarTransacoes();
+    },
+    error: (err) => {
+      console.error('Erro ao excluir transação OFX:', err);
+      alert(err.error?.message || 'Erro ao excluir transação OFX.');
+    }
+  });
+}
+excluirReceita(id: number): void {
+  this.http.delete(
+    `http://localhost:8080/api/receitas/${id}/usuario/${this.usuarioId}`
+  ).subscribe({
+    next: () => {
+      alert('Receita excluída com sucesso.');
+      this.carregarTransacoes();
+      this.carregarContas();
+    },
+    error: (err) => {
+      console.error('Erro ao excluir receita:', err);
+      alert(err.error?.message || 'Erro ao excluir receita.');
+    }
+  });
+}
+excluirDespesa(id: number): void {
+  this.http.delete(
+    `http://localhost:8080/api/despesas/${id}/usuario/${this.usuarioId}`
+  ).subscribe({
+    next: () => {
+      alert('Despesa excluída com sucesso.');
+      this.carregarTransacoes();
+      this.carregarContas();
+    },
+    error: (err) => {
+      console.error('Erro ao excluir despesa:', err);
+      alert(err.error?.message || 'Erro ao excluir despesa.');
+    }
+  });
+}
+
 alterarFiltroTipo(tipo: string): void {
   this.filtroTipo = tipo;
   this.aplicarFiltroTipo();

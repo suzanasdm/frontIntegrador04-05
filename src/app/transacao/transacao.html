@@ -169,7 +169,7 @@
 
 
       <a
-        routerLink="/transacao"
+        routerLink="/transacoes"
         routerLinkActive="active"
         class="nav-card"
       >
@@ -189,7 +189,7 @@
       </button>
 
 
-     
+
     </div>
 
 
@@ -315,6 +315,7 @@
             <th>Conta</th>
             <th>Tipo</th>
             <th>Valor</th>
+            <th>Ações</th>
           </tr>
         </thead>
 
@@ -357,14 +358,29 @@
               {{ item.tipo === 'RECEITA' ? '+' : '-' }}
               {{ item.valor < 0 ? (item.valor * -1 | currency:'BRL') : (item.valor | currency:'BRL') }}
             </td>
-
+            <td class="acoes">
+             <!--<button
+                class="btn-edit"
+                (click)="editarTransacao(item)"
+              >
+                Editar
+              </button>
+              -->
+              <button
+                type="button"
+                class="btn-excluir"
+                (click)="excluirMovimentacao(item)"
+              >
+                🗑️
+              </button>
+            </td>
 
           </tr>
 
 
           <tr *ngIf="listaTransacoesFiltradas.length === 0">
             <td
-              colspan="5"
+              colspan="6"
               class="empty-row"
             >
               Nenhuma transação encontrada.
