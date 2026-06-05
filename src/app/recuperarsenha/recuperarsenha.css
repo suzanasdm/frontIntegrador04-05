@@ -1,0 +1,151 @@
+/* Fundo da tela (IDÊNTICO AO LOGIN) */
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f8f9fc;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Card Branco */
+.login-card {
+  background: white;
+  padding: 40px;
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+  border-radius: 4px;
+}
+
+/* Estilo do Logo e Nome */
+.logo-container img {
+  width: 120px;
+  margin-bottom: 5px;
+}
+
+.brand-name {
+  color: #c5a86a;
+  font-size: 28px;
+  font-weight: 400;
+  margin-bottom: 25px;
+}
+
+/* Subtítulos informativos */
+.instructions {
+  color: #7f8c8d;
+  font-size: 14px;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+
+.success-indicator {
+  color: #27ae60;
+  font-size: 14px;
+  margin-bottom: 25px;
+  font-weight: bold;
+}
+
+/* O Segredo da Borda Interrompida */
+.input-group {
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.input-group label {
+  position: absolute;
+  top: -10px;
+  left: 12px;
+  background: white;
+  padding: 0 6px;
+  font-size: 13px;
+  color: #d4bc82;
+  font-weight: 500;
+  z-index: 1;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 15px;
+  color: #333;
+  box-sizing: border-box;
+  outline: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.input-group input::placeholder {
+  color: #bcbcbc;
+}
+
+/* Input específico para o Código com espaçamento maior */
+.code-input {
+  text-align: center;
+  font-size: 20px !important;
+  letter-spacing: 6px;
+  font-weight: bold;
+}
+
+/* Mensagens de Erro */
+.error-message {
+  color: #e74c3c;
+  font-size: 13px;
+  margin: -15px 0 15px 0;
+  text-align: center;
+}
+
+/* Botão Verde-Água */
+.btn-acao {
+  background-color: #409687;
+  color: white;
+  border: none;
+  padding: 12px 60px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 280px;
+  margin-top: 10px;
+  transition: 0.3s;
+  box-shadow: 0 4px 6px rgba(64, 150, 135, 0.2);
+}
+
+.btn-acao:hover {
+  background-color: #347d6f;
+  transform: translateY(-1px);
+}
+
+/* Botão de Voltar */
+.btn-voltar {
+  background: transparent;
+  color: #bcbcbc;
+  border: 1px solid #e0e0e0;
+  padding: 10px 30px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 280px;
+  margin-top: 10px;
+  transition: 0.3s;
+}
+
+.btn-voltar:hover {
+  background: #fafafa;
+  color: #7f8c8d;
+}
+
+/* Links do Rodapé */
+.footer-links {
+  margin-top: 40px;
+  font-size: 12px;
+  color: #bcbcbc;
+}
+
+.footer-links a {
+  color: #bcbcbc;
+  text-decoration: none;
+  font-weight: bold;
+}

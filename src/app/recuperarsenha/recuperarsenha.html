@@ -1,0 +1,91 @@
+<div class="login-wrapper">
+  <div class="login-card">
+
+    <div class="logo-container">
+      <img src="https://i.postimg.cc/Gt0P8dwD/unnamed.png" alt="CyberSoft Logo">
+      <h1 class="brand-name">CyberSoft</h1>
+    </div>
+
+    @if (passo === 1) {
+      <form (submit)="$event.preventDefault(); solicitarCodigo()">
+        <p class="instructions">
+          Insira seu e-mail cadastrado. Enviaremos um código de verificação para que você possa redefinir sua senha com segurança.
+        </p>
+
+        <div class="input-group">
+          <label>E-mail de Cadastro</label>
+          <input 
+            type="email" 
+            name="recuperarEmail"
+            autocomplete="email"
+            [(ngModel)]="email" 
+            placeholder="Ex: nome@provedor.com"
+            required>
+        </div>
+
+        @if (errorMessage) {
+          <p class="error-message">{{ errorMessage }}</p>
+        }
+
+        <button type="submit" class="btn-acao">Enviar Código</button>
+      </form>
+    }
+
+    @if (passo === 2) {
+      <form (submit)="$event.preventDefault(); alterarSenha()">
+        <p class="success-indicator">
+          ✓ Um código de verificação foi enviado para a sua caixa de entrada!
+        </p>
+
+        <div class="input-group">
+          <label>Código de Verificação</label>
+          <input 
+            type="text" 
+            name="codigoVerificacao"
+            autocomplete="one-time-code"
+            [(ngModel)]="codigo" 
+            maxlength="6" 
+            class="code-input" 
+            placeholder="000000"
+            required>
+        </div>
+
+        <div class="input-group">
+          <label>Nova Senha</label>
+          <input 
+            type="password" 
+            name="novaSenhaInput"
+            autocomplete="new-password"
+            [(ngModel)]="novaSenha" 
+            placeholder="Digite sua nova senha"
+            required>
+        </div>
+
+        <div class="input-group">
+          <label>Confirmar Nova Senha</label>
+          <input 
+            type="password" 
+            name="confirmarSenhaInput"
+            autocomplete="new-password"
+            [(ngModel)]="confirmarSenha" 
+            placeholder="Confirme sua nova senha"
+            required>
+        </div>
+
+        @if (errorMessage) {
+          <p class="error-message">{{ errorMessage }}</p>
+        }
+
+        <button type="submit" class="btn-acao">Definir Nova Senha</button>
+        <button type="button" (click)="passo = 1; errorMessage = ''" class="btn-voltar">Voltar Passo</button>
+      </form>
+    }
+
+    <div class="footer-links">
+      <p>Lembrou as credenciais? 
+        <a [routerLink]="['/login']">Voltar ao Login.</a>
+      </p>
+    </div>
+
+  </div>
+</div>

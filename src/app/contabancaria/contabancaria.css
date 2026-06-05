@@ -19,7 +19,7 @@
   z-index: 100;
 }
 
-.logo img { width: 40px; height: 40px; cursor: pointer; }
+.logo img { width: 70px; height: 70px; cursor: pointer; }
 
 .nav-menu { display: flex; align-items: center; gap: 4px; }
 .nav-menu .nav-card { color: #666; text-decoration: none; font-size: 14px; padding: 6px 12px; border-radius: 6px; transition: background 0.2s; }

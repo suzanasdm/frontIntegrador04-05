@@ -26,7 +26,7 @@
             [(ngModel)]="loginData.senha"
             placeholder="Digite sua senha">
         </div>
-        <a href="#" class="forgot-link">esqueci a senha!</a>
+        <a href="#" class="forgot-link" [routerLink]="['/redefinir-senha']">esqueci a senha!</a>
       </div>
 
       <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>

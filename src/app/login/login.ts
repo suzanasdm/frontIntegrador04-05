@@ -43,4 +43,7 @@ export class Login implements OnInit {
       }
     });
   }
+  btnEsqueciSenha() {
+    this.router.navigate(['/redefinir-senha']);
+  }
 }

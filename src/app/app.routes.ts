@@ -9,6 +9,8 @@ import { Transacao } from './transacao/transacao';
 import { FluxoCaixa } from './fluxo-caixa/fluxo-caixa';
 import { Orcamento } from './orcamento/orcamento';
 import { Relatorios } from './relatorios/relatorios';
+import { Recuperarsenha } from './recuperarsenha/recuperarsenha';
+
 
 export const routes: Routes = [
     {path: '', redirectTo: 'login', pathMatch: 'full'},
@@ -21,6 +23,7 @@ export const routes: Routes = [
     {path: 'transacoes', component: Transacao},
     {path: 'fluxo-caixa', component: FluxoCaixa},
     {path: 'orcamentos',component: Orcamento},
-    {path: 'relatorios', component: Relatorios}
+    {path: 'relatorios', component: Relatorios},
+    {path: 'redefinir-senha', component: Recuperarsenha}
 
 ];
