@@ -26,20 +26,10 @@ export class Transacao implements OnInit {
   listaTransacoes: any[] = [];
   listaTransacoesFiltradas: any[] = [];
 
-<<<<<<< HEAD
-contasBancarias: any[] = [];
-categorias: any[] = [];
-exibirNovaCategoriaEdicao: boolean = false;
-novaCategoriaEdicao: string = '';
+  exibirNovaCategoriaEdicao: boolean = false;
+  novaCategoriaEdicao: string = '';
 
-listaTransacoes: any[] = [];
-listaTransacoesFiltradas: any[] = [];
-
-
-filtroTipo: string = 'TODOS';
-=======
   filtroTipo: string = 'TODOS';
->>>>>>> 0eda568 (redefinir senha por email)
   exibirSidebar: boolean = false;
   arquivoOFX!: File;
 
@@ -55,171 +45,8 @@ filtroTipo: string = 'TODOS';
   itemEditando: any = null;
   categoriasEdicao: any[] = [];
 
-<<<<<<< HEAD
-categoriasEdicao: any[] = [];
-
-formEdicao = {
-  id: null as number | null,
-  origem: '',
-  descricao: '',
-  valor: 0,
-  data: '',
-  tipo: '',
-  categoriaId: '',
-  contaId: ''
-};
-
-
-  ngOnInit(): void {
-
-
-    if (isPlatformBrowser(this.platformId)) {
-
-
-      const user = JSON.parse(
-        localStorage.getItem('usuarioLogado') || '{}'
-      );
-
-
-      this.usuarioId = user.id;
-
-
-      this.usuarioNome = user.nome || 'Usuário';
-
-
-      this.usuarioCompleto = user;
-
-
-      if (!this.usuarioId) {
-
-
-        this.router.navigate(['/login']);
-
-
-        return;
-      }
-
-
-      this.carregarDados();
-
-
-    }
-
-
-  }
-
-toggleNovaCategoriaEdicao(): void {
-  this.exibirNovaCategoriaEdicao = !this.exibirNovaCategoriaEdicao;
-
-  if (!this.exibirNovaCategoriaEdicao) {
-    this.novaCategoriaEdicao = '';
-  }
-
-  this.cdr.detectChanges();
-}
-
-
-  toggleSidebar(): void {
-
-
-    this.exibirSidebar = !this.exibirSidebar;
-
-
-    this.cdr.detectChanges();
-
-
-  }
-
-abrirEdicao(item: any): void {
-  this.itemEditando = item;
-
-  this.formEdicao = {
-    id: item.id,
-    origem: item.origem,
-    descricao: item.descricao,
-    valor: item.valor,
-    data: item.data ? item.data.substring(0, 10) : '',
-    tipo: item.tipo,
-    categoriaId: item.categoriaId ? String(item.categoriaId) : '',
-    contaId: item.contaId ? String(item.contaId) : ''
-  };
-
-  this.carregarCategoriasPorTipoEdicao();
-
-  setTimeout(() => {
-    const card = document.querySelector('.edit-card');
-    card?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 100);
-}
-criarCategoriaNaEdicao(): void {
-  if (!this.novaCategoriaEdicao.trim()) {
-    alert('Informe o nome da categoria.');
-    return;
-  }
-
-  if (!this.formEdicao.tipo) {
-    alert('Informe o tipo da movimentação antes de criar a categoria.');
-    return;
-  }
-
-  const payload = {
-    nome: this.novaCategoriaEdicao.trim(),
-    tipo: this.formEdicao.tipo,
-    usuarioId: this.usuarioId
-  };
-
-  this.http.post<any>(
-    'http://localhost:8080/api/categorias',
-    payload
-  ).subscribe({
-    next: (categoriaCriada) => {
-      alert('Categoria criada com sucesso.');
-
-      this.novaCategoriaEdicao = '';
-      this.exibirNovaCategoriaEdicao = false;
-
-      this.carregarCategoriasPorTipoEdicao();
-
-      setTimeout(() => {
-        this.formEdicao.categoriaId = String(categoriaCriada.id);
-        this.cdr.detectChanges();
-      }, 200);
-    },
-    error: (err) => {
-      console.error('Erro ao criar categoria:', err);
-      alert(err.error?.message || err.error || 'Erro ao criar categoria.');
-    }
-  });
-}
-
-carregarCategoriasPorTipoEdicao(): void {
-  if (!this.formEdicao.tipo) {
-    this.categoriasEdicao = [];
-    return;
-  }
-
-  this.http.get<any[]>(
-    `http://localhost:8080/api/categorias/usuario/${this.usuarioId}/tipo/${this.formEdicao.tipo}`
-  ).subscribe({
-    next: (res) => {
-      this.categoriasEdicao = res;
-      this.cdr.detectChanges();
-    },
-    error: (err) => {
-      console.error('Erro ao carregar categorias da edição:', err);
-    }
-  });
-}
-
-cancelarEdicao(): void {
-  this.itemEditando = null;
-
-  this.formEdicao = {
-    id: null,
-=======
   formEdicao = {
     id: null as number | null,
->>>>>>> 0eda568 (redefinir senha por email)
     origem: '',
     descricao: '',
     valor: 0,
@@ -229,25 +56,33 @@ cancelarEdicao(): void {
     contaId: ''
   };
 
-<<<<<<< HEAD
-  this.categoriasEdicao = [];
-  this.exibirNovaCategoriaEdicao = false;
-  this.novaCategoriaEdicao = '';
-=======
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      const user = JSON.parse(localStorage.getItem('usuarioLogado') || '{}');
+      const user = JSON.parse(
+        localStorage.getItem('usuarioLogado') || '{}'
+      );
+
       this.usuarioId = user.id;
       this.usuarioNome = user.nome || 'Usuário';
       this.usuarioCompleto = user;
->>>>>>> 0eda568 (redefinir senha por email)
 
       if (!this.usuarioId) {
         this.router.navigate(['/login']);
         return;
       }
+
       this.carregarDados();
     }
+  }
+
+  toggleNovaCategoriaEdicao(): void {
+    this.exibirNovaCategoriaEdicao = !this.exibirNovaCategoriaEdicao;
+
+    if (!this.exibirNovaCategoriaEdicao) {
+      this.novaCategoriaEdicao = '';
+    }
+
+    this.cdr.detectChanges();
   }
 
   toggleSidebar(): void {
@@ -277,6 +112,47 @@ cancelarEdicao(): void {
     }, 100);
   }
 
+  criarCategoriaNaEdicao(): void {
+    if (!this.novaCategoriaEdicao.trim()) {
+      alert('Informe o nome da categoria.');
+      return;
+    }
+
+    if (!this.formEdicao.tipo) {
+      alert('Informe o tipo da movimentação antes de criar a categoria.');
+      return;
+    }
+
+    const payload = {
+      nome: this.novaCategoriaEdicao.trim(),
+      tipo: this.formEdicao.tipo,
+      usuarioId: this.usuarioId
+    };
+
+    this.http.post<any>(
+      'http://localhost:8080/api/categorias',
+      payload
+    ).subscribe({
+      next: (categoriaCriada) => {
+        alert('Categoria criada com sucesso.');
+
+        this.novaCategoriaEdicao = '';
+        this.exibirNovaCategoriaEdicao = false;
+
+        this.carregarCategoriasPorTipoEdicao();
+
+        setTimeout(() => {
+          this.formEdicao.categoriaId = String(categoriaCriada.id);
+          this.cdr.detectChanges();
+        }, 200);
+      },
+      error: (err) => {
+        console.error('Erro ao criar categoria:', err);
+        alert(err.error?.message || err.error || 'Erro ao criar categoria.');
+      }
+    });
+  }
+
   carregarCategoriasPorTipoEdicao(): void {
     if (!this.formEdicao.tipo) {
       this.categoriasEdicao = [];
@@ -298,6 +174,7 @@ cancelarEdicao(): void {
 
   cancelarEdicao(): void {
     this.itemEditando = null;
+
     this.formEdicao = {
       id: null,
       origem: '',
@@ -308,7 +185,10 @@ cancelarEdicao(): void {
       categoriaId: '',
       contaId: ''
     };
+
     this.categoriasEdicao = [];
+    this.exibirNovaCategoriaEdicao = false;
+    this.novaCategoriaEdicao = '';
     this.cdr.detectChanges();
   }
 
@@ -477,7 +357,6 @@ cancelarEdicao(): void {
   }
 
   excluirMovimentacao(item: any): void {
-    // BUG FIX: Correção da interpolação de string usando crases (Template Literals)
     const confirmar = confirm(`Deseja excluir esta movimentação "${item.descricao}"?`);
     if (!confirmar) return;
 
