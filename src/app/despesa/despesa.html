@@ -326,6 +326,117 @@
 
     </div>
 
+    <div
+      class="edit-card"
+      *ngIf="despesaEditando"
+    >
+
+      <h2 class="edit-title">
+        Editar Despesa
+      </h2>
+
+      <p class="edit-subtitle">
+        Alterando: {{ despesaEditando.descricao }}
+      </p>
+
+      <div class="form-grid">
+
+        <div class="form-field">
+          <label>
+            Descrição
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="formEdicao.descricao"
+          >
+        </div>
+
+        <div class="form-field">
+          <label>
+            Valor
+          </label>
+
+          <input
+            type="number"
+            [(ngModel)]="formEdicao.valor"
+            min="0"
+          >
+        </div>
+
+        <div class="form-field">
+          <label>
+            Data
+          </label>
+
+          <input
+            type="date"
+            [(ngModel)]="formEdicao.data"
+          >
+        </div>
+
+        <div class="form-field">
+          <label>
+            Conta de Origem
+          </label>
+
+          <select [(ngModel)]="formEdicao.contaId">
+            <option value="">
+              Selecione a conta
+            </option>
+
+            <option
+              *ngFor="let conta of contasBancarias"
+              [value]="conta.id"
+            >
+              {{ conta.banco }} - {{ conta.numeroConta }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label>
+            Categoria
+          </label>
+
+          <select [(ngModel)]="formEdicao.categoriaId">
+            <option value="">
+              Selecione
+            </option>
+
+            <option
+              *ngFor="let categoria of categorias"
+              [value]="categoria.id"
+            >
+              {{ categoria.nome }}
+            </option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="edit-actions">
+
+        <button
+          type="button"
+          class="btn-salvar-edicao"
+          (click)="salvarEdicaoDespesa()"
+        >
+          Salvar alterações
+        </button>
+
+        <button
+          type="button"
+          class="btn-cancelar-edicao"
+          (click)="cancelarEdicaoDespesa()"
+        >
+          Cancelar
+        </button>
+
+      </div>
+
+    </div>
+
     <div class="table-card">
 
       <h2 class="table-title">
@@ -340,12 +451,14 @@
             <th>Categoria</th>
             <th>Conta</th>
             <th>Valor</th>
+            <th>Ações</th>
           </tr>
         </thead>
 
         <tbody>
 
           <tr *ngFor="let item of listaDespesas">
+
             <td>
               {{ item.descricao }}
             </td>
@@ -363,11 +476,34 @@
             <td class="val-despesa">
               {{ item.valor | currency:'BRL' }}
             </td>
+
+            <td class="acoes">
+
+              <button
+                type="button"
+                class="btn-editar"
+                (click)="abrirEdicaoDespesa(item)"
+                title="Editar"
+              >
+                <i class="fa-regular fa-pen-to-square"></i>
+              </button>
+
+              <button
+                type="button"
+                class="btn-excluir"
+                (click)="excluirDespesa(item)"
+                title="Excluir"
+              >
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+
+            </td>
+
           </tr>
 
           <tr *ngIf="listaDespesas.length === 0">
             <td
-              colspan="4"
+              colspan="5"
               class="empty-row"
             >
               Nenhuma despesa cadastrada.

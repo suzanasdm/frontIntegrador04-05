@@ -40,7 +40,16 @@ export class Receita implements OnInit {
     categoriaId: '',
     contaId: ''
   };
+receitaEditando: any = null;
 
+formEdicao = {
+  id: null as number | null,
+  descricao: '',
+  valor: 0,
+  data: '',
+  categoriaId: '',
+  contaId: ''
+};
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       const user = JSON.parse(localStorage.getItem('usuarioLogado') || '{}');
@@ -99,6 +108,11 @@ export class Receita implements OnInit {
         this.cdr.detectChanges(); // Faz as novas receitas aparecerem na tabela na hora
       });
   }
+
+
+
+
+
 
   salvarCategoria() {
   if (!this.novaCategoriaNome) return;
@@ -170,6 +184,7 @@ if (!this.dadosForm.contaId) {
     });
   }
 
+
   resetarFormulario() {
     this.dadosForm = {
       descricao: '',
@@ -180,7 +195,121 @@ if (!this.dadosForm.contaId) {
     };
     this.cdr.detectChanges();
   }
+abrirEdicaoReceita(item: any): void {
+  this.receitaEditando = item;
 
+  this.formEdicao = {
+    id: item.id,
+    descricao: item.descricao,
+    valor: item.valor,
+    data: item.data,
+    categoriaId: item.categoria?.id ? String(item.categoria.id) : '',
+    contaId: item.conta?.id ? String(item.conta.id) : ''
+  };
+
+  setTimeout(() => {
+    const card = document.querySelector('.edit-card');
+    card?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+
+  this.cdr.detectChanges();
+}
+
+cancelarEdicaoReceita(): void {
+  this.receitaEditando = null;
+
+  this.formEdicao = {
+    id: null,
+    descricao: '',
+    valor: 0,
+    data: '',
+    categoriaId: '',
+    contaId: ''
+  };
+
+  this.cdr.detectChanges();
+}
+
+salvarEdicaoReceita(): void {
+  if (!this.formEdicao.id) {
+    alert('Nenhuma receita selecionada para edição.');
+    return;
+  }
+
+  if (!this.formEdicao.descricao.trim()) {
+    alert('Informe a descrição da receita.');
+    return;
+  }
+
+  if (!this.formEdicao.valor || Number(this.formEdicao.valor) <= 0) {
+    alert('Informe um valor maior que zero.');
+    return;
+  }
+
+  if (!this.formEdicao.data) {
+    alert('Informe a data da receita.');
+    return;
+  }
+
+  if (!this.formEdicao.categoriaId) {
+    alert('Selecione uma categoria.');
+    return;
+  }
+
+  if (!this.formEdicao.contaId) {
+    alert('Selecione uma conta.');
+    return;
+  }
+
+  const payload = {
+    descricao: this.formEdicao.descricao,
+    valor: Number(this.formEdicao.valor),
+    data: this.formEdicao.data,
+    categoriaId: Number(this.formEdicao.categoriaId),
+    contaId: Number(this.formEdicao.contaId),
+    usuarioId: this.usuarioId
+  };
+
+  this.http.put(
+    `http://localhost:8080/api/receitas/${this.formEdicao.id}`,
+    payload
+  ).subscribe({
+    next: () => {
+      alert('Receita atualizada com sucesso!');
+      this.cancelarEdicaoReceita();
+      this.carregarReceitas();
+      this.carregarContas();
+    },
+    error: (err) => {
+      console.error('Erro ao editar receita', err);
+      alert(err.error?.message || 'Erro ao editar receita.');
+    }
+  });
+}
+
+excluirReceita(item: any): void {
+  const confirmar = confirm(
+    `Deseja realmente excluir a receita "${item.descricao}"?`
+  );
+
+  if (!confirmar) {
+    return;
+  }
+
+  this.http.delete(
+    `http://localhost:8080/api/receitas/${item.id}?usuarioId=${this.usuarioId}`
+  ).subscribe({
+    next: () => {
+      alert('Receita excluída com sucesso!');
+      this.carregarReceitas();
+      this.carregarContas();
+    },
+    error: (err) => {
+      console.error('Erro ao excluir receita', err);
+      alert(err.error?.message || 'Erro ao excluir receita.');
+    }
+  });
+}
   logout() {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('usuarioLogado');

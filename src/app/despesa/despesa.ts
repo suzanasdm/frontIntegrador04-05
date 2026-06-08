@@ -63,9 +63,16 @@ export class Despesa implements OnInit {
     contaId: ''
   };
 
-  // =========================
-  // INIT
-  // =========================
+despesaEditando: any = null;
+
+formEdicao = {
+  id: null as number | null,
+  descricao: '',
+  valor: 0,
+  data: '',
+  categoriaId: '',
+  contaId: ''
+};
 
   ngOnInit(): void {
 
@@ -365,9 +372,121 @@ export class Despesa implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // =========================
-  // LOGOUT
-  // =========================
+  abrirEdicaoDespesa(item: any): void {
+  this.despesaEditando = item;
+
+  this.formEdicao = {
+    id: item.id,
+    descricao: item.descricao,
+    valor: item.valor,
+    data: item.data,
+    categoriaId: item.categoria?.id ? String(item.categoria.id) : '',
+    contaId: item.conta?.id ? String(item.conta.id) : ''
+  };
+
+  setTimeout(() => {
+    const card = document.querySelector('.edit-card');
+    card?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+
+  this.cdr.detectChanges();
+}
+
+cancelarEdicaoDespesa(): void {
+  this.despesaEditando = null;
+
+  this.formEdicao = {
+    id: null,
+    descricao: '',
+    valor: 0,
+    data: '',
+    categoriaId: '',
+    contaId: ''
+  };
+
+  this.cdr.detectChanges();
+}
+
+salvarEdicaoDespesa(): void {
+  if (!this.formEdicao.id) {
+    alert('Nenhuma despesa selecionada para edição.');
+    return;
+  }
+
+  if (!this.formEdicao.descricao.trim()) {
+    alert('Informe a descrição da despesa.');
+    return;
+  }
+
+  if (!this.formEdicao.valor || Number(this.formEdicao.valor) <= 0) {
+    alert('Informe um valor maior que zero.');
+    return;
+  }
+
+  if (!this.formEdicao.data) {
+    alert('Informe a data da despesa.');
+    return;
+  }
+
+  if (!this.formEdicao.categoriaId) {
+    alert('Selecione uma categoria.');
+    return;
+  }
+
+  if (!this.formEdicao.contaId) {
+    alert('Selecione uma conta.');
+    return;
+  }
+
+  const payload = {
+    descricao: this.formEdicao.descricao,
+    valor: Number(this.formEdicao.valor),
+    data: this.formEdicao.data,
+    categoriaId: Number(this.formEdicao.categoriaId),
+    contaId: Number(this.formEdicao.contaId),
+    usuarioId: this.usuarioId
+  };
+
+  this.http.put(
+    `http://localhost:8080/api/despesas/${this.formEdicao.id}`,
+    payload
+  ).subscribe({
+    next: () => {
+      alert('Despesa atualizada com sucesso!');
+      this.cancelarEdicaoDespesa();
+      this.carregarDespesas();
+      this.carregarContas();
+    },
+    error: (err) => {
+      console.error('Erro ao editar despesa', err);
+      alert(err.error?.message || 'Erro ao editar despesa.');
+    }
+  });
+}
+
+excluirDespesa(item: any): void {
+  const confirmar = confirm(
+    `Deseja realmente excluir a despesa "${item.descricao}"?`
+  );
+
+  if (!confirmar) {
+    return;
+  }
+
+  this.http.delete(
+    `http://localhost:8080/api/despesas/${item.id}?usuarioId=${this.usuarioId}`
+  ).subscribe({
+    next: () => {
+      alert('Despesa excluída com sucesso!');
+      this.carregarDespesas();
+      this.carregarContas();
+    },
+    error: (err) => {
+      console.error('Erro ao excluir despesa', err);
+      alert(err.error?.message || 'Erro ao excluir despesa.');
+    }
+  });
+}
 
   logout(): void {
 

@@ -625,3 +625,100 @@
     align-items: stretch;
   }
 }
+.edit-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-left: 6px solid var(--primary);
+  border-radius: 18px;
+  padding: 32px;
+  max-width: 820px;
+  margin: 0 auto 34px;
+  box-shadow: var(--shadow);
+}
+
+.edit-title {
+  font-size: 24px;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 900;
+}
+
+.edit-subtitle {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.edit-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.btn-salvar-edicao {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-salvar-edicao:hover {
+  background: var(--primary-dark);
+}
+
+.btn-cancelar-edicao {
+  background: white;
+  color: #555;
+  border: 1px solid var(--border);
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-cancelar-edicao:hover {
+  background: #f9fafb;
+}
+
+.acoes {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.btn-editar,
+.btn-excluir {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-editar {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.btn-editar:hover {
+  background: #bae6fd;
+}
+
+.btn-excluir {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.btn-excluir:hover {
+  background: #fecaca;
+}
