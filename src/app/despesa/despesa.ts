@@ -474,7 +474,7 @@ excluirDespesa(item: any): void {
   }
 
   this.http.delete(
-    `http://localhost:8080/api/despesas/${item.id}?usuarioId=${this.usuarioId}`
+    `http://localhost:8080/api/despesas/${item.id}/usuario/${this.usuarioId}`
   ).subscribe({
     next: () => {
       alert('Despesa excluída com sucesso!');

@@ -297,7 +297,7 @@ excluirReceita(item: any): void {
   }
 
   this.http.delete(
-    `http://localhost:8080/api/receitas/${item.id}?usuarioId=${this.usuarioId}`
+    `http://localhost:8080/api/receitas/${item.id}/usuario/${this.usuarioId}`
   ).subscribe({
     next: () => {
       alert('Receita excluída com sucesso!');
