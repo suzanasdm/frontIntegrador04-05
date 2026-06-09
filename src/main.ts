@@ -12,16 +12,13 @@ import { Component } from '@angular/core';
   imports:[RouterOutlet],
   template: `
  <router-outlet></router-outlet>
- 
+
   `,
 })
 export class App {
-  name = 'Angular';
+
 }
 
 
-
-bootstrapApplication(App ,{
-  providers: [provideRouter(routes)]
-});
-
+bootstrapApplication(App, appConfig)
+  .catch((err) => console.error(err));

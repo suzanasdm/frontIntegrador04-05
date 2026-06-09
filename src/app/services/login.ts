@@ -48,4 +48,18 @@ export class LoginService {
     }
     return null;
   }
+  getToken(): string | null {
+  if (isPlatformBrowser(this.platformId)) {
+    const user = localStorage.getItem('usuarioLogado');
+
+    if (!user) {
+      return null;
+    }
+
+    const usuarioLogado = JSON.parse(user);
+    return usuarioLogado.token || null;
+  }
+
+  return null;
+}
 }
