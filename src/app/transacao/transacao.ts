@@ -25,7 +25,7 @@ export class Transacao implements OnInit {
   categorias: any[] = [];
   listaTransacoes: any[] = [];
   listaTransacoesFiltradas: any[] = [];
-
+  arquivosOfx: any[] = [];
   exibirNovaCategoriaEdicao: boolean = false;
   novaCategoriaEdicao: string = '';
 
@@ -317,8 +317,47 @@ export class Transacao implements OnInit {
     this.carregarContas();
     this.carregarCategorias();
     this.carregarTransacoes();
+    this.carregarArquivosOfx();
   }
 
+  carregarArquivosOfx(): void {
+  this.http.get<any[]>(
+    `http://localhost:8080/api/ofx/usuario/${this.usuarioId}`
+  ).subscribe({
+    next: (res) => {
+      this.arquivosOfx = res;
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      console.error('Erro ao carregar arquivos OFX:', err);
+    }
+  });
+}
+excluirArquivoOfx(arquivo: any): void {
+  const confirmar = confirm(
+    `Deseja realmente excluir o arquivo OFX "${arquivo.nomeArquivo}"?\n\nTodas as transações importadas por esse arquivo também serão removidas.`
+  );
+
+  if (!confirmar) {
+    return;
+  }
+
+  this.http.delete(
+    `http://localhost:8080/api/ofx/${arquivo.id}/usuario/${this.usuarioId}`
+  ).subscribe({
+    next: () => {
+      alert('Arquivo OFX excluído com sucesso.');
+
+      this.carregarArquivosOfx();
+      this.carregarTransacoes();
+      this.carregarContas();
+    },
+    error: (err) => {
+      console.error('Erro ao excluir arquivo OFX:', err);
+      alert(err.error?.message || err.error || 'Erro ao excluir arquivo OFX.');
+    }
+  });
+}
   carregarContas(): void {
     this.http.get<any[]>(`http://localhost:8080/api/contas/usuario/${this.usuarioId}`)
       .subscribe({
@@ -493,12 +532,17 @@ export class Transacao implements OnInit {
     this.http.post('http://localhost:8080/api/ofx/upload', formData, { responseType: 'text' })
       .subscribe({
         next: (res) => {
-          alert(res);
-          this.carregarTransacoes();
-          this.carregarContas();
-          this.arquivoOFX = undefined as any;
-          this.dadosForm.contaId = '';
-        },
+  alert(res);
+
+  this.carregarArquivosOfx();
+  this.carregarTransacoes();
+  this.carregarContas();
+
+  this.arquivoOFX = undefined as any;
+  this.dadosForm.contaId = '';
+
+  this.cdr.detectChanges();
+},
         error: (err) => {
           console.error('Erro ao importar OFX:', err);
           const mensagem = err.error?.message || err.error || 'Erro ao importar OFX.';

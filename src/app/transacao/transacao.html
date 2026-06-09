@@ -229,6 +229,65 @@
       </button>
 
     </div>
+<div class="ofx-files-card">
+
+  <div class="ofx-files-header">
+    <div>
+      <h2 class="ofx-files-title">
+        Arquivos OFX importados
+      </h2>
+
+      <p class="ofx-files-subtitle">
+        Gerencie os arquivos já importados. Ao excluir um arquivo, todas as transações dele também serão removidas.
+      </p>
+    </div>
+
+    <span class="ofx-files-count">
+      {{ arquivosOfx.length }} arquivo(s)
+    </span>
+  </div>
+
+  <div
+    class="ofx-empty"
+    *ngIf="arquivosOfx.length === 0"
+  >
+    Nenhum arquivo OFX importado ainda.
+  </div>
+
+  <div
+    class="ofx-file-list"
+    *ngIf="arquivosOfx.length > 0"
+  >
+
+    <div
+      class="ofx-file-item"
+      *ngFor="let arquivo of arquivosOfx"
+    >
+
+      <div class="ofx-file-info">
+        <span class="ofx-file-name">
+          {{ arquivo.nomeArquivo }}
+        </span>
+
+        <span class="ofx-file-date">
+          Importado em:
+          {{ arquivo.dataUpload | date:'dd/MM/yyyy HH:mm' }}
+        </span>
+      </div>
+
+      <button
+        type="button"
+        class="btn-excluir-arquivo"
+        (click)="excluirArquivoOfx(arquivo)"
+      >
+        Excluir OFX completo
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
 
     <div
       class="edit-card"
