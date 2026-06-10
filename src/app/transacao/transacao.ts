@@ -415,19 +415,25 @@ excluirArquivoOfx(arquivo: any): void {
     alert('Tipo de movimentação não reconhecido.');
   }
 
-  excluirOFX(id: number): void {
-    this.http.delete(`http://localhost:8080/api/transacoes/${id}/usuario/${this.usuarioId}`)
-      .subscribe({
-        next: () => {
-          alert('Transação OFX excluída com sucesso.');
-          this.carregarTransacoes();
-        },
-        error: (err) => {
-          console.error('Erro ao excluir transação OFX:', err);
-          alert(err.error?.message || 'Erro ao excluir transação OFX.');
-        }
-      });
-  }
+ excluirOFX(id: number): void {
+  this.http.delete(
+    `http://localhost:8080/api/transacoes/${id}/usuario/${this.usuarioId}`
+  ).subscribe({
+    next: () => {
+      alert('Transação OFX excluída com sucesso.');
+
+      this.carregarTransacoes();
+      this.carregarContas();
+      this.carregarArquivosOfx();
+
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      console.error('Erro ao excluir transação OFX:', err);
+      alert(err.error?.message || err.error || 'Erro ao excluir transação OFX.');
+    }
+  });
+}
 
   excluirReceita(id: number): void {
     this.http.delete(`http://localhost:8080/api/receitas/${id}/usuario/${this.usuarioId}`)
