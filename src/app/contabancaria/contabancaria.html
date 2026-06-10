@@ -3,7 +3,7 @@
   <aside class="sidebar" [class.active]="exibirSidebar">
     <div class="sidebar-header">
       <img src="https://i.postimg.cc/Gt0P8dwD/unnamed.png" alt="Logo" class="sidebar-logo">
-      <button class="btn-close-sidebar" (click)="toggleSidebar()">✕</button>
+      <button class="btn-close-sidebar" type="button" (click)="toggleSidebar()">✕</button>
     </div>
 
     <div class="sidebar-profile">
@@ -17,23 +17,30 @@
 
     <div class="sidebar-accounts">
       <h4>Minhas Contas</h4>
+
       <div class="acc-card" *ngFor="let conta of contasBancarias">
         <span class="bank-name">{{ conta.banco }}</span>
         <span class="acc-info">Ag: {{ conta.agencia }} | C: {{ conta.numeroConta }}</span>
         <span class="acc-value">{{ conta.saldo | currency:'BRL' }}</span>
       </div>
-      <p *ngIf="contasBancarias.length === 0" class="empty-msg">Nenhuma conta cadastrada.</p>
+
+      <p *ngIf="contasBancarias.length === 0" class="empty-msg">
+        Nenhuma conta cadastrada.
+      </p>
     </div>
 
-    <button class="logout-btn-sidebar" (click)="logout()">Sair da Conta</button>
+    <button class="logout-btn-sidebar" type="button" (click)="logout()">
+      Sair da Conta
+    </button>
   </aside>
 
   <div class="sidebar-overlay" *ngIf="exibirSidebar" (click)="toggleSidebar()"></div>
 
   <header class="main-header">
     <div class="logo">
-      <img src="https://i.postimg.cc/Gt0P8dwD/unnamed.png" alt="CyberSoft" (click)="toggleSidebar()" style="cursor: pointer;">
+      <img src="https://i.postimg.cc/Gt0P8dwD/unnamed.png" alt="CyberSoft" (click)="toggleSidebar()">
     </div>
+
     <nav class="nav-menu">
       <a routerLink="/dashboard" routerLinkActive="active" class="nav-card">Dashboard</a>
       <a routerLink="/receitas" routerLinkActive="active" class="nav-card">Receita</a>
@@ -41,17 +48,17 @@
       <a routerLink="/fluxo-caixa" routerLinkActive="active" class="nav-card">Fluxo de Caixa</a>
       <a routerLink="/orcamentos" routerLinkActive="active" class="nav-card">Orçamentos</a>
       <a routerLink="/relatorios" routerLinkActive="active" class="nav-card">Relatórios</a>
-      <a routerLink="/contasbancarias" routerLinkActive="active" class="nav-card">Contas Bancarias</a>
+      <a routerLink="/contasbancarias" routerLinkActive="active" class="nav-card">Contas Bancárias</a>
       <a routerLink="/transacoes" routerLinkActive="active" class="nav-card">Transações</a>
-      
     </nav>
+
     <div class="header-actions">
-      <button class="btn-login" (click)="logout()">Sair</button>
-      
+      <button class="btn-login" type="button" (click)="logout()">Sair</button>
     </div>
   </header>
 
   <main class="main-content">
+
     <h1 class="page-title">Nova Conta Bancária</h1>
 
     <div class="form-card">
@@ -60,8 +67,10 @@
         <div class="form-field">
           <label>Banco</label>
           <select [(ngModel)]="dadosForm.banco">
-            <option value="" disabled selected>Selecione o banco</option>
-            <option *ngFor="let opt of opcoesBancos" [value]="opt.value">{{ opt.label }}</option>
+            <option value="" disabled>Selecione o banco</option>
+            <option *ngFor="let opt of opcoesBancos" [value]="opt.value">
+              {{ opt.label }}
+            </option>
           </select>
         </div>
 
@@ -77,12 +86,132 @@
 
         <div class="form-field">
           <label>Saldo Inicial</label>
-          <input type="number" [(ngModel)]="dadosForm.saldo" placeholder="R$ 0,00">
+          <input type="number" [(ngModel)]="dadosForm.saldo" placeholder="R$ 0,00" min="0">
         </div>
 
       </div>
 
-      <button class="btn-salvar" (click)="cadastrar()">Cadastrar Conta</button>
+      <button class="btn-salvar" type="button" (click)="cadastrar()">
+        Cadastrar Conta
+      </button>
     </div>
+
+    <div class="edit-card" *ngIf="contaEditando">
+
+      <h2 class="edit-title">Editar Conta Bancária</h2>
+
+      <p class="edit-subtitle">
+        Alterando: {{ contaEditando.banco }} - {{ contaEditando.numeroConta }}
+      </p>
+
+      <div class="form-grid">
+
+        <div class="form-field">
+          <label>Banco</label>
+          <select [(ngModel)]="formEdicao.banco">
+            <option value="" disabled>Selecione o banco</option>
+            <option *ngFor="let opt of opcoesBancos" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label>Agência</label>
+          <input type="text" [(ngModel)]="formEdicao.agencia">
+        </div>
+
+        <div class="form-field">
+          <label>Número da Conta</label>
+          <input type="text" [(ngModel)]="formEdicao.numeroConta">
+        </div>
+
+        <div class="form-field">
+          <label>Corrigir Saldo Atual</label>
+          <input type="number" [(ngModel)]="formEdicao.saldo" min="0">
+          <small class="field-help" style="color: rgb(221, 221, 41);">
+  Atenção: alterar este valor corrige diretamente o saldo atual da conta.
+      </small>
+        </div>
+
+      </div>
+
+      <div class="edit-actions">
+        <button type="button" class="btn-salvar-edicao" (click)="salvarEdicao()">
+          Salvar alterações
+        </button>
+
+        <button type="button" class="btn-cancelar-edicao" (click)="cancelarEdicao()">
+          Cancelar
+        </button>
+      </div>
+
+    </div>
+
+    <div class="table-card">
+
+      <h2 class="table-title">Contas Cadastradas</h2>
+
+      <table class="data-table">
+
+        <thead>
+          <tr>
+            <th>Banco</th>
+            <th>Agência</th>
+            <th>Número da Conta</th>
+            <th>Saldo</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr *ngFor="let conta of contasBancarias">
+            <td>
+              <span class="badge-banco">{{ conta.banco }}</span>
+            </td>
+
+            <td>{{ conta.agencia }}</td>
+
+            <td>{{ conta.numeroConta }}</td>
+
+            <td class="valor-saldo">
+              {{ conta.saldo | currency:'BRL' }}
+            </td>
+
+            <td class="acoes">
+              <button
+                type="button"
+                class="btn-editar"
+                (click)="abrirEdicao(conta)"
+                title="Editar"
+              >
+                <i class="fa-regular fa-pen-to-square"></i>
+              </button>
+
+              <button
+                type="button"
+                class="btn-excluir"
+                (click)="excluirConta(conta)"
+                title="Excluir"
+              >
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+            </td>
+          </tr>
+
+          <tr *ngIf="contasBancarias.length === 0">
+            <td colspan="5" class="empty-row">
+              Nenhuma conta cadastrada.
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
   </main>
+
 </div>

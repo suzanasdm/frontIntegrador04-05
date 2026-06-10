@@ -80,3 +80,172 @@
 
 .btn-salvar { background: #409687; color: white; padding: 12px 100px; border: none; border-radius: 8px; font-size: 18px; margin-top: 30px; cursor: pointer; transition: 0.3s; }
 .btn-salvar:hover { background: #337a6e; }
+
+.edit-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-left: 6px solid #409687;
+  border-radius: 18px;
+  padding: 32px;
+  max-width: 800px;
+  margin: 0 auto 32px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+}
+
+.edit-title {
+  font-size: 24px;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 900;
+  text-align: center;
+}
+
+.edit-subtitle {
+  color: #8b949e;
+  font-size: 14px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.edit-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.btn-salvar-edicao {
+  background: #409687;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-salvar-edicao:hover {
+  background: #337a6e;
+}
+
+.btn-cancelar-edicao {
+  background: white;
+  color: #555;
+  border: 1px solid #ddd;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-cancelar-edicao:hover {
+  background: #f9fafb;
+}
+
+.table-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 auto;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+  overflow-x: auto;
+}
+
+.table-title {
+  font-size: 24px;
+  margin-bottom: 24px;
+  text-align: center;
+  color: #111827;
+  font-weight: 900;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+.data-table th {
+  text-align: left;
+  padding: 15px 14px;
+  border-bottom: 2px solid #eee;
+  color: #333;
+  font-size: 15px;
+  background: #f8fafc;
+}
+
+.data-table td {
+  padding: 15px 14px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  color: #555;
+  vertical-align: middle;
+}
+
+.data-table tbody tr:hover {
+  background: #e9f7f4;
+}
+
+.badge-banco {
+  display: inline-block;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: #e9f7f4;
+  color: #409687;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.valor-saldo {
+  color: #409687;
+  font-weight: 900;
+}
+
+.acoes {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.btn-editar,
+.btn-excluir {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-editar {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.btn-editar:hover {
+  background: #bae6fd;
+}
+
+.btn-excluir {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.btn-excluir:hover {
+  background: #fecaca;
+}
+
+.empty-row {
+  text-align: center !important;
+  color: #8b949e;
+  padding: 26px 0 !important;
+  font-weight: 600;
+}
