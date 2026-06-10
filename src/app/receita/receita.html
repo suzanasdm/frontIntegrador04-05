@@ -160,21 +160,48 @@
 
     </nav>
 
-    <div class="header-actions">
-      <button
-        class="btn-login"
-        type="button"
-        (click)="logout()"
-      >
-        Sair
-      </button>
+ <div class="header-actions">
+
+  <div class="header-user-info">
+    <div class="header-user-avatar">
+      {{ usuarioNome.charAt(0) }}
     </div>
+
+    <div class="header-user-text">
+      <span class="header-welcome">
+        Bem-vindo,
+      </span>
+
+      <strong>
+        {{ usuarioNome }}
+      </strong>
+
+      <small>
+        {{ usuarioCompleto.email }}
+      </small>
+    </div>
+  </div>
+
+  <button
+    class="btn-login"
+    type="button"
+    (click)="logout()"
+  >
+    Sair
+  </button>
+
+</div>
 
   </header>
 
   <main class="main-content">
 
-    <div class="toggle-group">
+
+
+    <h1 class="page-title">
+      Receita
+    </h1>
+ <div class="toggle-group">
       <button
         type="button"
         class="toggle-btn active"
@@ -190,11 +217,6 @@
         Despesa
       </button>
     </div>
-
-    <h1 class="page-title">
-      Receita
-    </h1>
-
     <div class="form-card">
 
       <div class="form-grid">

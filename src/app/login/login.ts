@@ -7,13 +7,13 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-login',
   standalone: true,
-  
+
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
 export class Login implements OnInit {
-  
+
   private loginService = inject(LoginService);
   private router = inject(Router);
 
@@ -23,7 +23,7 @@ export class Login implements OnInit {
   ngOnInit(): void {
     // Usando o método renomeado
     if (this.loginService.isUsuarioLogado()) {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/dashboard']);
     }
   }
 
