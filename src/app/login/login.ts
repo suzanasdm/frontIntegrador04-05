@@ -21,7 +21,7 @@ export class Login implements OnInit {
   errorMessage: string = '';
 
   ngOnInit(): void {
-    // Usando o método renomeado
+
     if (this.loginService.isUsuarioLogado()) {
       this.router.navigate(['/dashboard']);
     }
