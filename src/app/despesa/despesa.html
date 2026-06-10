@@ -161,14 +161,36 @@
     </nav>
 
     <div class="header-actions">
-      <button
-        class="btn-login"
-        type="button"
-        (click)="logout()"
-      >
-        Sair
-      </button>
+
+  <div class="header-user-info">
+    <div class="header-user-avatar">
+      {{ usuarioNome.charAt(0) }}
     </div>
+
+    <div class="header-user-text">
+      <span class="header-welcome">
+        Bem-vindo,
+      </span>
+
+      <strong>
+        {{ usuarioNome }}
+      </strong>
+
+      <small>
+        {{ usuarioCompleto.email }}
+      </small>
+    </div>
+  </div>
+
+  <button
+    class="btn-login"
+    type="button"
+    (click)="logout()"
+  >
+    Sair
+  </button>
+
+</div>
 
   </header>
 
