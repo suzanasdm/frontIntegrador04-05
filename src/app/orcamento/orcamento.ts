@@ -30,9 +30,23 @@ export class Orcamento implements OnInit {
 
   contasBancarias: any[] = [];
   categorias: any[] = [];
+  categoriasMeta: any[] = [];
   listaOrcamentos: any[] = [];
 
   exibirSidebar: boolean = false;
+  listaMetas: any[] = [];
+
+  metaForm = {
+  id: null as number | null,
+  descricao: '',
+  valorObjetivo: null as number | null,
+  valorAtual: 0,
+  prazo: '',
+  prioridade: 'MEDIA',
+  categoriaId: null as number | null
+  };
+
+  editandoMeta: boolean = false;
 
   dadosForm = {
     valorLimite: 0,
@@ -68,8 +82,10 @@ export class Orcamento implements OnInit {
 
   carregarDados(): void {
     this.carregarCategorias();
+    this.carregarCategoriasMeta();
     this.carregarContas();
     this.carregarOrcamentos();
+     this.carregarMetas();
   }
 
   toggleSidebar(): void {
@@ -91,6 +107,20 @@ export class Orcamento implements OnInit {
     });
   }
 
+  carregarCategoriasMeta(): void {
+  this.http.get<any[]>(
+    `http://localhost:8080/api/categorias/usuario/${this.usuarioId}`
+  ).subscribe({
+    next: (res) => {
+      this.categoriasMeta = res;
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      console.error('Erro ao buscar categorias para metas', err);
+      alert(err.error?.message || 'Erro ao carregar categorias para metas.');
+    }
+  });
+}
   carregarCategorias(): void {
     this.http.get<any[]>(
       `http://localhost:8080/api/categorias/usuario/${this.usuarioId}/tipo/DESPESA`
@@ -189,6 +219,178 @@ export class Orcamento implements OnInit {
     const porcentagem = (gasto / limite) * 100;
 
     return porcentagem > 100 ? 100 : porcentagem;
+  }
+  carregarMetas(): void {
+  this.http.get<any[]>(
+    `http://localhost:8080/api/metas/usuario/${this.usuarioId}`
+  ).subscribe({
+    next: (res) => {
+      this.listaMetas = res;
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      console.error('Erro ao buscar metas', err);
+      alert(err.error?.message || 'Erro ao carregar metas.');
+    }
+  });
+}
+
+salvarMeta(): void {
+  if (!this.metaForm.descricao || this.metaForm.descricao.trim() === '') {
+    alert('Informe a descrição da meta.');
+    return;
+  }
+
+  if (!this.metaForm.valorObjetivo || Number(this.metaForm.valorObjetivo) <= 0) {
+    alert('Informe um valor objetivo maior que zero.');
+    return;
+  }
+
+  if (this.metaForm.valorAtual < 0) {
+    alert('O valor atual não pode ser negativo.');
+    return;
+  }
+
+  if (!this.metaForm.prazo) {
+    alert('Informe o prazo da meta.');
+    return;
+  }
+
+  const payload = {
+    descricao: this.metaForm.descricao,
+    valorObjetivo: Number(this.metaForm.valorObjetivo),
+    valorAtual: Number(this.metaForm.valorAtual || 0),
+    prazo: this.metaForm.prazo,
+    prioridade: this.metaForm.prioridade,
+    usuarioId: this.usuarioId,
+    categoriaId: this.metaForm.categoriaId ? Number(this.metaForm.categoriaId) : null
+  };
+
+  if (this.editandoMeta && this.metaForm.id) {
+    this.http.put(
+      `http://localhost:8080/api/metas/${this.metaForm.id}`,
+      payload
+    ).subscribe({
+      next: () => {
+        alert('Meta atualizada com sucesso!');
+        this.carregarMetas();
+        this.limparFormularioMeta();
+      },
+      error: (err) => {
+        console.error('Erro ao atualizar meta', err);
+        alert(err.error?.message || 'Erro ao atualizar meta.');
+      }
+    });
+
+    return;
+  }
+
+  this.http.post(
+    'http://localhost:8080/api/metas',
+    payload
+  ).subscribe({
+    next: () => {
+      alert('Meta cadastrada com sucesso!');
+      this.carregarMetas();
+      this.limparFormularioMeta();
+    },
+    error: (err) => {
+      console.error('Erro ao salvar meta', err);
+      alert(err.error?.message || 'Erro ao salvar meta.');
+    }
+  });
+}
+
+editarMeta(meta: any): void {
+  this.editandoMeta = true;
+
+  this.metaForm = {
+    id: meta.id,
+    descricao: meta.descricao,
+    valorObjetivo: meta.valorObjetivo,
+    valorAtual: meta.valorAtual,
+    prazo: meta.prazo,
+    prioridade: meta.prioridade,
+    categoriaId: meta.categoriaId
+  };
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+
+  this.cdr.detectChanges();
+}
+
+deletarMeta(id: number): void {
+  const confirmar = confirm('Deseja realmente excluir esta meta?');
+
+  if (!confirmar) {
+    return;
+  }
+
+  this.http.delete(
+    `http://localhost:8080/api/metas/${id}`
+  ).subscribe({
+    next: () => {
+      alert('Meta excluída com sucesso!');
+      this.carregarMetas();
+    },
+    error: (err) => {
+      console.error('Erro ao excluir meta', err);
+      alert(err.error?.message || 'Erro ao excluir meta.');
+    }
+  });
+}
+
+limparFormularioMeta(): void {
+  this.editandoMeta = false;
+
+  this.metaForm = {
+    id: null,
+    descricao: '',
+    valorObjetivo: null,
+    valorAtual: 0,
+    prazo: '',
+    prioridade: 'MEDIA',
+    categoriaId: null
+  };
+
+  this.cdr.detectChanges();
+}
+
+calcularPorcentagemMeta(valorAtual: number, valorObjetivo: number): number {
+  if (!valorObjetivo || valorObjetivo === 0) {
+    return 0;
+  }
+
+  const porcentagem = (valorAtual / valorObjetivo) * 100;
+
+  return porcentagem > 100 ? 100 : porcentagem;
+}
+
+  obterClasseStatusMeta(status: string): string {
+  if (status === 'CONCLUIDA') {
+    return 'meta-status-concluida';
+  }
+
+  if (status === 'ATRASADA') {
+    return 'meta-status-atrasada';
+  }
+
+  return 'meta-status-andamento';
+  }
+
+obterClassePrioridade(prioridade: string): string {
+  if (prioridade === 'ALTA') {
+    return 'prioridade-alta';
+  }
+
+  if (prioridade === 'BAIXA') {
+    return 'prioridade-baixa';
+  }
+
+  return 'prioridade-media';
   }
 
   logout(): void {
