@@ -11,6 +11,7 @@
 
       <button
         class="btn-close-sidebar"
+        type="button"
         (click)="toggleSidebar()"
       >
         ✕
@@ -69,6 +70,7 @@
 
     <button
       class="logout-btn-sidebar"
+      type="button"
       (click)="logout()"
     >
       Sair da Conta
@@ -154,35 +156,35 @@
 
     <div class="header-actions">
 
-  <div class="header-user-info">
-    <div class="header-user-avatar">
-      {{ usuarioNome.charAt(0) }}
+      <div class="header-user-info">
+        <div class="header-user-avatar">
+          {{ usuarioNome.charAt(0) }}
+        </div>
+
+        <div class="header-user-text">
+          <span class="header-welcome">
+            Bem-vindo,
+          </span>
+
+          <strong>
+            {{ usuarioNome }}
+          </strong>
+
+          <small>
+            {{ usuarioCompleto.email }}
+          </small>
+        </div>
+      </div>
+
+      <button
+        class="btn-login"
+        type="button"
+        (click)="logout()"
+      >
+        Sair
+      </button>
+
     </div>
-
-    <div class="header-user-text">
-      <span class="header-welcome">
-        Bem-vindo,
-      </span>
-
-      <strong>
-        {{ usuarioNome }}
-      </strong>
-
-      <small>
-        {{ usuarioCompleto.email }}
-      </small>
-    </div>
-  </div>
-
-  <button
-    class="btn-login"
-    type="button"
-    (click)="logout()"
-  >
-    Sair
-  </button>
-
-</div>
 
   </header>
 
@@ -249,10 +251,10 @@
 
       </div>
 
-
       <div class="form-actions">
         <button
           class="btn-salvar"
+          type="button"
           (click)="salvarOrcamento()"
         >
           Configurar Limite
@@ -260,7 +262,8 @@
       </div>
 
     </div>
-     <div class="table-card">
+
+    <div class="table-card">
 
       <h2 class="table-title">
         Acompanhamento dos Limites Mensais
@@ -338,258 +341,300 @@
 
     </div>
 
-      <div class="meta-card">
+    <div class="meta-card">
 
+      <div class="meta-card-header">
 
-  <div class="meta-card-header">
+        <div>
+          <h2>
+            Cadastrar Meta Financeira
+          </h2>
 
-    <div>
-      <h2>
-        Cadastrar Meta Financeira
-      </h2>
+          <p>
+            Defina um objetivo e acompanhe seu progresso.
+          </p>
+        </div>
 
-      <p>
-        Defina um objetivo e acompanhe seu progresso.
-      </p>
-    </div>
+      </div>
 
+      <div class="meta-grid">
 
+        <div class="form-field">
+          <label>
+            Descrição da Meta
+          </label>
 
-  </div>
+          <input
+            type="text"
+            [(ngModel)]="metaForm.descricao"
+            placeholder="Ex: Comprar notebook"
+          >
+        </div>
 
-  <div class="meta-grid">
+        <div class="form-field">
+          <label>
+            Valor Objetivo
+          </label>
 
-    <div class="form-field">
-      <label>
-        Descrição da Meta
-      </label>
+          <input
+            type="number"
+            [(ngModel)]="metaForm.valorObjetivo"
+            placeholder="R$ 0,00"
+            min="0"
+          >
+        </div>
 
-      <input
-        type="text"
-        [(ngModel)]="metaForm.descricao"
-        placeholder="Ex: Comprar notebook"
-      >
-    </div>
+        <div class="form-field">
+          <label>
+            Valor Atual
+          </label>
 
-    <div class="form-field">
-      <label>
-        Valor Objetivo
-      </label>
+          <input
+            type="number"
+            [(ngModel)]="metaForm.valorAtual"
+            placeholder="R$ 0,00"
+            min="0"
+          >
+        </div>
 
-      <input
-        type="number"
-        [(ngModel)]="metaForm.valorObjetivo"
-        placeholder="R$ 0,00"
-        min="0"
-      >
-    </div>
+        <div class="form-field">
+          <label>
+            Prazo
+          </label>
 
-    <div class="form-field">
-      <label>
-        Valor Atual
-      </label>
+          <input
+            type="date"
+            [(ngModel)]="metaForm.prazo"
+          >
+        </div>
 
-      <input
-        type="number"
-        [(ngModel)]="metaForm.valorAtual"
-        placeholder="R$ 0,00"
-        min="0"
-      >
-    </div>
+        <div class="form-field">
+          <label>
+            Prioridade
+          </label>
 
-    <div class="form-field">
-      <label>
-        Prazo
-      </label>
+          <select [(ngModel)]="metaForm.prioridade">
+            <option value="BAIXA">
+              Baixa
+            </option>
 
-      <input
-        type="date"
-        [(ngModel)]="metaForm.prazo"
-      >
-    </div>
+            <option value="MEDIA">
+              Média
+            </option>
 
-    <div class="form-field">
-      <label>
-        Prioridade
-      </label>
+            <option value="ALTA">
+              Alta
+            </option>
+          </select>
+        </div>
 
-      <select [(ngModel)]="metaForm.prioridade">
-        <option value="BAIXA">
-          Baixa
-        </option>
+        <div class="form-field">
+          <label>
+            Categoria Relacionada
+          </label>
 
-        <option value="MEDIA">
-          Média
-        </option>
+          <select [(ngModel)]="metaForm.categoriaId">
+            <option [ngValue]="null">
+              Sem categoria
+            </option>
 
-        <option value="ALTA">
-          Alta
-        </option>
-      </select>
-    </div>
+            <option
+              *ngFor="let c of categoriasMeta"
+              [ngValue]="c.id"
+            >
+              {{ c.nome }}
+            </option>
+          </select>
+        </div>
 
-    <div class="form-field">
-      <label>
-        Categoria Relacionada
-      </label>
+      </div>
 
-      <select [(ngModel)]="metaForm.categoriaId">
-        <option [ngValue]="null">
-          Sem categoria
-        </option>
+      <div class="form-actions meta-actions">
 
-        <option
-          *ngFor="let c of categoriasMeta"
-          [ngValue]="c.id"
+        <button
+          class="btn-salvar"
+          type="button"
+          (click)="salvarMeta()"
         >
-          {{ c.nome }}
-        </option>
-      </select>
+          {{ editandoMeta ? 'Atualizar Meta' : '+ Salvar Meta' }}
+        </button>
+
+        <button
+          *ngIf="editandoMeta"
+          class="btn-cancelar"
+          type="button"
+          (click)="limparFormularioMeta()"
+        >
+          Cancelar
+        </button>
+
+      </div>
+
     </div>
 
-  </div>
+    <div class="metas-list-card">
 
-  <div class="form-actions meta-actions">
+      <div class="metas-list-header">
 
-    <button
-      class="btn-salvar"
-      type="button"
-      (click)="salvarMeta()"
-    >
-      {{ editandoMeta ? 'Atualizar Meta' : '+ Salvar Meta' }}
-    </button>
+        <h2>
+          Suas Metas Cadastradas
+        </h2>
 
-    <button
-      *ngIf="editandoMeta"
-      class="btn-cancelar"
-      type="button"
-      (click)="limparFormularioMeta()"
-    >
-      Cancelar
-    </button>
+        <span>
+          {{ listaMetas.length }} meta(s)
+        </span>
 
-  </div>
+      </div>
 
-</div>
+      <div
+        *ngIf="listaMetas.length === 0"
+        class="empty-orcamentos"
+      >
+        Nenhuma meta cadastrada até o momento.
+      </div>
 
-<div class="metas-list-card">
+      <div
+        class="meta-item"
+        *ngFor="let meta of listaMetas"
+      >
 
-  <div class="metas-list-header">
+        <div class="meta-item-header">
 
-    <h2>
-      Suas Metas Cadastradas
-    </h2>
+          <div>
+            <h3>
+              {{ meta.descricao }}
+            </h3>
 
-    <span>
-      {{ listaMetas.length }} meta(s)
-    </span>
+            <p>
+              Categoria:
+              {{ meta.categoriaNome || 'Sem categoria' }}
+            </p>
+          </div>
 
-  </div>
+          <div class="meta-badges">
+
+            <span
+              class="prioridade-badge"
+              [ngClass]="obterClassePrioridade(meta.prioridade)"
+            >
+              {{ meta.prioridade }}
+            </span>
+
+            <span
+              class="status-badge"
+              [ngClass]="obterClasseStatusMeta(meta.status)"
+            >
+              {{ meta.status }}
+            </span>
+
+          </div>
+
+        </div>
+
+        <div class="meta-progress-area">
+
+          <div class="meta-progress-info">
+
+            <span>
+              Progresso:
+              {{ meta.percentual | number:'1.0-1' }}%
+            </span>
+
+            <span>
+              {{ meta.valorAtual | currency:'BRL' }}
+              /
+              {{ meta.valorObjetivo | currency:'BRL' }}
+            </span>
+
+          </div>
+
+          <div class="progress-track">
+            <div
+              class="progress-bar progress-success"
+              [style.width.%]="calcularPorcentagemMeta(meta.valorAtual, meta.valorObjetivo)"
+            ></div>
+          </div>
+
+        </div>
+
+        <div
+          class="meta-alerta"
+          *ngIf="obterAlertaMeta(meta) as alerta"
+        >
+          ⚠️ {{ alerta }}
+        </div>
+
+        <div class="meta-footer">
+
+          <span>
+            Prazo:
+            {{ meta.prazo | date:'dd/MM/yyyy' }}
+          </span>
+
+          <div class="meta-buttons">
+
+            <button
+              class="btn-editar-meta"
+              type="button"
+              (click)="editarMeta(meta)"
+            >
+              Editar
+            </button>
+
+            <button
+              class="btn-excluir-meta"
+              type="button"
+              (click)="deletarMeta(meta)"
+            >
+              Excluir
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
 
   <div
-    *ngIf="listaMetas.length === 0"
-    class="empty-orcamentos"
+    class="notificacao-container"
+    *ngIf="notificacao.visivel"
   >
-    Nenhuma meta cadastrada até o momento.
-  </div>
+    <div
+      class="notificacao-card"
+      [ngClass]="{
+        'notificacao-sucesso': notificacao.tipo === 'sucesso',
+        'notificacao-erro': notificacao.tipo === 'erro',
+        'notificacao-aviso': notificacao.tipo === 'aviso'
+      }"
+    >
+      <div class="notificacao-icone">
+        <span *ngIf="notificacao.tipo === 'sucesso'">✓</span>
+        <span *ngIf="notificacao.tipo === 'erro'">!</span>
+        <span *ngIf="notificacao.tipo === 'aviso'">⚠</span>
+      </div>
 
-  <div
-    class="meta-item"
-    *ngFor="let meta of listaMetas"
-  >
-
-    <div class="meta-item-header">
-
-      <div>
-        <h3>
-          {{ meta.descricao }}
-        </h3>
+      <div class="notificacao-conteudo">
+        <strong>
+          {{ notificacao.titulo }}
+        </strong>
 
         <p>
-          Categoria:
-          {{ meta.categoriaNome || 'Sem categoria' }}
+          {{ notificacao.mensagem }}
         </p>
       </div>
 
-      <div class="meta-badges">
-
-        <span
-          class="prioridade-badge"
-          [ngClass]="obterClassePrioridade(meta.prioridade)"
-        >
-          {{ meta.prioridade }}
-        </span>
-
-        <span
-          class="status-badge"
-          [ngClass]="obterClasseStatusMeta(meta.status)"
-        >
-          {{ meta.status }}
-        </span>
-
-      </div>
-
+      <button
+        type="button"
+        class="notificacao-fechar"
+        (click)="fecharNotificacao()"
+      >
+        ×
+      </button>
     </div>
-
-    <div class="meta-progress-area">
-
-      <div class="meta-progress-info">
-
-        <span>
-          Progresso:
-          {{ meta.percentual | number:'1.0-1' }}%
-        </span>
-
-        <span>
-          {{ meta.valorAtual | currency:'BRL' }}
-          /
-          {{ meta.valorObjetivo | currency:'BRL' }}
-        </span>
-
-      </div>
-
-      <div class="progress-track">
-        <div
-          class="progress-bar progress-success"
-          [style.width.%]="calcularPorcentagemMeta(meta.valorAtual, meta.valorObjetivo)"
-        ></div>
-      </div>
-
-    </div>
-
-    <div class="meta-footer">
-
-      <span>
-        Prazo:
-        {{ meta.prazo | date:'dd/MM/yyyy' }}
-      </span>
-
-      <div class="meta-buttons">
-
-        <button
-          class="btn-editar-meta"
-          type="button"
-          (click)="editarMeta(meta)"
-        >
-          Editar
-        </button>
-
-        <button
-          class="btn-excluir-meta"
-          type="button"
-          (click)="deletarMeta(meta.id)"
-        >
-          Excluir
-        </button>
-
-      </div>
-
-    </div>
-
   </div>
-
-</div>
-
-  </main>
 
 </div>
