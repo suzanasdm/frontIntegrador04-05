@@ -25,35 +25,35 @@ export class Despesa implements OnInit {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
-  // =========================
-  // DADOS USUÁRIO
-  // =========================
-
   usuarioId: number = 0;
   usuarioNome: string = '';
   usuarioCompleto: any = {};
-
-  // =========================
-  // LISTAS
-  // =========================
 
   contasBancarias: any[] = [];
   categorias: any[] = [];
   listaDespesas: any[] = [];
 
-  // =========================
-  // CONTROLE UI
-  // =========================
-
   exibirSidebar: boolean = false;
-
   exibirInputCategoria: boolean = false;
-
   novaCategoriaNome: string = '';
 
-  // =========================
-  // FORMULÁRIO
-  // =========================
+  notificacao = {
+    visivel: false,
+    tipo: 'sucesso' as 'sucesso' | 'erro' | 'aviso',
+    titulo: '',
+    mensagem: ''
+  };
+
+  private timeoutNotificacao: any;
+
+  confirmacao = {
+    visivel: false,
+    titulo: '',
+    mensagem: '',
+    textoConfirmar: 'Confirmar',
+    textoCancelar: 'Cancelar',
+    acao: null as (() => void) | null
+  };
 
   dadosForm = {
     descricao: '',
@@ -63,21 +63,19 @@ export class Despesa implements OnInit {
     contaId: ''
   };
 
-despesaEditando: any = null;
+  despesaEditando: any = null;
 
-formEdicao = {
-  id: null as number | null,
-  descricao: '',
-  valor: 0,
-  data: '',
-  categoriaId: '',
-  contaId: ''
-};
+  formEdicao = {
+    id: null as number | null,
+    descricao: '',
+    valor: 0,
+    data: '',
+    categoriaId: '',
+    contaId: ''
+  };
 
   ngOnInit(): void {
-
     if (isPlatformBrowser(this.platformId)) {
-
       const user = JSON.parse(
         localStorage.getItem('usuarioLogado') || '{}'
       );
@@ -95,9 +93,92 @@ formEdicao = {
     }
   }
 
-  // =========================
-  // CARREGAR DADOS
-  // =========================
+  // ==========================
+  // NOTIFICAÇÕES
+  // ==========================
+
+  mostrarNotificacao(
+    tipo: 'sucesso' | 'erro' | 'aviso',
+    titulo: string,
+    mensagem: string
+  ): void {
+    this.notificacao = {
+      visivel: true,
+      tipo,
+      titulo,
+      mensagem
+    };
+
+    this.cdr.detectChanges();
+
+    clearTimeout(this.timeoutNotificacao);
+
+    this.timeoutNotificacao = setTimeout(() => {
+      this.fecharNotificacao();
+    }, 3500);
+  }
+
+  fecharNotificacao(): void {
+    this.notificacao.visivel = false;
+    this.cdr.detectChanges();
+  }
+
+  // ==========================
+  // MODAL DE CONFIRMAÇÃO
+  // ==========================
+
+  abrirConfirmacao(
+    titulo: string,
+    mensagem: string,
+    acao: () => void,
+    textoConfirmar: string = 'Confirmar',
+    textoCancelar: string = 'Cancelar'
+  ): void {
+    this.confirmacao = {
+      visivel: true,
+      titulo,
+      mensagem,
+      textoConfirmar,
+      textoCancelar,
+      acao
+    };
+
+    this.cdr.detectChanges();
+  }
+
+  cancelarConfirmacao(): void {
+    this.confirmacao = {
+      visivel: false,
+      titulo: '',
+      mensagem: '',
+      textoConfirmar: 'Confirmar',
+      textoCancelar: 'Cancelar',
+      acao: null
+    };
+
+    this.cdr.detectChanges();
+  }
+
+  confirmarAcao(): void {
+    if (this.confirmacao.acao) {
+      this.confirmacao.acao();
+    }
+
+    this.cancelarConfirmacao();
+  }
+
+  // ==========================
+  // SIDEBAR
+  // ==========================
+
+  toggleSidebar(): void {
+    this.exibirSidebar = !this.exibirSidebar;
+    this.cdr.detectChanges();
+  }
+
+  // ==========================
+  // CARREGAMENTOS
+  // ==========================
 
   carregarDados(): void {
     this.carregarCategorias();
@@ -105,396 +186,426 @@ formEdicao = {
     this.carregarContas();
   }
 
-  // =========================
-  // SIDEBAR
-  // =========================
-
-  toggleSidebar(): void {
-    this.exibirSidebar = !this.exibirSidebar;
-    this.cdr.detectChanges();
-  }
-
-  // =========================
-  // CONTAS
-  // =========================
-
   carregarContas(): void {
-
     this.http.get<any[]>(
       `http://localhost:8080/api/contas/usuario/${this.usuarioId}`
-    )
-    .subscribe({
-
+    ).subscribe({
       next: (res) => {
-
         this.contasBancarias = res;
-
         this.cdr.detectChanges();
       },
-
       error: (err) => {
         console.error('Erro ao carregar contas:', err);
-      }
 
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao carregar contas',
+          err.error?.message || 'Não foi possível buscar suas contas bancárias.'
+        );
+      }
     });
   }
-
-  // =========================
-  // CATEGORIAS
-  // =========================
 
   carregarCategorias(): void {
-
     this.http.get<any[]>(
       `http://localhost:8080/api/categorias/usuario/${this.usuarioId}/tipo/DESPESA`
-    )
-    .subscribe({
-
+    ).subscribe({
       next: (res) => {
-
         this.categorias = res;
-
         this.cdr.detectChanges();
       },
-
       error: (err) => {
-
         console.error('Erro ao carregar categorias:', err);
-      }
 
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao carregar categorias',
+          err.error?.message || 'Não foi possível buscar as categorias de despesa.'
+        );
+      }
     });
   }
-
-  // =========================
-  // DESPESAS
-  // =========================
 
   carregarDespesas(): void {
-
     this.http.get<any[]>(
       `http://localhost:8080/api/despesas/usuario/${this.usuarioId}`
-    )
-    .subscribe({
-
+    ).subscribe({
       next: (res) => {
-
         this.listaDespesas = res;
-
         this.cdr.detectChanges();
       },
-
       error: (err) => {
-
         console.error('Erro ao carregar despesas:', err);
-      }
 
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao carregar despesas',
+          err.error?.message || 'Não foi possível buscar suas despesas cadastradas.'
+        );
+      }
     });
   }
 
-  // =========================
-  // SALVAR CATEGORIA
-  // =========================
+  // ==========================
+  // CATEGORIA
+  // ==========================
 
   salvarCategoria(): void {
-
     if (!this.novaCategoriaNome.trim()) {
-
-      alert('Informe o nome da categoria.');
-
+      this.mostrarNotificacao(
+        'aviso',
+        'Categoria vazia',
+        'Informe o nome da categoria antes de salvar.'
+      );
       return;
     }
 
     const payload = {
-
-      nome: this.novaCategoriaNome,
-
+      nome: this.novaCategoriaNome.trim(),
       tipo: 'DESPESA',
-
       usuarioId: this.usuarioId
     };
 
     this.http.post(
       'http://localhost:8080/api/categorias',
       payload
-    )
-    .subscribe({
-
+    ).subscribe({
       next: (res: any) => {
-
-        // adiciona na lista
         this.categorias.push(res);
-
-        // seleciona automaticamente
-        this.dadosForm.categoriaId = res.id;
-
-        // limpa campo
+        this.dadosForm.categoriaId = String(res.id);
         this.novaCategoriaNome = '';
-
-        // fecha input
         this.exibirInputCategoria = false;
 
+        this.mostrarNotificacao(
+          'sucesso',
+          'Categoria criada!',
+          'A nova categoria de despesa foi adicionada com sucesso.'
+        );
+
         this.cdr.detectChanges();
-
-        alert('Categoria cadastrada com sucesso!');
       },
-
       error: (err) => {
-
         console.error('Erro ao salvar categoria:', err);
 
-        alert(
-          err.error?.message ||
-          'Erro ao cadastrar categoria.'
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao criar categoria',
+          err.error?.message || 'Não foi possível cadastrar a categoria.'
         );
       }
-
     });
   }
 
-  // =========================
-  // SALVAR DESPESA
-  // =========================
+  // ==========================
+  // CADASTRAR DESPESA
+  // ==========================
 
   salvarDespesa(): void {
-
-    // DESCRIÇÃO
-
     if (!this.dadosForm.descricao.trim()) {
-
-      alert('Informe a descrição da despesa.');
-
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Informe a descrição da despesa.'
+      );
       return;
     }
 
-    // VALOR
-
-    if (!this.dadosForm.valor ||
-        Number(this.dadosForm.valor) <= 0) {
-
-      alert('Informe um valor maior que zero.');
-
+    if (!this.dadosForm.valor || Number(this.dadosForm.valor) <= 0) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Valor inválido',
+        'Informe um valor maior que zero.'
+      );
       return;
     }
-
-    // DATA
 
     if (!this.dadosForm.data) {
-
-      alert('Informe a data da despesa.');
-
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Informe a data da despesa.'
+      );
       return;
     }
-
-    // CATEGORIA
 
     if (!this.dadosForm.categoriaId) {
-
-      alert('Selecione uma categoria.');
-
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Selecione uma categoria.'
+      );
       return;
     }
-
-    // CONTA
 
     if (!this.dadosForm.contaId) {
-
-      alert('Selecione uma conta bancária.');
-
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Selecione uma conta bancária.'
+      );
       return;
     }
 
-    // PAYLOAD
-
     const payload = {
-
-      descricao: this.dadosForm.descricao,
-
+      descricao: this.dadosForm.descricao.trim(),
       valor: Number(this.dadosForm.valor),
-
       data: this.dadosForm.data,
-
       categoriaId: Number(this.dadosForm.categoriaId),
-
       contaId: Number(this.dadosForm.contaId),
-
       usuarioId: this.usuarioId
     };
 
     this.http.post(
       'http://localhost:8080/api/despesas',
       payload
-    )
-    .subscribe({
-
+    ).subscribe({
       next: () => {
-
-        alert('Despesa registrada com sucesso!');
+        this.mostrarNotificacao(
+          'sucesso',
+          'Despesa registrada!',
+          'A despesa foi cadastrada e o saldo da conta foi atualizado.'
+        );
 
         this.carregarDespesas();
-
         this.carregarContas();
-
         this.resetarFormulario();
       },
-
       error: (err) => {
-
         console.error('Erro ao salvar despesa:', err);
 
-        alert(
-          err.error?.message ||
-          'Erro ao salvar despesa.'
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao salvar despesa',
+          err.error?.message || 'Não foi possível cadastrar a despesa.'
         );
       }
-
     });
   }
 
-  // =========================
-  // RESETAR FORMULÁRIO
-  // =========================
-
   resetarFormulario(): void {
-
     this.dadosForm = {
-
       descricao: '',
-
       valor: 0,
-
       data: new Date().toISOString().split('T')[0],
-
       categoriaId: '',
-
       contaId: ''
     };
 
     this.cdr.detectChanges();
   }
 
+  // ==========================
+  // EDITAR DESPESA
+  // ==========================
+
   abrirEdicaoDespesa(item: any): void {
-  this.despesaEditando = item;
+    this.despesaEditando = item;
 
-  this.formEdicao = {
-    id: item.id,
-    descricao: item.descricao,
-    valor: item.valor,
-    data: item.data,
-    categoriaId: item.categoria?.id ? String(item.categoria.id) : '',
-    contaId: item.conta?.id ? String(item.conta.id) : ''
-  };
+    this.formEdicao = {
+      id: item.id,
+      descricao: item.descricao,
+      valor: item.valor,
+      data: item.data,
+      categoriaId: item.categoria?.id ? String(item.categoria.id) : '',
+      contaId: item.conta?.id ? String(item.conta.id) : ''
+    };
 
-  setTimeout(() => {
-    const card = document.querySelector('.edit-card');
-    card?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 100);
+    this.mostrarNotificacao(
+      'aviso',
+      'Editando despesa',
+      `Você está editando a despesa "${item.descricao}".`
+    );
 
-  this.cdr.detectChanges();
-}
+    setTimeout(() => {
+      const card = document.querySelector('.edit-card');
+      card?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
 
-cancelarEdicaoDespesa(): void {
-  this.despesaEditando = null;
-
-  this.formEdicao = {
-    id: null,
-    descricao: '',
-    valor: 0,
-    data: '',
-    categoriaId: '',
-    contaId: ''
-  };
-
-  this.cdr.detectChanges();
-}
-
-salvarEdicaoDespesa(): void {
-  if (!this.formEdicao.id) {
-    alert('Nenhuma despesa selecionada para edição.');
-    return;
+    this.cdr.detectChanges();
   }
 
-  if (!this.formEdicao.descricao.trim()) {
-    alert('Informe a descrição da despesa.');
-    return;
+  cancelarEdicaoDespesa(): void {
+    this.despesaEditando = null;
+
+    this.formEdicao = {
+      id: null,
+      descricao: '',
+      valor: 0,
+      data: '',
+      categoriaId: '',
+      contaId: ''
+    };
+
+    this.mostrarNotificacao(
+      'aviso',
+      'Edição cancelada',
+      'Nenhuma alteração foi salva.'
+    );
+
+    this.cdr.detectChanges();
   }
 
-  if (!this.formEdicao.valor || Number(this.formEdicao.valor) <= 0) {
-    alert('Informe um valor maior que zero.');
-    return;
+  private cancelarEdicaoSemMensagem(): void {
+    this.despesaEditando = null;
+
+    this.formEdicao = {
+      id: null,
+      descricao: '',
+      valor: 0,
+      data: '',
+      categoriaId: '',
+      contaId: ''
+    };
+
+    this.cdr.detectChanges();
   }
 
-  if (!this.formEdicao.data) {
-    alert('Informe a data da despesa.');
-    return;
-  }
-
-  if (!this.formEdicao.categoriaId) {
-    alert('Selecione uma categoria.');
-    return;
-  }
-
-  if (!this.formEdicao.contaId) {
-    alert('Selecione uma conta.');
-    return;
-  }
-
-  const payload = {
-    descricao: this.formEdicao.descricao,
-    valor: Number(this.formEdicao.valor),
-    data: this.formEdicao.data,
-    categoriaId: Number(this.formEdicao.categoriaId),
-    contaId: Number(this.formEdicao.contaId),
-    usuarioId: this.usuarioId
-  };
-
-  this.http.put(
-    `http://localhost:8080/api/despesas/${this.formEdicao.id}`,
-    payload
-  ).subscribe({
-    next: () => {
-      alert('Despesa atualizada com sucesso!');
-      this.cancelarEdicaoDespesa();
-      this.carregarDespesas();
-      this.carregarContas();
-    },
-    error: (err) => {
-      console.error('Erro ao editar despesa', err);
-      alert(err.error?.message || 'Erro ao editar despesa.');
+  salvarEdicaoDespesa(): void {
+    if (!this.formEdicao.id) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Nenhuma despesa selecionada',
+        'Selecione uma despesa para editar.'
+      );
+      return;
     }
-  });
-}
 
-excluirDespesa(item: any): void {
-  const confirmar = confirm(
-    `Deseja realmente excluir a despesa "${item.descricao}"?`
-  );
+    if (!this.formEdicao.descricao.trim()) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Informe a descrição da despesa.'
+      );
+      return;
+    }
 
-  if (!confirmar) {
-    return;
+    if (!this.formEdicao.valor || Number(this.formEdicao.valor) <= 0) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Valor inválido',
+        'Informe um valor maior que zero.'
+      );
+      return;
+    }
+
+    if (!this.formEdicao.data) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Informe a data da despesa.'
+      );
+      return;
+    }
+
+    if (!this.formEdicao.categoriaId) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Selecione uma categoria.'
+      );
+      return;
+    }
+
+    if (!this.formEdicao.contaId) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Selecione uma conta bancária.'
+      );
+      return;
+    }
+
+    const payload = {
+      descricao: this.formEdicao.descricao.trim(),
+      valor: Number(this.formEdicao.valor),
+      data: this.formEdicao.data,
+      categoriaId: Number(this.formEdicao.categoriaId),
+      contaId: Number(this.formEdicao.contaId),
+      usuarioId: this.usuarioId
+    };
+
+    this.http.put(
+      `http://localhost:8080/api/despesas/${this.formEdicao.id}`,
+      payload
+    ).subscribe({
+      next: () => {
+        this.mostrarNotificacao(
+          'sucesso',
+          'Despesa atualizada!',
+          'As informações da despesa foram salvas com sucesso.'
+        );
+
+        this.cancelarEdicaoSemMensagem();
+        this.carregarDespesas();
+        this.carregarContas();
+      },
+      error: (err) => {
+        console.error('Erro ao editar despesa', err);
+
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao editar despesa',
+          err.error?.message || 'Não foi possível atualizar a despesa.'
+        );
+      }
+    });
   }
 
-  this.http.delete(
-    `http://localhost:8080/api/despesas/${item.id}/usuario/${this.usuarioId}`
-  ).subscribe({
-    next: () => {
-      alert('Despesa excluída com sucesso!');
-      this.carregarDespesas();
-      this.carregarContas();
-    },
-    error: (err) => {
-      console.error('Erro ao excluir despesa', err);
-      alert(err.error?.message || 'Erro ao excluir despesa.');
-    }
-  });
-}
+  // ==========================
+  // EXCLUIR DESPESA
+  // ==========================
+
+  excluirDespesa(item: any): void {
+    this.abrirConfirmacao(
+      'Excluir despesa?',
+      `Deseja realmente excluir a despesa "${item.descricao}"? Essa ação também atualizará o saldo da conta vinculada.`,
+      () => {
+        this.http.delete(
+          `http://localhost:8080/api/despesas/${item.id}/usuario/${this.usuarioId}`
+        ).subscribe({
+          next: () => {
+            this.mostrarNotificacao(
+              'sucesso',
+              'Despesa excluída!',
+              'A despesa foi removida e o saldo da conta foi atualizado.'
+            );
+
+            this.carregarDespesas();
+            this.carregarContas();
+          },
+          error: (err) => {
+            console.error('Erro ao excluir despesa', err);
+
+            this.mostrarNotificacao(
+              'erro',
+              'Erro ao excluir despesa',
+              err.error?.message || 'Não foi possível excluir a despesa.'
+            );
+          }
+        });
+      },
+      'Excluir',
+      'Cancelar'
+    );
+  }
+
+  // ==========================
+  // LOGOUT
+  // ==========================
 
   logout(): void {
-
     if (isPlatformBrowser(this.platformId)) {
-
       localStorage.removeItem('usuarioLogado');
 
-      this.router.navigate(['/login']);
+      this.mostrarNotificacao(
+        'sucesso',
+        'Sessão encerrada',
+        'Você saiu do CyberSoft com segurança.'
+      );
+
+      setTimeout(() => {
+        this.router.navigate(['/login']);
+      }, 700);
     }
   }
 }
