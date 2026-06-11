@@ -2,131 +2,279 @@
 
   <aside class="sidebar" [class.active]="exibirSidebar">
     <div class="sidebar-header">
-      <img src="https://i.postimg.cc/Gt0P8dwD/unnamed.png" alt="Logo" class="sidebar-logo">
-      <button class="btn-close-sidebar" type="button" (click)="toggleSidebar()">✕</button>
+      <img
+        src="https://i.postimg.cc/Gt0P8dwD/unnamed.png"
+        alt="Logo"
+        class="sidebar-logo"
+      >
+
+      <button
+        class="btn-close-sidebar"
+        type="button"
+        (click)="toggleSidebar()"
+      >
+        ✕
+      </button>
     </div>
 
     <div class="sidebar-profile">
-      <div class="user-avatar">{{ usuarioNome.charAt(0) }}</div>
-      <p class="greeting">Bem-vindo,</p>
-      <h3>{{ usuarioNome }}</h3>
-      <p class="user-mail">{{ usuarioCompleto.email }}</p>
+      <div class="user-avatar">
+        {{ usuarioNome.charAt(0) }}
+      </div>
+
+      <p class="greeting">
+        Bem-vindo,
+      </p>
+
+      <h3>
+        {{ usuarioNome }}
+      </h3>
+
+      <p class="user-mail">
+        {{ usuarioCompleto.email }}
+      </p>
     </div>
 
     <hr class="sidebar-divider">
 
     <div class="sidebar-accounts">
-      <h4>Minhas Contas</h4>
+      <h4>
+        Minhas Contas
+      </h4>
 
-      <div class="acc-card" *ngFor="let conta of contasBancarias">
-        <span class="bank-name">{{ conta.banco }}</span>
-        <span class="acc-info">Ag: {{ conta.agencia }} | C: {{ conta.numeroConta }}</span>
-        <span class="acc-value">{{ conta.saldo | currency:'BRL' }}</span>
+      <div
+        class="acc-card"
+        *ngFor="let conta of contasBancarias"
+      >
+        <span class="bank-name">
+          {{ conta.banco }}
+        </span>
+
+        <span class="acc-info">
+          Ag: {{ conta.agencia }} | C: {{ conta.numeroConta }}
+        </span>
+
+        <span class="acc-value">
+          {{ conta.saldo | currency:'BRL' }}
+        </span>
       </div>
 
-      <p *ngIf="contasBancarias.length === 0" class="empty-msg">
+      <p
+        *ngIf="contasBancarias.length === 0"
+        class="empty-msg"
+      >
         Nenhuma conta cadastrada.
       </p>
     </div>
 
-    <button class="logout-btn-sidebar" type="button" (click)="logout()">
+    <button
+      class="logout-btn-sidebar"
+      type="button"
+      (click)="logout()"
+    >
       Sair da Conta
     </button>
   </aside>
 
-  <div class="sidebar-overlay" *ngIf="exibirSidebar" (click)="toggleSidebar()"></div>
+  <div
+    class="sidebar-overlay"
+    *ngIf="exibirSidebar"
+    (click)="toggleSidebar()"
+  ></div>
 
   <header class="main-header">
     <div class="logo">
-      <img src="https://i.postimg.cc/Gt0P8dwD/unnamed.png" alt="CyberSoft" (click)="toggleSidebar()">
+      <img
+        src="https://i.postimg.cc/Gt0P8dwD/unnamed.png"
+        alt="CyberSoft"
+        (click)="toggleSidebar()"
+      >
     </div>
 
     <nav class="nav-menu">
-      <a routerLink="/dashboard" routerLinkActive="active" class="nav-card">Dashboard</a>
-      <a routerLink="/receitas" routerLinkActive="active" class="nav-card">Receita</a>
-      <a routerLink="/despesas" routerLinkActive="active" class="nav-card">Despesa</a>
-      <a routerLink="/fluxo-caixa" routerLinkActive="active" class="nav-card">Fluxo de Caixa</a>
-      <a routerLink="/orcamentos" routerLinkActive="active" class="nav-card">Orçamentos</a>
-      <a routerLink="/relatorios" routerLinkActive="active" class="nav-card">Relatórios</a>
-      <a routerLink="/contasbancarias" routerLinkActive="active" class="nav-card">Contas Bancárias</a>
-      <a routerLink="/transacoes" routerLinkActive="active" class="nav-card">Transações</a>
+      <a
+        routerLink="/dashboard"
+        routerLinkActive="active"
+        class="nav-card"
+      >
+        Dashboard
+      </a>
+
+      <a
+        routerLink="/receitas"
+        routerLinkActive="active"
+        class="nav-card"
+      >
+        Receita
+      </a>
+
+      <a
+        routerLink="/despesas"
+        routerLinkActive="active"
+        class="nav-card"
+      >
+        Despesa
+      </a>
+
+      <a
+        routerLink="/fluxo-caixa"
+        routerLinkActive="active"
+        class="nav-card"
+      >
+        Fluxo de Caixa
+      </a>
+
+      <a
+        routerLink="/orcamentos"
+        routerLinkActive="active"
+        class="nav-card"
+      >
+        Orçamentos
+      </a>
+
+      <a
+        routerLink="/relatorios"
+        routerLinkActive="active"
+        class="nav-card"
+      >
+        Relatórios
+      </a>
+
+      <a
+        routerLink="/contasbancarias"
+        routerLinkActive="active"
+        class="nav-card"
+      >
+        Contas Bancárias
+      </a>
+
+      <a
+        routerLink="/transacoes"
+        routerLinkActive="active"
+        class="nav-card"
+      >
+        Transações
+      </a>
     </nav>
 
     <div class="header-actions">
+      <div class="header-user-info">
+        <div class="header-user-avatar">
+          {{ usuarioNome.charAt(0) }}
+        </div>
 
-  <div class="header-user-info">
-    <div class="header-user-avatar">
-      {{ usuarioNome.charAt(0) }}
+        <div class="header-user-text">
+          <span class="header-welcome">
+            Bem-vindo,
+          </span>
+
+          <strong>
+            {{ usuarioNome }}
+          </strong>
+
+          <small>
+            {{ usuarioCompleto.email }}
+          </small>
+        </div>
+      </div>
+
+      <button
+        class="btn-login"
+        type="button"
+        (click)="logout()"
+      >
+        Sair
+      </button>
     </div>
-
-    <div class="header-user-text">
-      <span class="header-welcome">
-        Bem-vindo,
-      </span>
-
-      <strong>
-        {{ usuarioNome }}
-      </strong>
-
-      <small>
-        {{ usuarioCompleto.email }}
-      </small>
-    </div>
-  </div>
-
-  <button
-    class="btn-login"
-    type="button"
-    (click)="logout()"
-  >
-    Sair
-  </button>
-
-</div>
   </header>
 
   <main class="main-content">
 
-    <h1 class="page-title">Nova Conta Bancária</h1>
+    <h1 class="page-title">
+      Nova Conta Bancária
+    </h1>
 
     <div class="form-card">
       <div class="form-grid">
 
         <div class="form-field">
-          <label>Banco</label>
+          <label>
+            Banco
+          </label>
+
           <select [(ngModel)]="dadosForm.banco">
-            <option value="" disabled>Selecione o banco</option>
-            <option *ngFor="let opt of opcoesBancos" [value]="opt.value">
+            <option
+              value=""
+              disabled
+            >
+              Selecione o banco
+            </option>
+
+            <option
+              *ngFor="let opt of opcoesBancos"
+              [value]="opt.value"
+            >
               {{ opt.label }}
             </option>
           </select>
         </div>
 
         <div class="form-field">
-          <label>Agência</label>
-          <input type="text" [(ngModel)]="dadosForm.agencia" placeholder="0001">
+          <label>
+            Agência
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="dadosForm.agencia"
+            placeholder="0001"
+          >
         </div>
 
         <div class="form-field">
-          <label>Número da Conta</label>
-          <input type="text" [(ngModel)]="dadosForm.numeroConta" placeholder="12345-6">
+          <label>
+            Número da Conta
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="dadosForm.numeroConta"
+            placeholder="12345-6"
+          >
         </div>
 
         <div class="form-field">
-          <label>Saldo Inicial</label>
-          <input type="number" [(ngModel)]="dadosForm.saldo" placeholder="R$ 0,00" min="0">
+          <label>
+            Saldo Inicial
+          </label>
+
+          <input
+            type="number"
+            [(ngModel)]="dadosForm.saldo"
+            placeholder="R$ 0,00"
+            min="0"
+          >
         </div>
 
       </div>
 
-      <button class="btn-salvar" type="button" (click)="cadastrar()">
+      <button
+        class="btn-salvar"
+        type="button"
+        (click)="cadastrar()"
+      >
         Cadastrar Conta
       </button>
     </div>
 
-    <div class="edit-card" *ngIf="contaEditando">
+    <div
+      class="edit-card"
+      *ngIf="contaEditando"
+    >
 
-      <h2 class="edit-title">Editar Conta Bancária</h2>
+      <h2 class="edit-title">
+        Editar Conta Bancária
+      </h2>
 
       <p class="edit-subtitle">
         Alterando: {{ contaEditando.banco }} - {{ contaEditando.numeroConta }}
@@ -135,41 +283,81 @@
       <div class="form-grid">
 
         <div class="form-field">
-          <label>Banco</label>
+          <label>
+            Banco
+          </label>
+
           <select [(ngModel)]="formEdicao.banco">
-            <option value="" disabled>Selecione o banco</option>
-            <option *ngFor="let opt of opcoesBancos" [value]="opt.value">
+            <option
+              value=""
+              disabled
+            >
+              Selecione o banco
+            </option>
+
+            <option
+              *ngFor="let opt of opcoesBancos"
+              [value]="opt.value"
+            >
               {{ opt.label }}
             </option>
           </select>
         </div>
 
         <div class="form-field">
-          <label>Agência</label>
-          <input type="text" [(ngModel)]="formEdicao.agencia">
+          <label>
+            Agência
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="formEdicao.agencia"
+          >
         </div>
 
         <div class="form-field">
-          <label>Número da Conta</label>
-          <input type="text" [(ngModel)]="formEdicao.numeroConta">
+          <label>
+            Número da Conta
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="formEdicao.numeroConta"
+          >
         </div>
 
         <div class="form-field">
-          <label>Corrigir Saldo Atual</label>
-          <input type="number" [(ngModel)]="formEdicao.saldo" min="0">
-          <small class="field-help" style="color: rgb(221, 221, 41);">
-  Atenção: alterar este valor corrige diretamente o saldo atual da conta.
-      </small>
+          <label>
+            Corrigir Saldo Atual
+          </label>
+
+          <input
+            type="number"
+            [(ngModel)]="formEdicao.saldo"
+            min="0"
+          >
+
+          <small class="field-help">
+            Atenção: alterar este valor corrige diretamente o saldo atual da conta.
+          </small>
         </div>
 
       </div>
 
       <div class="edit-actions">
-        <button type="button" class="btn-salvar-edicao" (click)="salvarEdicao()">
+        <button
+          type="button"
+          class="btn-salvar-edicao"
+          (click)="salvarEdicao()"
+        >
           Salvar alterações
         </button>
 
-        <button type="button" class="btn-cancelar-edicao" (click)="cancelarEdicao()">
+        <button
+          type="button"
+          class="btn-cancelar-edicao"
+          (click)="cancelarEdicao()"
+        >
           Cancelar
         </button>
       </div>
@@ -178,7 +366,9 @@
 
     <div class="table-card">
 
-      <h2 class="table-title">Contas Cadastradas</h2>
+      <h2 class="table-title">
+        Contas Cadastradas
+      </h2>
 
       <table class="data-table">
 
@@ -196,12 +386,18 @@
 
           <tr *ngFor="let conta of contasBancarias">
             <td>
-              <span class="badge-banco">{{ conta.banco }}</span>
+              <span class="badge-banco">
+                {{ conta.banco }}
+              </span>
             </td>
 
-            <td>{{ conta.agencia }}</td>
+            <td>
+              {{ conta.agencia }}
+            </td>
 
-            <td>{{ conta.numeroConta }}</td>
+            <td>
+              {{ conta.numeroConta }}
+            </td>
 
             <td class="valor-saldo">
               {{ conta.saldo | currency:'BRL' }}
@@ -220,7 +416,7 @@
               <button
                 type="button"
                 class="btn-excluir"
-                (click)="excluirConta(conta)"
+                (click)="abrirModalExcluirConta(conta)"
                 title="Excluir"
               >
                 <i class="fa-regular fa-trash-can"></i>
@@ -229,7 +425,10 @@
           </tr>
 
           <tr *ngIf="contasBancarias.length === 0">
-            <td colspan="5" class="empty-row">
+            <td
+              colspan="5"
+              class="empty-row"
+            >
               Nenhuma conta cadastrada.
             </td>
           </tr>
@@ -241,5 +440,92 @@
     </div>
 
   </main>
+
+  <div
+    class="notificacao-container"
+    *ngIf="notificacao.visivel"
+  >
+    <div
+      class="notificacao-card"
+      [ngClass]="{
+        'notificacao-sucesso': notificacao.tipo === 'sucesso',
+        'notificacao-erro': notificacao.tipo === 'erro',
+        'notificacao-aviso': notificacao.tipo === 'aviso'
+      }"
+    >
+      <div class="notificacao-icone">
+        <span *ngIf="notificacao.tipo === 'sucesso'">
+          ✓
+        </span>
+
+        <span *ngIf="notificacao.tipo === 'erro'">
+          !
+        </span>
+
+        <span *ngIf="notificacao.tipo === 'aviso'">
+          ⚠
+        </span>
+      </div>
+
+      <div class="notificacao-conteudo">
+        <strong>
+          {{ notificacao.titulo }}
+        </strong>
+
+        <p>
+          {{ notificacao.mensagem }}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="notificacao-fechar"
+        (click)="fecharNotificacao()"
+      >
+        ×
+      </button>
+    </div>
+  </div>
+
+  <div
+    class="modal-confirmacao-overlay"
+    *ngIf="confirmacao.visivel"
+  >
+    <div class="modal-confirmacao-card">
+
+      <div class="modal-confirmacao-icone">
+        !
+      </div>
+
+      <h2>
+        {{ confirmacao.titulo }}
+      </h2>
+
+      <p>
+        {{ confirmacao.mensagem }}
+      </p>
+
+      <div class="modal-confirmacao-actions">
+
+        <button
+          type="button"
+          class="btn-modal-cancelar"
+          (click)="cancelarConfirmacao()"
+        >
+          {{ confirmacao.textoCancelar }}
+        </button>
+
+        <button
+          type="button"
+          class="btn-modal-confirmar"
+          (click)="confirmarExclusaoConta()"
+        >
+          {{ confirmacao.textoConfirmar }}
+        </button>
+
+      </div>
+
+    </div>
+  </div>
 
 </div>

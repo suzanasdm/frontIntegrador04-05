@@ -623,39 +623,41 @@ export class Transacao implements OnInit {
   }
 
   salvarEdicaoOFX(): void {
-    const payload = {
-      descricao: this.formEdicao.descricao.trim(),
-      valor: Number(this.formEdicao.valor),
-      data: this.formEdicao.data,
-      tipo: this.formEdicao.tipo,
-      categoriaId: this.formEdicao.categoriaId ? Number(this.formEdicao.categoriaId) : null,
-      usuarioId: this.usuarioId
-    };
+  const payload = {
+    descricao: this.formEdicao.descricao.trim(),
+    tipo: this.formEdicao.tipo,
+    categoriaId: this.formEdicao.categoriaId
+      ? Number(this.formEdicao.categoriaId)
+      : null,
+    usuarioId: this.usuarioId
+  };
 
-    this.http.put(
-      `http://localhost:8080/api/transacoes/${this.formEdicao.id}`,
-      payload
-    ).subscribe({
-      next: () => {
-        this.mostrarNotificacao(
-          'sucesso',
-          'Transação OFX atualizada!',
-          'A movimentação importada foi atualizada com sucesso.'
-        );
+  this.http.put(
+    `http://localhost:8080/api/transacoes/${this.formEdicao.id}`,
+    payload
+  ).subscribe({
+    next: () => {
+      this.mostrarNotificacao(
+        'sucesso',
+        'Transação OFX atualizada!',
+        'A descrição, tipo ou categoria da movimentação foram atualizados com sucesso.'
+      );
 
-        this.recarregarAposEdicao();
-      },
-      error: (err) => {
-        console.error('Erro ao editar transação OFX:', err);
+      this.recarregarAposEdicao();
+    },
+    error: (err) => {
+      console.error('Erro ao editar transação OFX:', err);
 
-        this.mostrarNotificacao(
-          'erro',
-          'Erro ao editar OFX',
-          err.error?.message || err.error || 'Não foi possível editar a transação OFX.'
-        );
-      }
-    });
-  }
+      this.mostrarNotificacao(
+        'erro',
+        'Erro ao editar OFX',
+        err.error?.message || err.error || 'Não foi possível editar a transação OFX.'
+      );
+    }
+
+  });
+
+}
 
   salvarEdicaoReceita(): void {
     const payload = {

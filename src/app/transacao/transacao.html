@@ -339,7 +339,7 @@
           >
         </div>
 
-      <div class="form-field">
+     <div class="form-field">
   <label>
     Data
   </label>
@@ -347,11 +347,11 @@
   <input
     type="date"
     [(ngModel)]="formEdicao.data"
-    [disabled]="ehOfxEditando()"
+    [disabled]="formEdicao.origem === 'OFX'"
   >
 </div>
 
-       <div class="form-field">
+<div class="form-field">
   <label>
     Valor
   </label>
@@ -359,7 +359,7 @@
   <input
     type="number"
     [(ngModel)]="formEdicao.valor"
-    [disabled]="ehOfxEditando()"
+    [disabled]="formEdicao.origem === 'OFX'"
   >
 </div>
 
