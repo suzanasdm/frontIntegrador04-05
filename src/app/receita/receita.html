@@ -217,6 +217,7 @@
         Despesa
       </button>
     </div>
+
     <div class="form-card">
 
       <div class="form-grid">
@@ -347,6 +348,38 @@
       </button>
 
     </div>
+        <div
+  class="notificacao-container"
+  *ngIf="notificacao.visivel"
+>
+  <div
+    class="notificacao-card"
+    [ngClass]="{
+      'notificacao-sucesso': notificacao.tipo === 'sucesso',
+      'notificacao-erro': notificacao.tipo === 'erro',
+      'notificacao-aviso': notificacao.tipo === 'aviso'
+    }"
+  >
+    <div class="notificacao-icone">
+      <span *ngIf="notificacao.tipo === 'sucesso'">✓</span>
+      <span *ngIf="notificacao.tipo === 'erro'">!</span>
+      <span *ngIf="notificacao.tipo === 'aviso'">⚠</span>
+    </div>
+
+    <div class="notificacao-conteudo">
+      <strong>{{ notificacao.titulo }}</strong>
+      <p>{{ notificacao.mensagem }}</p>
+    </div>
+
+    <button
+      type="button"
+      class="notificacao-fechar"
+      (click)="fecharNotificacao()"
+    >
+      ×
+    </button>
+  </div>
+</div>
 <div
   class="edit-card"
   *ngIf="receitaEditando"

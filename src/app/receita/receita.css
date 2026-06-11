@@ -858,3 +858,121 @@
     white-space: nowrap;
   }
 }
+.notificacao-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  animation: aparecerNotificacaoCentro 0.3s ease;
+}
+.notificacao-card {
+  min-width: 320px;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+  border-left: 6px solid #2563eb;
+}
+
+.notificacao-icone {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 800;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.notificacao-conteudo {
+  flex: 1;
+}
+
+.notificacao-conteudo strong {
+  display: block;
+  font-size: 15px;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.notificacao-conteudo p {
+  margin: 0;
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.4;
+}
+
+.notificacao-fechar {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+}
+
+.notificacao-fechar:hover {
+  color: #0f172a;
+}
+
+.notificacao-sucesso {
+  border-left-color: #64eb25;
+}
+
+.notificacao-sucesso .notificacao-icone {
+  background: linear-gradient(135deg, #64eb25, #38f872);
+}
+
+.notificacao-erro {
+  border-left-color: #dc2626;
+}
+
+.notificacao-erro .notificacao-icone {
+  background: linear-gradient(135deg, #dc2626, #f87171);
+}
+
+.notificacao-aviso {
+  border-left-color: #f59e0b;
+}
+
+.notificacao-aviso .notificacao-icone {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+}
+
+@keyframes aparecerNotificacaoCentro {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -45%) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@media (max-width: 600px) {
+  .notificacao-container {
+    top: 50%;
+    left: 50%;
+    right: auto;
+    width: calc(100% - 32px);
+    transform: translate(-50%, -50%);
+  }
+
+  .notificacao-card {
+    min-width: auto;
+    width: 100%;
+  }
+
+}

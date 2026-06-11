@@ -15,14 +15,14 @@ export class Receita implements OnInit {
   private platformId = inject(PLATFORM_ID);
   private http = inject(HttpClient);
   private router = inject(Router);
-  private cdr = inject(ChangeDetectorRef); // Injetado para forçar a atualização da tela
+  private cdr = inject(ChangeDetectorRef);
 
-  // Dados do Utilizador
+  // Dados do usuário
   usuarioId: number = 0;
   usuarioNome: string = '';
   usuarioCompleto: any = {};
 
-  // Listas para a Interface
+  // Listas para a interface
   contasBancarias: any[] = [];
   categorias: any[] = [];
   listaReceitas: any[] = [];
@@ -32,7 +32,17 @@ export class Receita implements OnInit {
   exibirInputCategoria: boolean = false;
   novaCategoriaNome: string = '';
 
-  // LOGICA DE FORMULÁRIO
+  // Notificação visual
+  notificacao = {
+    visivel: false,
+    tipo: 'sucesso' as 'sucesso' | 'erro' | 'aviso',
+    titulo: '',
+    mensagem: ''
+  };
+
+  private timeoutNotificacao: any;
+
+  // Formulário de cadastro
   dadosForm = {
     descricao: '',
     valor: 0,
@@ -40,19 +50,23 @@ export class Receita implements OnInit {
     categoriaId: '',
     contaId: ''
   };
-receitaEditando: any = null;
 
-formEdicao = {
-  id: null as number | null,
-  descricao: '',
-  valor: 0,
-  data: '',
-  categoriaId: '',
-  contaId: ''
-};
+  // Edição de receita
+  receitaEditando: any = null;
+
+  formEdicao = {
+    id: null as number | null,
+    descricao: '',
+    valor: 0,
+    data: '',
+    categoriaId: '',
+    contaId: ''
+  };
+
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       const user = JSON.parse(localStorage.getItem('usuarioLogado') || '{}');
+
       this.usuarioId = user.id;
       this.usuarioNome = user.nome || 'Usuário';
       this.usuarioCompleto = user;
@@ -66,105 +80,213 @@ formEdicao = {
     }
   }
 
-  toggleSidebar(): void {
-    this.exibirSidebar = !this.exibirSidebar;
-    this.cdr.detectChanges(); // Garante que a sidebar abra/feche suavemente
+  // ==========================
+  // NOTIFICAÇÕES
+  // ==========================
+
+  mostrarNotificacao(
+    tipo: 'sucesso' | 'erro' | 'aviso',
+    titulo: string,
+    mensagem: string
+  ): void {
+    this.notificacao = {
+      visivel: true,
+      tipo,
+      titulo,
+      mensagem
+    };
+
+    this.cdr.detectChanges();
+
+    clearTimeout(this.timeoutNotificacao);
+
+    this.timeoutNotificacao = setTimeout(() => {
+      this.fecharNotificacao();
+    }, 3500);
   }
 
-  carregarDados() {
+  fecharNotificacao(): void {
+    this.notificacao.visivel = false;
+    this.cdr.detectChanges();
+  }
+
+  // ==========================
+  // SIDEBAR
+  // ==========================
+
+  toggleSidebar(): void {
+    this.exibirSidebar = !this.exibirSidebar;
+    this.cdr.detectChanges();
+  }
+
+  // ==========================
+  // CARREGAMENTOS
+  // ==========================
+
+  carregarDados(): void {
     this.carregarCategorias();
     this.carregarReceitas();
     this.carregarContas();
   }
 
-  carregarContas() {
+  carregarContas(): void {
     this.http.get<any[]>(`http://localhost:8080/api/contas/usuario/${this.usuarioId}`)
       .subscribe({
         next: (res) => {
           this.contasBancarias = res;
-          this.cdr.detectChanges(); // Atualiza os saldos na sidebar automaticamente
+          this.cdr.detectChanges();
         },
-        error: (err) => console.error('Erro ao buscar contas', err)
+        error: (err) => {
+          console.error('Erro ao buscar contas', err);
+
+          this.mostrarNotificacao(
+            'erro',
+            'Erro ao carregar contas',
+            err.error?.message || 'Não foi possível buscar suas contas bancárias.'
+          );
+        }
       });
   }
 
-  carregarCategorias() {
-  this.http.get<any[]>(`http://localhost:8080/api/categorias/usuario/${this.usuarioId}/tipo/RECEITA`)
-    .subscribe({
-      next: (res) => {
-        this.categorias = res;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Erro ao carregar categorias de receita:', err);
-      }
-    });
-}
+  carregarCategorias(): void {
+    this.http.get<any[]>(`http://localhost:8080/api/categorias/usuario/${this.usuarioId}/tipo/RECEITA`)
+      .subscribe({
+        next: (res) => {
+          this.categorias = res;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Erro ao carregar categorias de receita:', err);
 
-  carregarReceitas() {
+          this.mostrarNotificacao(
+            'erro',
+            'Erro ao carregar categorias',
+            err.error?.message || 'Não foi possível buscar as categorias de receita.'
+          );
+        }
+      });
+  }
+
+  carregarReceitas(): void {
     this.http.get<any[]>(`http://localhost:8080/api/receitas/usuario/${this.usuarioId}`)
-      .subscribe(res => {
-        this.listaReceitas = res;
-        this.cdr.detectChanges(); // Faz as novas receitas aparecerem na tabela na hora
+      .subscribe({
+        next: (res) => {
+          this.listaReceitas = res;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Erro ao carregar receitas', err);
+
+          this.mostrarNotificacao(
+            'erro',
+            'Erro ao carregar receitas',
+            err.error?.message || 'Não foi possível buscar suas receitas cadastradas.'
+          );
+        }
       });
   }
 
+  // ==========================
+  // CATEGORIA
+  // ==========================
 
-
-
-
-
-  salvarCategoria() {
-  if (!this.novaCategoriaNome) return;
-
-  const payload = {
-    nome: this.novaCategoriaNome,
-    tipo: 'RECEITA',
-    usuarioId: this.usuarioId
-  };
-
-  this.http.post('http://localhost:8080/api/categorias', payload).subscribe((res: any) => {
-    this.categorias.push(res);
-    this.dadosForm.categoriaId = res.id;
-    this.novaCategoriaNome = '';
-    this.exibirInputCategoria = false;
-    this.cdr.detectChanges();
-  });
-}
-
-  salvarReceita() {
-    if (!this.dadosForm.contaId) {
-      alert('Selecione uma conta bancária para receber o valor!');
+  salvarCategoria(): void {
+    if (!this.novaCategoriaNome.trim()) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Categoria vazia',
+        'Informe o nome da categoria antes de salvar.'
+      );
       return;
     }
 
-      if (!this.dadosForm.descricao.trim()) {
-  alert('Informe a descrição da receita.');
-  return;
-}
+    const payload = {
+      nome: this.novaCategoriaNome.trim(),
+      tipo: 'RECEITA',
+      usuarioId: this.usuarioId
+    };
 
-if (!this.dadosForm.valor || Number(this.dadosForm.valor) <= 0) {
-  alert('Informe um valor maior que zero.');
-  return;
-}
+    this.http.post('http://localhost:8080/api/categorias', payload).subscribe({
+      next: (res: any) => {
+        this.categorias.push(res);
+        this.dadosForm.categoriaId = String(res.id);
+        this.novaCategoriaNome = '';
+        this.exibirInputCategoria = false;
 
-if (!this.dadosForm.data) {
-  alert('Informe a data da receita.');
-  return;
-}
+        this.mostrarNotificacao(
+          'sucesso',
+          'Categoria criada!',
+          'A nova categoria de receita foi adicionada com sucesso.'
+        );
 
-if (!this.dadosForm.categoriaId) {
-  alert('Selecione uma categoria.');
-  return;
-}
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Erro ao salvar categoria', err);
 
-if (!this.dadosForm.contaId) {
-  alert('Selecione uma conta bancária.');
-  return;
-}
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao criar categoria',
+          err.error?.message || 'Não foi possível cadastrar a categoria.'
+        );
+      }
+    });
+  }
+
+  // ==========================
+  // CADASTRAR RECEITA
+  // ==========================
+
+  salvarReceita(): void {
+    if (!this.dadosForm.descricao.trim()) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Informe a descrição da receita.'
+      );
+      return;
+    }
+
+    if (!this.dadosForm.valor || Number(this.dadosForm.valor) <= 0) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Valor inválido',
+        'Informe um valor maior que zero.'
+      );
+      return;
+    }
+
+    if (!this.dadosForm.data) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Informe a data da receita.'
+      );
+      return;
+    }
+
+    if (!this.dadosForm.categoriaId) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Selecione uma categoria.'
+      );
+      return;
+    }
+
+    if (!this.dadosForm.contaId) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Selecione uma conta bancária para receber o valor.'
+      );
+      return;
+    }
 
     const payload = {
-      ...this.dadosForm,
+      descricao: this.dadosForm.descricao.trim(),
+      valor: Number(this.dadosForm.valor),
+      data: this.dadosForm.data,
       usuarioId: this.usuarioId,
       categoriaId: Number(this.dadosForm.categoriaId),
       contaId: Number(this.dadosForm.contaId)
@@ -172,20 +294,29 @@ if (!this.dadosForm.contaId) {
 
     this.http.post('http://localhost:8080/api/receitas', payload).subscribe({
       next: () => {
-        alert('Receita registrada e saldo atualizado!');
-        this.carregarReceitas(); // Dispara o carregar que já tem o detectChanges
-        this.carregarContas();   // Dispara o carregar que já tem o detectChanges
+        this.mostrarNotificacao(
+          'sucesso',
+          'Receita cadastrada!',
+          'A receita foi registrada e o saldo da conta foi atualizado.'
+        );
+
+        this.carregarReceitas();
+        this.carregarContas();
         this.resetarFormulario();
       },
       error: (err) => {
-  console.error('Erro ao salvar receita', err);
-  alert(err.error?.message || 'Erro ao salvar receita.');
-}
+        console.error('Erro ao salvar receita', err);
+
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao salvar receita',
+          err.error?.message || 'Não foi possível cadastrar a receita.'
+        );
+      }
     });
   }
 
-
-  resetarFormulario() {
+  resetarFormulario(): void {
     this.dadosForm = {
       descricao: '',
       valor: 0,
@@ -193,127 +324,222 @@ if (!this.dadosForm.contaId) {
       categoriaId: '',
       contaId: ''
     };
+
     this.cdr.detectChanges();
   }
-abrirEdicaoReceita(item: any): void {
-  this.receitaEditando = item;
 
-  this.formEdicao = {
-    id: item.id,
-    descricao: item.descricao,
-    valor: item.valor,
-    data: item.data,
-    categoriaId: item.categoria?.id ? String(item.categoria.id) : '',
-    contaId: item.conta?.id ? String(item.conta.id) : ''
-  };
+  // ==========================
+  // EDITAR RECEITA
+  // ==========================
 
-  setTimeout(() => {
-    const card = document.querySelector('.edit-card');
-    card?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 100);
+  abrirEdicaoReceita(item: any): void {
+    this.receitaEditando = item;
 
-  this.cdr.detectChanges();
-}
+    this.formEdicao = {
+      id: item.id,
+      descricao: item.descricao,
+      valor: item.valor,
+      data: item.data,
+      categoriaId: item.categoria?.id ? String(item.categoria.id) : '',
+      contaId: item.conta?.id ? String(item.conta.id) : ''
+    };
 
-cancelarEdicaoReceita(): void {
-  this.receitaEditando = null;
+    this.mostrarNotificacao(
+      'aviso',
+      'Editando receita',
+      `Você está editando a receita "${item.descricao}".`
+    );
 
-  this.formEdicao = {
-    id: null,
-    descricao: '',
-    valor: 0,
-    data: '',
-    categoriaId: '',
-    contaId: ''
-  };
+    setTimeout(() => {
+      const card = document.querySelector('.edit-card');
+      card?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
 
-  this.cdr.detectChanges();
-}
-
-salvarEdicaoReceita(): void {
-  if (!this.formEdicao.id) {
-    alert('Nenhuma receita selecionada para edição.');
-    return;
+    this.cdr.detectChanges();
   }
 
-  if (!this.formEdicao.descricao.trim()) {
-    alert('Informe a descrição da receita.');
-    return;
+  cancelarEdicaoReceita(): void {
+    this.receitaEditando = null;
+
+    this.formEdicao = {
+      id: null,
+      descricao: '',
+      valor: 0,
+      data: '',
+      categoriaId: '',
+      contaId: ''
+    };
+
+    this.mostrarNotificacao(
+      'aviso',
+      'Edição cancelada',
+      'Nenhuma alteração foi salva.'
+    );
+
+    this.cdr.detectChanges();
   }
 
-  if (!this.formEdicao.valor || Number(this.formEdicao.valor) <= 0) {
-    alert('Informe um valor maior que zero.');
-    return;
-  }
-
-  if (!this.formEdicao.data) {
-    alert('Informe a data da receita.');
-    return;
-  }
-
-  if (!this.formEdicao.categoriaId) {
-    alert('Selecione uma categoria.');
-    return;
-  }
-
-  if (!this.formEdicao.contaId) {
-    alert('Selecione uma conta.');
-    return;
-  }
-
-  const payload = {
-    descricao: this.formEdicao.descricao,
-    valor: Number(this.formEdicao.valor),
-    data: this.formEdicao.data,
-    categoriaId: Number(this.formEdicao.categoriaId),
-    contaId: Number(this.formEdicao.contaId),
-    usuarioId: this.usuarioId
-  };
-
-  this.http.put(
-    `http://localhost:8080/api/receitas/${this.formEdicao.id}`,
-    payload
-  ).subscribe({
-    next: () => {
-      alert('Receita atualizada com sucesso!');
-      this.cancelarEdicaoReceita();
-      this.carregarReceitas();
-      this.carregarContas();
-    },
-    error: (err) => {
-      console.error('Erro ao editar receita', err);
-      alert(err.error?.message || 'Erro ao editar receita.');
+  salvarEdicaoReceita(): void {
+    if (!this.formEdicao.id) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Nenhuma receita selecionada',
+        'Selecione uma receita para editar.'
+      );
+      return;
     }
-  });
-}
 
-excluirReceita(item: any): void {
-  const confirmar = confirm(
-    `Deseja realmente excluir a receita "${item.descricao}"?`
-  );
+    if (!this.formEdicao.descricao.trim()) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Informe a descrição da receita.'
+      );
+      return;
+    }
 
-  if (!confirmar) {
-    return;
+    if (!this.formEdicao.valor || Number(this.formEdicao.valor) <= 0) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Valor inválido',
+        'Informe um valor maior que zero.'
+      );
+      return;
+    }
+
+    if (!this.formEdicao.data) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Informe a data da receita.'
+      );
+      return;
+    }
+
+    if (!this.formEdicao.categoriaId) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Selecione uma categoria.'
+      );
+      return;
+    }
+
+    if (!this.formEdicao.contaId) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Selecione uma conta bancária.'
+      );
+      return;
+    }
+
+    const payload = {
+      descricao: this.formEdicao.descricao.trim(),
+      valor: Number(this.formEdicao.valor),
+      data: this.formEdicao.data,
+      categoriaId: Number(this.formEdicao.categoriaId),
+      contaId: Number(this.formEdicao.contaId),
+      usuarioId: this.usuarioId
+    };
+
+    this.http.put(
+      `http://localhost:8080/api/receitas/${this.formEdicao.id}`,
+      payload
+    ).subscribe({
+      next: () => {
+        this.mostrarNotificacao(
+          'sucesso',
+          'Receita atualizada!',
+          'As informações da receita foram salvas com sucesso.'
+        );
+
+        this.cancelarEdicaoSemMensagem();
+        this.carregarReceitas();
+        this.carregarContas();
+      },
+      error: (err) => {
+        console.error('Erro ao editar receita', err);
+
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao editar receita',
+          err.error?.message || 'Não foi possível atualizar a receita.'
+        );
+      }
+    });
   }
 
-  this.http.delete(
-    `http://localhost:8080/api/receitas/${item.id}/usuario/${this.usuarioId}`
-  ).subscribe({
-    next: () => {
-      alert('Receita excluída com sucesso!');
-      this.carregarReceitas();
-      this.carregarContas();
-    },
-    error: (err) => {
-      console.error('Erro ao excluir receita', err);
-      alert(err.error?.message || 'Erro ao excluir receita.');
+  private cancelarEdicaoSemMensagem(): void {
+    this.receitaEditando = null;
+
+    this.formEdicao = {
+      id: null,
+      descricao: '',
+      valor: 0,
+      data: '',
+      categoriaId: '',
+      contaId: ''
+    };
+
+    this.cdr.detectChanges();
+  }
+
+  // ==========================
+  // EXCLUIR RECEITA
+  // ==========================
+
+  excluirReceita(item: any): void {
+    const confirmar = confirm(
+      `Deseja realmente excluir a receita "${item.descricao}"?`
+    );
+
+    if (!confirmar) {
+      return;
     }
-  });
-}
-  logout() {
+
+    this.http.delete(
+      `http://localhost:8080/api/receitas/${item.id}/usuario/${this.usuarioId}`
+    ).subscribe({
+      next: () => {
+        this.mostrarNotificacao(
+          'sucesso',
+          'Receita excluída!',
+          'A receita foi removida e o saldo da conta foi atualizado.'
+        );
+
+        this.carregarReceitas();
+        this.carregarContas();
+      },
+      error: (err) => {
+        console.error('Erro ao excluir receita', err);
+
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao excluir receita',
+          err.error?.message || 'Não foi possível excluir a receita.'
+        );
+      }
+    });
+  }
+
+  // ==========================
+  // LOGOUT
+  // ==========================
+
+  logout(): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('usuarioLogado');
-      this.router.navigate(['/login']);
+
+      this.mostrarNotificacao(
+        'sucesso',
+        'Sessão encerrada',
+        'Você saiu do CyberSoft com segurança.'
+      );
+
+      setTimeout(() => {
+        this.router.navigate(['/login']);
+      }, 700);
     }
   }
 }

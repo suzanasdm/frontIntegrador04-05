@@ -249,6 +249,7 @@
 
       </div>
 
+
       <div class="form-actions">
         <button
           class="btn-salvar"
@@ -259,7 +260,256 @@
       </div>
 
     </div>
+      <div class="meta-card">
 
+  <div class="meta-card-header">
+
+    <div>
+      <h2>
+        Cadastrar Meta Financeira
+      </h2>
+
+      <p>
+        Defina um objetivo e acompanhe seu progresso.
+      </p>
+    </div>
+
+
+
+  </div>
+
+  <div class="meta-grid">
+
+    <div class="form-field">
+      <label>
+        Descrição da Meta
+      </label>
+
+      <input
+        type="text"
+        [(ngModel)]="metaForm.descricao"
+        placeholder="Ex: Comprar notebook"
+      >
+    </div>
+
+    <div class="form-field">
+      <label>
+        Valor Objetivo
+      </label>
+
+      <input
+        type="number"
+        [(ngModel)]="metaForm.valorObjetivo"
+        placeholder="R$ 0,00"
+        min="0"
+      >
+    </div>
+
+    <div class="form-field">
+      <label>
+        Valor Atual
+      </label>
+
+      <input
+        type="number"
+        [(ngModel)]="metaForm.valorAtual"
+        placeholder="R$ 0,00"
+        min="0"
+      >
+    </div>
+
+    <div class="form-field">
+      <label>
+        Prazo
+      </label>
+
+      <input
+        type="date"
+        [(ngModel)]="metaForm.prazo"
+      >
+    </div>
+
+    <div class="form-field">
+      <label>
+        Prioridade
+      </label>
+
+      <select [(ngModel)]="metaForm.prioridade">
+        <option value="BAIXA">
+          Baixa
+        </option>
+
+        <option value="MEDIA">
+          Média
+        </option>
+
+        <option value="ALTA">
+          Alta
+        </option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label>
+        Categoria Relacionada
+      </label>
+
+      <select [(ngModel)]="metaForm.categoriaId">
+        <option [ngValue]="null">
+          Sem categoria
+        </option>
+
+        <option
+          *ngFor="let c of categoriasMeta"
+          [ngValue]="c.id"
+        >
+          {{ c.nome }}
+        </option>
+      </select>
+    </div>
+
+  </div>
+
+  <div class="form-actions meta-actions">
+
+    <button
+      class="btn-salvar"
+      type="button"
+      (click)="salvarMeta()"
+    >
+      {{ editandoMeta ? 'Atualizar Meta' : '+ Salvar Meta' }}
+    </button>
+
+    <button
+      *ngIf="editandoMeta"
+      class="btn-cancelar"
+      type="button"
+      (click)="limparFormularioMeta()"
+    >
+      Cancelar
+    </button>
+
+  </div>
+
+</div>
+
+<div class="metas-list-card">
+
+  <div class="metas-list-header">
+
+    <h2>
+      Suas Metas Cadastradas
+    </h2>
+
+    <span>
+      {{ listaMetas.length }} meta(s)
+    </span>
+
+  </div>
+
+  <div
+    *ngIf="listaMetas.length === 0"
+    class="empty-orcamentos"
+  >
+    Nenhuma meta cadastrada até o momento.
+  </div>
+
+  <div
+    class="meta-item"
+    *ngFor="let meta of listaMetas"
+  >
+
+    <div class="meta-item-header">
+
+      <div>
+        <h3>
+          {{ meta.descricao }}
+        </h3>
+
+        <p>
+          Categoria:
+          {{ meta.categoriaNome || 'Sem categoria' }}
+        </p>
+      </div>
+
+      <div class="meta-badges">
+
+        <span
+          class="prioridade-badge"
+          [ngClass]="obterClassePrioridade(meta.prioridade)"
+        >
+          {{ meta.prioridade }}
+        </span>
+
+        <span
+          class="status-badge"
+          [ngClass]="obterClasseStatusMeta(meta.status)"
+        >
+          {{ meta.status }}
+        </span>
+
+      </div>
+
+    </div>
+
+    <div class="meta-progress-area">
+
+      <div class="meta-progress-info">
+
+        <span>
+          Progresso:
+          {{ meta.percentual | number:'1.0-1' }}%
+        </span>
+
+        <span>
+          {{ meta.valorAtual | currency:'BRL' }}
+          /
+          {{ meta.valorObjetivo | currency:'BRL' }}
+        </span>
+
+      </div>
+
+      <div class="progress-track">
+        <div
+          class="progress-bar progress-success"
+          [style.width.%]="calcularPorcentagemMeta(meta.valorAtual, meta.valorObjetivo)"
+        ></div>
+      </div>
+
+    </div>
+
+    <div class="meta-footer">
+
+      <span>
+        Prazo:
+        {{ meta.prazo | date:'dd/MM/yyyy' }}
+      </span>
+
+      <div class="meta-buttons">
+
+        <button
+          class="btn-editar-meta"
+          type="button"
+          (click)="editarMeta(meta)"
+        >
+          Editar
+        </button>
+
+        <button
+          class="btn-excluir-meta"
+          type="button"
+          (click)="deletarMeta(meta.id)"
+        >
+          Excluir
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
     <div class="table-card">
 
       <h2 class="table-title">
