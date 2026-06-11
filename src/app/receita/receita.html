@@ -348,38 +348,7 @@
       </button>
 
     </div>
-        <div
-  class="notificacao-container"
-  *ngIf="notificacao.visivel"
->
-  <div
-    class="notificacao-card"
-    [ngClass]="{
-      'notificacao-sucesso': notificacao.tipo === 'sucesso',
-      'notificacao-erro': notificacao.tipo === 'erro',
-      'notificacao-aviso': notificacao.tipo === 'aviso'
-    }"
-  >
-    <div class="notificacao-icone">
-      <span *ngIf="notificacao.tipo === 'sucesso'">✓</span>
-      <span *ngIf="notificacao.tipo === 'erro'">!</span>
-      <span *ngIf="notificacao.tipo === 'aviso'">⚠</span>
-    </div>
 
-    <div class="notificacao-conteudo">
-      <strong>{{ notificacao.titulo }}</strong>
-      <p>{{ notificacao.mensagem }}</p>
-    </div>
-
-    <button
-      type="button"
-      class="notificacao-fechar"
-      (click)="fecharNotificacao()"
-    >
-      ×
-    </button>
-  </div>
-</div>
 <div
   class="edit-card"
   *ngIf="receitaEditando"
@@ -548,5 +517,77 @@
     </div>
 
   </main>
+<div
+  class="notificacao-container"
+  *ngIf="notificacao.visivel"
+>
+  <div
+    class="notificacao-card"
+    [ngClass]="{
+      'notificacao-sucesso': notificacao.tipo === 'sucesso',
+      'notificacao-erro': notificacao.tipo === 'erro',
+      'notificacao-aviso': notificacao.tipo === 'aviso'
+    }"
+  >
+    <div class="notificacao-icone">
+      <span *ngIf="notificacao.tipo === 'sucesso'">✓</span>
+      <span *ngIf="notificacao.tipo === 'erro'">!</span>
+      <span *ngIf="notificacao.tipo === 'aviso'">⚠</span>
+    </div>
+
+    <div class="notificacao-conteudo">
+      <strong>{{ notificacao.titulo }}</strong>
+      <p>{{ notificacao.mensagem }}</p>
+    </div>
+
+    <button
+      type="button"
+      class="notificacao-fechar"
+      (click)="fecharNotificacao()"
+    >
+      ×
+    </button>
+  </div>
+</div>
+<div
+  class="modal-confirmacao-overlay"
+  *ngIf="confirmacao.visivel"
+>
+  <div class="modal-confirmacao-card">
+
+    <div class="modal-confirmacao-icone">
+      !
+    </div>
+
+    <h2>
+      {{ confirmacao.titulo }}
+    </h2>
+
+    <p>
+      {{ confirmacao.mensagem }}
+    </p>
+
+    <div class="modal-confirmacao-actions">
+
+      <button
+        type="button"
+        class="btn-modal-cancelar"
+        (click)="cancelarConfirmacao()"
+      >
+        {{ confirmacao.textoCancelar }}
+      </button>
+
+      <button
+        type="button"
+        class="btn-modal-confirmar"
+        (click)="confirmarAcao()"
+      >
+        {{ confirmacao.textoConfirmar }}
+      </button>
+
+    </div>
+
+  </div>
+</div>
 
 </div>

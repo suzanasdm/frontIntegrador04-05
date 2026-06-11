@@ -17,22 +17,30 @@ export class Receita implements OnInit {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
-  // Dados do usuário
+
   usuarioId: number = 0;
   usuarioNome: string = '';
   usuarioCompleto: any = {};
 
-  // Listas para a interface
+
   contasBancarias: any[] = [];
   categorias: any[] = [];
   listaReceitas: any[] = [];
 
-  // Estados de UI
+  confirmacao = {
+  visivel: false,
+  titulo: '',
+  mensagem: '',
+  textoConfirmar: 'Confirmar',
+  textoCancelar: 'Cancelar',
+  acao: null as (() => void) | null
+};
+
   exibirSidebar: boolean = false;
   exibirInputCategoria: boolean = false;
   novaCategoriaNome: string = '';
 
-  // Notificação visual
+
   notificacao = {
     visivel: false,
     tipo: 'sucesso' as 'sucesso' | 'erro' | 'aviso',
@@ -42,7 +50,7 @@ export class Receita implements OnInit {
 
   private timeoutNotificacao: any;
 
-  // Formulário de cadastro
+
   dadosForm = {
     descricao: '',
     valor: 0,
@@ -51,7 +59,7 @@ export class Receita implements OnInit {
     contaId: ''
   };
 
-  // Edição de receita
+
   receitaEditando: any = null;
 
   formEdicao = {
@@ -80,10 +88,45 @@ export class Receita implements OnInit {
     }
   }
 
-  // ==========================
-  // NOTIFICAÇÕES
-  // ==========================
+abrirConfirmacao(
+  titulo: string,
+  mensagem: string,
+  acao: () => void,
+  textoConfirmar: string = 'Confirmar',
+  textoCancelar: string = 'Cancelar'
+): void {
+  this.confirmacao = {
+    visivel: true,
+    titulo,
+    mensagem,
+    textoConfirmar,
+    textoCancelar,
+    acao
+  };
 
+  this.cdr.detectChanges();
+}
+
+cancelarConfirmacao(): void {
+  this.confirmacao = {
+    visivel: false,
+    titulo: '',
+    mensagem: '',
+    textoConfirmar: 'Confirmar',
+    textoCancelar: 'Cancelar',
+    acao: null
+  };
+
+  this.cdr.detectChanges();
+}
+
+confirmarAcao(): void {
+  if (this.confirmacao.acao) {
+    this.confirmacao.acao();
+  }
+
+  this.cancelarConfirmacao();
+}
   mostrarNotificacao(
     tipo: 'sucesso' | 'erro' | 'aviso',
     titulo: string,
@@ -110,18 +153,13 @@ export class Receita implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // ==========================
-  // SIDEBAR
-  // ==========================
+
 
   toggleSidebar(): void {
     this.exibirSidebar = !this.exibirSidebar;
     this.cdr.detectChanges();
   }
 
-  // ==========================
-  // CARREGAMENTOS
-  // ==========================
 
   carregarDados(): void {
     this.carregarCategorias();
@@ -186,9 +224,7 @@ export class Receita implements OnInit {
       });
   }
 
-  // ==========================
-  // CATEGORIA
-  // ==========================
+
 
   salvarCategoria(): void {
     if (!this.novaCategoriaNome.trim()) {
@@ -233,9 +269,6 @@ export class Receita implements OnInit {
     });
   }
 
-  // ==========================
-  // CADASTRAR RECEITA
-  // ==========================
 
   salvarReceita(): void {
     if (!this.dadosForm.descricao.trim()) {
@@ -328,9 +361,6 @@ export class Receita implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // ==========================
-  // EDITAR RECEITA
-  // ==========================
 
   abrirEdicaoReceita(item: any): void {
     this.receitaEditando = item;
@@ -485,47 +515,43 @@ export class Receita implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // ==========================
-  // EXCLUIR RECEITA
-  // ==========================
 
-  excluirReceita(item: any): void {
-    const confirmar = confirm(
-      `Deseja realmente excluir a receita "${item.descricao}"?`
-    );
 
-    if (!confirmar) {
-      return;
-    }
+ excluirReceita(item: any): void {
+  this.abrirConfirmacao(
+    'Excluir receita?',
+    `Deseja realmente excluir a receita "${item.descricao}"? Essa ação também atualizará o saldo da conta vinculada.`,
+    () => {
+      this.http.delete(
+        `http://localhost:8080/api/receitas/${item.id}/usuario/${this.usuarioId}`
+      ).subscribe({
+        next: () => {
+          this.mostrarNotificacao(
+            'sucesso',
+            'Receita excluída!',
+            'A receita foi removida e o saldo da conta foi atualizado.'
+          );
 
-    this.http.delete(
-      `http://localhost:8080/api/receitas/${item.id}/usuario/${this.usuarioId}`
-    ).subscribe({
-      next: () => {
-        this.mostrarNotificacao(
-          'sucesso',
-          'Receita excluída!',
-          'A receita foi removida e o saldo da conta foi atualizado.'
-        );
+          this.carregarReceitas();
+          this.carregarContas();
+        },
+        error: (err) => {
+          console.error('Erro ao excluir receita', err);
 
-        this.carregarReceitas();
-        this.carregarContas();
-      },
-      error: (err) => {
-        console.error('Erro ao excluir receita', err);
+          this.mostrarNotificacao(
+            'erro',
+            'Erro ao excluir receita',
+            err.error?.message || 'Não foi possível excluir a receita.'
+          );
+        }
+      });
+    },
+    'Excluir',
+    'Cancelar'
+  );
+}
 
-        this.mostrarNotificacao(
-          'erro',
-          'Erro ao excluir receita',
-          err.error?.message || 'Não foi possível excluir a receita.'
-        );
-      }
-    });
-  }
 
-  // ==========================
-  // LOGOUT
-  // ==========================
 
   logout(): void {
     if (isPlatformBrowser(this.platformId)) {
