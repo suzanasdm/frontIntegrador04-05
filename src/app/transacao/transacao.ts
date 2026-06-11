@@ -26,12 +26,31 @@ export class Transacao implements OnInit {
   listaTransacoes: any[] = [];
   listaTransacoesFiltradas: any[] = [];
   arquivosOfx: any[] = [];
+
   exibirNovaCategoriaEdicao: boolean = false;
   novaCategoriaEdicao: string = '';
 
   filtroTipo: string = 'TODOS';
   exibirSidebar: boolean = false;
   arquivoOFX!: File;
+
+  notificacao = {
+    visivel: false,
+    tipo: 'sucesso' as 'sucesso' | 'erro' | 'aviso',
+    titulo: '',
+    mensagem: ''
+  };
+
+  private timeoutNotificacao: any;
+
+  confirmacao = {
+    visivel: false,
+    titulo: '',
+    mensagem: '',
+    textoConfirmar: 'Confirmar',
+    textoCancelar: 'Cancelar',
+    acao: null as (() => void) | null
+  };
 
   dadosForm = {
     descricao: '',
@@ -58,9 +77,7 @@ export class Transacao implements OnInit {
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      const user = JSON.parse(
-        localStorage.getItem('usuarioLogado') || '{}'
-      );
+      const user = JSON.parse(localStorage.getItem('usuarioLogado') || '{}');
 
       this.usuarioId = user.id;
       this.usuarioNome = user.nome || 'Usuário';
@@ -75,101 +92,400 @@ export class Transacao implements OnInit {
     }
   }
 
-  toggleNovaCategoriaEdicao(): void {
-    this.exibirNovaCategoriaEdicao = !this.exibirNovaCategoriaEdicao;
+  normalizarOrigem(origem: any): string {
+    return String(origem || '').trim().toUpperCase();
+  }
 
-    if (!this.exibirNovaCategoriaEdicao) {
-      this.novaCategoriaEdicao = '';
+  ehOfx(item: any): boolean {
+    return this.normalizarOrigem(item?.origem).includes('OFX');
+  }
+
+  ehManual(item: any): boolean {
+    return this.normalizarOrigem(item?.origem).includes('MANUAL');
+  }
+
+  ehOfxEditando(): boolean {
+    return this.normalizarOrigem(this.formEdicao.origem).includes('OFX');
+  }
+
+  ehManualEditando(): boolean {
+    return this.normalizarOrigem(this.formEdicao.origem).includes('MANUAL');
+  }
+
+  obterIdItem(item: any): number | null {
+    return item?.id ?? item?.transacaoId ?? item?.receitaId ?? item?.despesaId ?? null;
+  }
+
+  obterCategoriaId(item: any): string {
+    const id =
+      item?.categoriaId ??
+      item?.categoria?.id ??
+      item?.categoria_id ??
+      null;
+
+    return id ? String(id) : '';
+  }
+
+  obterContaId(item: any): string {
+    const id =
+      item?.contaId ??
+      item?.conta?.id ??
+      item?.conta_id ??
+      null;
+
+    return id ? String(id) : '';
+  }
+
+  formatarDataParaInput(data: any): string {
+    if (!data) {
+      return '';
     }
+
+    return String(data).substring(0, 10);
+  }
+
+
+
+  mostrarNotificacao(
+    tipo: 'sucesso' | 'erro' | 'aviso',
+    titulo: string,
+    mensagem: string
+  ): void {
+    this.notificacao = {
+      visivel: true,
+      tipo,
+      titulo,
+      mensagem
+    };
+
+    this.cdr.detectChanges();
+
+    clearTimeout(this.timeoutNotificacao);
+
+    this.timeoutNotificacao = setTimeout(() => {
+      this.fecharNotificacao();
+    }, 3500);
+  }
+
+  fecharNotificacao(): void {
+    this.notificacao.visivel = false;
+    this.cdr.detectChanges();
+  }
+
+
+  abrirConfirmacao(
+    titulo: string,
+    mensagem: string,
+    acao: () => void,
+    textoConfirmar: string = 'Confirmar',
+    textoCancelar: string = 'Cancelar'
+  ): void {
+    this.fecharNotificacao();
+
+    this.confirmacao = {
+      visivel: true,
+      titulo,
+      mensagem,
+      textoConfirmar,
+      textoCancelar,
+      acao
+    };
 
     this.cdr.detectChanges();
   }
+
+  cancelarConfirmacao(): void {
+    this.confirmacao = {
+      visivel: false,
+      titulo: '',
+      mensagem: '',
+      textoConfirmar: 'Confirmar',
+      textoCancelar: 'Cancelar',
+      acao: null
+    };
+
+    this.cdr.detectChanges();
+  }
+
+  confirmarAcao(): void {
+    const acao = this.confirmacao.acao;
+
+    this.cancelarConfirmacao();
+
+    if (acao) {
+      acao();
+    }
+  }
+
+
 
   toggleSidebar(): void {
     this.exibirSidebar = !this.exibirSidebar;
     this.cdr.detectChanges();
   }
 
+
+  carregarDados(): void {
+    this.carregarContas();
+    this.carregarCategorias();
+    this.carregarTransacoes();
+    this.carregarArquivosOfx();
+  }
+
+  carregarContas(): void {
+    this.http.get<any[]>(`http://localhost:8080/api/contas/usuario/${this.usuarioId}`)
+      .subscribe({
+        next: (res) => {
+          this.contasBancarias = res;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Erro ao carregar contas:', err);
+
+          this.mostrarNotificacao(
+            'erro',
+            'Erro ao carregar contas',
+            err.error?.message || 'Não foi possível buscar suas contas bancárias.'
+          );
+        }
+      });
+  }
+
+  carregarCategorias(): void {
+    this.http.get<any[]>(`http://localhost:8080/api/categorias/usuario/${this.usuarioId}`)
+      .subscribe({
+        next: (res) => {
+          this.categorias = res;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Erro ao carregar categorias:', err);
+
+          this.mostrarNotificacao(
+            'erro',
+            'Erro ao carregar categorias',
+            err.error?.message || 'Não foi possível buscar suas categorias.'
+          );
+        }
+      });
+  }
+
+  carregarTransacoes(): void {
+    this.http.get<any[]>(`http://localhost:8080/api/movimentacoes/usuario/${this.usuarioId}`)
+      .subscribe({
+        next: (res) => {
+          this.listaTransacoes = res;
+          this.aplicarFiltroTipo();
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Erro ao carregar movimentações:', err);
+
+          this.mostrarNotificacao(
+            'erro',
+            'Erro ao carregar transações',
+            err.error?.message || 'Não foi possível buscar suas movimentações.'
+          );
+        }
+      });
+  }
+
+  carregarArquivosOfx(): void {
+    this.http.get<any[]>(`http://localhost:8080/api/ofx/usuario/${this.usuarioId}`)
+      .subscribe({
+        next: (res) => {
+          this.arquivosOfx = res;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Erro ao carregar arquivos OFX:', err);
+
+          this.mostrarNotificacao(
+            'erro',
+            'Erro ao carregar arquivos OFX',
+            err.error?.message || 'Não foi possível buscar os arquivos OFX importados.'
+          );
+        }
+      });
+  }
+
+
+
+  alterarFiltroTipo(tipo: string): void {
+    this.filtroTipo = tipo;
+    this.aplicarFiltroTipo();
+  }
+
+  aplicarFiltroTipo(): void {
+    if (this.filtroTipo === 'TODOS') {
+      this.listaTransacoesFiltradas = this.listaTransacoes;
+      return;
+    }
+
+    this.listaTransacoesFiltradas = this.listaTransacoes.filter(
+      item => item.tipo === this.filtroTipo
+    );
+  }
+
+
+
+  selecionarArquivo(event: any): void {
+    const arquivoSelecionado = event.target.files[0];
+
+    if (arquivoSelecionado) {
+      this.arquivoOFX = arquivoSelecionado;
+
+      this.mostrarNotificacao(
+        'sucesso',
+        'Arquivo selecionado',
+        `Arquivo "${arquivoSelecionado.name}" pronto para importação.`
+      );
+    }
+  }
+
+  importarOFX(): void {
+    if (!this.arquivoOFX) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Arquivo obrigatório',
+        'Selecione um arquivo OFX antes de importar.'
+      );
+      return;
+    }
+
+    if (!this.dadosForm.contaId) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Conta obrigatória',
+        'Selecione uma conta bancária antes de importar o OFX.'
+      );
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', this.arquivoOFX);
+    formData.append('contaId', this.dadosForm.contaId.toString());
+    formData.append('usuarioId', this.usuarioId.toString());
+
+    this.http.post(
+      'http://localhost:8080/api/ofx/upload',
+      formData,
+      { responseType: 'text' }
+    ).subscribe({
+      next: (res) => {
+        this.mostrarNotificacao(
+          'sucesso',
+          'OFX importado!',
+          res || 'Arquivo OFX importado com sucesso.'
+        );
+
+        this.carregarArquivosOfx();
+        this.carregarTransacoes();
+        this.carregarContas();
+
+        this.arquivoOFX = undefined as any;
+        this.dadosForm.contaId = '';
+
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Erro ao importar OFX:', err);
+
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao importar OFX',
+          err.error?.message || err.error || 'Não foi possível importar o arquivo OFX.'
+        );
+      }
+    });
+  }
+
+  excluirArquivoOfx(arquivo: any): void {
+    if (!arquivo?.id) {
+      this.mostrarNotificacao(
+        'erro',
+        'Arquivo inválido',
+        'Não foi possível identificar o arquivo OFX para exclusão.'
+      );
+      return;
+    }
+
+    this.abrirConfirmacao(
+      'Excluir arquivo OFX?',
+      `Deseja realmente excluir o arquivo "${arquivo.nomeArquivo}"? Todas as transações importadas por esse arquivo também serão removidas.`,
+      () => this.executarExclusaoArquivoOfx(arquivo),
+      'Excluir',
+      'Cancelar'
+    );
+  }
+
+  executarExclusaoArquivoOfx(arquivo: any): void {
+    this.http.delete(
+      `http://localhost:8080/api/ofx/${arquivo.id}/usuario/${this.usuarioId}`
+    ).subscribe({
+      next: () => {
+        this.mostrarNotificacao(
+          'sucesso',
+          'Arquivo OFX excluído!',
+          'O arquivo e suas transações vinculadas foram removidos com sucesso.'
+        );
+
+        this.carregarArquivosOfx();
+        this.carregarTransacoes();
+        this.carregarContas();
+      },
+      error: (err) => {
+        console.error('Erro ao excluir arquivo OFX:', err);
+
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao excluir OFX',
+          err.error?.message || err.error || 'Não foi possível excluir o arquivo OFX.'
+        );
+      }
+    });
+  }
+
+
   abrirEdicao(item: any): void {
+    const id = this.obterIdItem(item);
+
+    if (!id) {
+      this.mostrarNotificacao(
+        'erro',
+        'Item inválido',
+        'Não foi possível identificar a movimentação selecionada.'
+      );
+      return;
+    }
+
     this.itemEditando = item;
 
     this.formEdicao = {
-      id: item.id,
-      origem: item.origem,
-      descricao: item.descricao,
-      valor: item.valor,
-      data: item.data ? item.data.substring(0, 10) : '',
-      tipo: item.tipo,
-      categoriaId: item.categoriaId ? String(item.categoriaId) : '',
-      contaId: item.contaId ? String(item.contaId) : ''
+      id,
+      origem: this.normalizarOrigem(item.origem),
+      descricao: item.descricao || '',
+      valor: Number(item.valor || 0),
+      data: this.formatarDataParaInput(item.data),
+      tipo: item.tipo || '',
+      categoriaId: this.obterCategoriaId(item),
+      contaId: this.obterContaId(item)
     };
 
     this.carregarCategoriasPorTipoEdicao();
+
+    this.mostrarNotificacao(
+      'aviso',
+      'Editando transação',
+      `Você está editando a movimentação "${item.descricao}".`
+    );
 
     setTimeout(() => {
       const card = document.querySelector('.edit-card');
       card?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 100);
-  }
 
-  criarCategoriaNaEdicao(): void {
-    if (!this.novaCategoriaEdicao.trim()) {
-      alert('Informe o nome da categoria.');
-      return;
-    }
-
-    if (!this.formEdicao.tipo) {
-      alert('Informe o tipo da movimentação antes de criar a categoria.');
-      return;
-    }
-
-    const payload = {
-      nome: this.novaCategoriaEdicao.trim(),
-      tipo: this.formEdicao.tipo,
-      usuarioId: this.usuarioId
-    };
-
-    this.http.post<any>(
-      'http://localhost:8080/api/categorias',
-      payload
-    ).subscribe({
-      next: (categoriaCriada) => {
-        alert('Categoria criada com sucesso.');
-
-        this.novaCategoriaEdicao = '';
-        this.exibirNovaCategoriaEdicao = false;
-
-        this.carregarCategoriasPorTipoEdicao();
-
-        setTimeout(() => {
-          this.formEdicao.categoriaId = String(categoriaCriada.id);
-          this.cdr.detectChanges();
-        }, 200);
-      },
-      error: (err) => {
-        console.error('Erro ao criar categoria:', err);
-        alert(err.error?.message || err.error || 'Erro ao criar categoria.');
-      }
-    });
-  }
-
-  carregarCategoriasPorTipoEdicao(): void {
-    if (!this.formEdicao.tipo) {
-      this.categoriasEdicao = [];
-      return;
-    }
-
-    this.http.get<any[]>(
-      `http://localhost:8080/api/categorias/usuario/${this.usuarioId}/tipo/${this.formEdicao.tipo}`
-    ).subscribe({
-      next: (res) => {
-        this.categoriasEdicao = res;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Erro ao carregar categorias da edição:', err);
-      }
-    });
+    this.cdr.detectChanges();
   }
 
   cancelarEdicao(): void {
@@ -189,372 +505,520 @@ export class Transacao implements OnInit {
     this.categoriasEdicao = [];
     this.exibirNovaCategoriaEdicao = false;
     this.novaCategoriaEdicao = '';
+
+    this.mostrarNotificacao(
+      'aviso',
+      'Edição cancelada',
+      'Nenhuma alteração foi salva.'
+    );
+
+    this.cdr.detectChanges();
+  }
+
+  private cancelarEdicaoSemMensagem(): void {
+    this.itemEditando = null;
+
+    this.formEdicao = {
+      id: null,
+      origem: '',
+      descricao: '',
+      valor: 0,
+      data: '',
+      tipo: '',
+      categoriaId: '',
+      contaId: ''
+    };
+
+    this.categoriasEdicao = [];
+    this.exibirNovaCategoriaEdicao = false;
+    this.novaCategoriaEdicao = '';
+
     this.cdr.detectChanges();
   }
 
   salvarEdicao(): void {
     if (!this.formEdicao.id) {
-      alert('Nenhum item selecionado para edição.');
+      this.mostrarNotificacao(
+        'aviso',
+        'Nenhum item selecionado',
+        'Selecione uma transação para editar.'
+      );
       return;
     }
+
     if (!this.formEdicao.descricao.trim()) {
-      alert('Informe a descrição.');
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Informe a descrição.'
+      );
       return;
     }
+
+    if (!this.formEdicao.data) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Informe a data.'
+      );
+      return;
+    }
+
+    if (!this.formEdicao.valor || Number(this.formEdicao.valor) === 0) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Valor inválido',
+        'Informe um valor diferente de zero.'
+      );
+      return;
+    }
+
     if (!this.formEdicao.tipo) {
-      alert('Informe o tipo.');
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Informe o tipo da movimentação.'
+      );
       return;
     }
 
-    if (this.formEdicao.origem !== 'OFX') {
-      if (!this.formEdicao.valor || Number(this.formEdicao.valor) <= 0) {
-        alert('Informe um valor maior que zero.');
-        return;
-      }
-      if (!this.formEdicao.data) {
-        alert('Informe a data.');
-        return;
-      }
-      if (!this.formEdicao.categoriaId) {
-        alert('Selecione uma categoria.');
-        return;
-      }
-      if (!this.formEdicao.contaId) {
-        alert('Selecione uma conta bancária.');
-        return;
-      }
-    }
-
-    if (this.formEdicao.origem === 'OFX') {
+    if (this.ehOfxEditando()) {
       this.salvarEdicaoOFX();
       return;
     }
-    if (this.itemEditando.tipo === 'RECEITA') {
+
+    if (!this.formEdicao.categoriaId) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Selecione uma categoria.'
+      );
+      return;
+    }
+
+    if (!this.formEdicao.contaId) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Campo obrigatório',
+        'Selecione uma conta bancária.'
+      );
+      return;
+    }
+
+    if (this.formEdicao.tipo === 'RECEITA') {
       this.salvarEdicaoReceita();
       return;
     }
-    if (this.itemEditando.tipo === 'DESPESA') {
+
+    if (this.formEdicao.tipo === 'DESPESA') {
       this.salvarEdicaoDespesa();
       return;
     }
+
+    this.mostrarNotificacao(
+      'erro',
+      'Tipo não reconhecido',
+      'Não foi possível identificar o tipo da movimentação.'
+    );
   }
 
   salvarEdicaoOFX(): void {
     const payload = {
-      descricao: this.formEdicao.descricao,
+      descricao: this.formEdicao.descricao.trim(),
+      valor: Number(this.formEdicao.valor),
+      data: this.formEdicao.data,
       tipo: this.formEdicao.tipo,
       categoriaId: this.formEdicao.categoriaId ? Number(this.formEdicao.categoriaId) : null,
       usuarioId: this.usuarioId
     };
 
-    this.http.put(`http://localhost:8080/api/transacoes/${this.formEdicao.id}`, payload)
-      .subscribe({
-        next: () => {
-          alert('Transação OFX atualizada com sucesso.');
-          this.recarregarAposEdicao();
-        },
-        error: (err) => {
-          console.error('Erro ao editar transação OFX:', err);
-          alert(err.error?.message || 'Erro ao editar transação OFX.');
-        }
-      });
+    this.http.put(
+      `http://localhost:8080/api/transacoes/${this.formEdicao.id}`,
+      payload
+    ).subscribe({
+      next: () => {
+        this.mostrarNotificacao(
+          'sucesso',
+          'Transação OFX atualizada!',
+          'A movimentação importada foi atualizada com sucesso.'
+        );
+
+        this.recarregarAposEdicao();
+      },
+      error: (err) => {
+        console.error('Erro ao editar transação OFX:', err);
+
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao editar OFX',
+          err.error?.message || err.error || 'Não foi possível editar a transação OFX.'
+        );
+      }
+    });
   }
 
   salvarEdicaoReceita(): void {
     const payload = {
-      descricao: this.formEdicao.descricao,
-      valor: Number(this.formEdicao.valor),
+      descricao: this.formEdicao.descricao.trim(),
+      valor: Math.abs(Number(this.formEdicao.valor)),
       data: this.formEdicao.data,
       usuarioId: this.usuarioId,
       categoriaId: Number(this.formEdicao.categoriaId),
       contaId: Number(this.formEdicao.contaId)
     };
 
-    this.http.put(`http://localhost:8080/api/receitas/${this.formEdicao.id}`, payload)
-      .subscribe({
-        next: () => {
-          alert('Receita atualizada com sucesso.');
-          this.recarregarAposEdicao();
-        },
-        error: (err) => {
-          console.error('Erro ao editar receita:', err);
-          alert(err.error?.message || 'Erro ao editar receita.');
-        }
-      });
+    this.http.put(
+      `http://localhost:8080/api/receitas/${this.formEdicao.id}`,
+      payload
+    ).subscribe({
+      next: () => {
+        this.mostrarNotificacao(
+          'sucesso',
+          'Receita atualizada!',
+          'A receita foi atualizada e o saldo da conta foi recalculado.'
+        );
+
+        this.recarregarAposEdicao();
+      },
+      error: (err) => {
+        console.error('Erro ao editar receita:', err);
+
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao editar receita',
+          err.error?.message || err.error || 'Não foi possível editar a receita.'
+        );
+      }
+    });
   }
 
   salvarEdicaoDespesa(): void {
     const payload = {
-      descricao: this.formEdicao.descricao,
-      valor: Number(this.formEdicao.valor),
+      descricao: this.formEdicao.descricao.trim(),
+      valor: Math.abs(Number(this.formEdicao.valor)),
       data: this.formEdicao.data,
       usuarioId: this.usuarioId,
       categoriaId: Number(this.formEdicao.categoriaId),
       contaId: Number(this.formEdicao.contaId)
     };
 
-    this.http.put(`http://localhost:8080/api/despesas/${this.formEdicao.id}`, payload)
-      .subscribe({
-        next: () => {
-          alert('Despesa atualizada com sucesso.');
-          this.recarregarAposEdicao();
-        },
-        error: (err) => {
-          console.error('Erro ao editar despesa:', err);
-          alert(err.error?.message || 'Erro ao editar despesa.');
-        }
-      });
+    this.http.put(
+      `http://localhost:8080/api/despesas/${this.formEdicao.id}`,
+      payload
+    ).subscribe({
+      next: () => {
+        this.mostrarNotificacao(
+          'sucesso',
+          'Despesa atualizada!',
+          'A despesa foi atualizada e o saldo da conta foi recalculado.'
+        );
+
+        this.recarregarAposEdicao();
+      },
+      error: (err) => {
+        console.error('Erro ao editar despesa:', err);
+
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao editar despesa',
+          err.error?.message || err.error || 'Não foi possível editar a despesa.'
+        );
+      }
+    });
   }
 
   recarregarAposEdicao(): void {
     this.filtroTipo = 'TODOS';
-    this.cancelarEdicao();
+    this.cancelarEdicaoSemMensagem();
     this.carregarTransacoes();
     this.carregarContas();
-  }
-
-  carregarDados(): void {
-    this.carregarContas();
-    this.carregarCategorias();
-    this.carregarTransacoes();
     this.carregarArquivosOfx();
   }
 
-  carregarArquivosOfx(): void {
-  this.http.get<any[]>(
-    `http://localhost:8080/api/ofx/usuario/${this.usuarioId}`
-  ).subscribe({
-    next: (res) => {
-      this.arquivosOfx = res;
-      this.cdr.detectChanges();
-    },
-    error: (err) => {
-      console.error('Erro ao carregar arquivos OFX:', err);
-    }
-  });
-}
-excluirArquivoOfx(arquivo: any): void {
-  const confirmar = confirm(
-    `Deseja realmente excluir o arquivo OFX "${arquivo.nomeArquivo}"?\n\nTodas as transações importadas por esse arquivo também serão removidas.`
-  );
 
-  if (!confirmar) {
-    return;
+
+  toggleNovaCategoriaEdicao(): void {
+    this.exibirNovaCategoriaEdicao = !this.exibirNovaCategoriaEdicao;
+
+    if (!this.exibirNovaCategoriaEdicao) {
+      this.novaCategoriaEdicao = '';
+    }
+
+    this.cdr.detectChanges();
   }
 
-  this.http.delete(
-    `http://localhost:8080/api/ofx/${arquivo.id}/usuario/${this.usuarioId}`
-  ).subscribe({
-    next: () => {
-      alert('Arquivo OFX excluído com sucesso.');
-
-      this.carregarArquivosOfx();
-      this.carregarTransacoes();
-      this.carregarContas();
-    },
-    error: (err) => {
-      console.error('Erro ao excluir arquivo OFX:', err);
-      alert(err.error?.message || err.error || 'Erro ao excluir arquivo OFX.');
-    }
-  });
-}
-  carregarContas(): void {
-    this.http.get<any[]>(`http://localhost:8080/api/contas/usuario/${this.usuarioId}`)
-      .subscribe({
-        next: (res) => {
-          this.contasBancarias = res;
-          this.cdr.detectChanges();
-        },
-        error: (err) => console.error(err)
-      });
-  }
-
-  carregarCategorias(): void {
-    this.http.get<any[]>(`http://localhost:8080/api/categorias/usuario/${this.usuarioId}`)
-      .subscribe({
-        next: (res) => {
-          this.categorias = res;
-          this.cdr.detectChanges();
-        },
-        error: (err) => console.error(err)
-      });
-  }
-
-  carregarTransacoes(): void {
-    this.http.get<any[]>(`http://localhost:8080/api/movimentacoes/usuario/${this.usuarioId}`)
-      .subscribe({
-        next: (res) => {
-          this.listaTransacoes = res;
-          this.aplicarFiltroTipo();
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          console.error('Erro ao carregar movimentações:', err);
-          alert(err.error?.message || 'Erro ao carregar movimentações.');
-        }
-      });
-  }
-
-  excluirMovimentacao(item: any): void {
-    const confirmar = confirm(`Deseja excluir esta movimentação "${item.descricao}"?`);
-    if (!confirmar) return;
-
-    if (item.origem === 'OFX') {
-      this.excluirOFX(item.id);
-      return;
-    }
-    if (item.origem === 'MANUAL' && item.tipo === 'RECEITA') {
-      this.excluirReceita(item.id);
-      return;
-    }
-    if (item.origem === 'MANUAL' && item.tipo === 'DESPESA') {
-      this.excluirDespesa(item.id);
+  carregarCategoriasPorTipoEdicao(): void {
+    if (!this.formEdicao.tipo) {
+      this.categoriasEdicao = [];
       return;
     }
 
-    alert('Tipo de movimentação não reconhecido.');
+    this.http.get<any[]>(
+      `http://localhost:8080/api/categorias/usuario/${this.usuarioId}/tipo/${this.formEdicao.tipo}`
+    ).subscribe({
+      next: (res) => {
+        this.categoriasEdicao = res;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Erro ao carregar categorias da edição:', err);
+
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao carregar categorias',
+          err.error?.message || 'Não foi possível buscar as categorias para edição.'
+        );
+      }
+    });
   }
 
- excluirOFX(id: number): void {
-  this.http.delete(
-    `http://localhost:8080/api/transacoes/${id}/usuario/${this.usuarioId}`
-  ).subscribe({
-    next: () => {
-      alert('Transação OFX excluída com sucesso.');
-
-      this.carregarTransacoes();
-      this.carregarContas();
-      this.carregarArquivosOfx();
-
-      this.cdr.detectChanges();
-    },
-    error: (err) => {
-      console.error('Erro ao excluir transação OFX:', err);
-      alert(err.error?.message || err.error || 'Erro ao excluir transação OFX.');
-    }
-  });
-}
-
-  excluirReceita(id: number): void {
-    this.http.delete(`http://localhost:8080/api/receitas/${id}/usuario/${this.usuarioId}`)
-      .subscribe({
-        next: () => {
-          alert('Receita excluída com sucesso.');
-          this.carregarTransacoes();
-          this.carregarContas();
-        },
-        error: (err) => {
-          console.error('Erro ao excluir receita:', err);
-          alert(err.error?.message || 'Erro ao excluir receita.');
-        }
-      });
-  }
-
-  excluirDespesa(id: number): void {
-    this.http.delete(`http://localhost:8080/api/despesas/${id}/usuario/${this.usuarioId}`)
-      .subscribe({
-        next: () => {
-          alert('Despesa excluída com sucesso.');
-          this.carregarTransacoes();
-          this.carregarContas();
-        },
-        error: (err) => {
-          console.error('Erro ao excluir despesa:', err);
-          alert(err.error?.message || 'Erro ao excluir despesa.');
-        }
-      });
-  }
-
-  alterarFiltroTipo(tipo: string): void {
-    this.filtroTipo = tipo;
-    this.aplicarFiltroTipo();
-  }
-
-  aplicarFiltroTipo(): void {
-    if (this.filtroTipo === 'TODOS') {
-      this.listaTransacoesFiltradas = this.listaTransacoes;
+  criarCategoriaNaEdicao(): void {
+    if (!this.novaCategoriaEdicao.trim()) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Categoria vazia',
+        'Informe o nome da categoria.'
+      );
       return;
     }
-    this.listaTransacoesFiltradas = this.listaTransacoes.filter(
-      item => item.tipo === this.filtroTipo
-    );
-  }
 
-  salvarTransacao(): void {
-    if (!this.dadosForm.contaId) {
-      alert('Selecione uma conta');
-      return;
-    }
-    if (!this.dadosForm.categoriaId) {
-      alert('Selecione uma categoria');
+    if (!this.formEdicao.tipo) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Tipo obrigatório',
+        'Informe o tipo da movimentação antes de criar a categoria.'
+      );
       return;
     }
 
     const payload = {
-      descricao: this.dadosForm.descricao,
+      nome: this.novaCategoriaEdicao.trim(),
+      tipo: this.formEdicao.tipo,
+      usuarioId: this.usuarioId
+    };
+
+    this.http.post<any>(
+      'http://localhost:8080/api/categorias',
+      payload
+    ).subscribe({
+      next: (categoriaCriada) => {
+        this.mostrarNotificacao(
+          'sucesso',
+          'Categoria criada!',
+          'A categoria foi criada e selecionada na edição.'
+        );
+
+        this.novaCategoriaEdicao = '';
+        this.exibirNovaCategoriaEdicao = false;
+
+        this.carregarCategoriasPorTipoEdicao();
+
+        setTimeout(() => {
+          this.formEdicao.categoriaId = String(categoriaCriada.id);
+          this.cdr.detectChanges();
+        }, 200);
+      },
+      error: (err) => {
+        console.error('Erro ao criar categoria:', err);
+
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao criar categoria',
+          err.error?.message || err.error || 'Não foi possível criar a categoria.'
+        );
+      }
+    });
+  }
+
+
+
+  excluirMovimentacao(item: any): void {
+    const id = this.obterIdItem(item);
+
+    if (!id) {
+      this.mostrarNotificacao(
+        'erro',
+        'Item inválido',
+        'Não foi possível identificar a movimentação para exclusão.'
+      );
+      return;
+    }
+
+    this.abrirConfirmacao(
+      'Excluir movimentação?',
+      `Deseja realmente excluir a movimentação "${item.descricao}"? O saldo da conta poderá ser atualizado.`,
+      () => {
+        if (this.ehOfx(item)) {
+          this.excluirOFX(id);
+          return;
+        }
+
+        if (this.ehManual(item) && item.tipo === 'RECEITA') {
+          this.excluirReceita(id);
+          return;
+        }
+
+        if (this.ehManual(item) && item.tipo === 'DESPESA') {
+          this.excluirDespesa(id);
+          return;
+        }
+
+        if (item.tipo === 'RECEITA') {
+          this.excluirReceita(id);
+          return;
+        }
+
+        if (item.tipo === 'DESPESA') {
+          this.excluirDespesa(id);
+          return;
+        }
+
+        this.mostrarNotificacao(
+          'erro',
+          'Tipo não reconhecido',
+          'Não foi possível identificar essa movimentação.'
+        );
+      },
+      'Excluir',
+      'Cancelar'
+    );
+  }
+
+  excluirOFX(id: number): void {
+    this.http.delete(
+      `http://localhost:8080/api/transacoes/${id}/usuario/${this.usuarioId}`
+    ).subscribe({
+      next: () => {
+        this.mostrarNotificacao(
+          'sucesso',
+          'Transação OFX excluída!',
+          'A transação importada foi removida com sucesso.'
+        );
+
+        this.carregarTransacoes();
+        this.carregarContas();
+        this.carregarArquivosOfx();
+
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Erro ao excluir transação OFX:', err);
+
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao excluir OFX',
+          err.error?.message || err.error || 'Não foi possível excluir a transação OFX.'
+        );
+      }
+    });
+  }
+
+  excluirReceita(id: number): void {
+    this.http.delete(
+      `http://localhost:8080/api/receitas/${id}/usuario/${this.usuarioId}`
+    ).subscribe({
+      next: () => {
+        this.mostrarNotificacao(
+          'sucesso',
+          'Receita excluída!',
+          'A receita foi removida e o saldo da conta foi atualizado.'
+        );
+
+        this.carregarTransacoes();
+        this.carregarContas();
+      },
+      error: (err) => {
+        console.error('Erro ao excluir receita:', err);
+
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao excluir receita',
+          err.error?.message || err.error || 'Não foi possível excluir a receita.'
+        );
+      }
+    });
+  }
+
+  excluirDespesa(id: number): void {
+    this.http.delete(
+      `http://localhost:8080/api/despesas/${id}/usuario/${this.usuarioId}`
+    ).subscribe({
+      next: () => {
+        this.mostrarNotificacao(
+          'sucesso',
+          'Despesa excluída!',
+          'A despesa foi removida e o saldo da conta foi atualizado.'
+        );
+
+        this.carregarTransacoes();
+        this.carregarContas();
+      },
+      error: (err) => {
+        console.error('Erro ao excluir despesa:', err);
+
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao excluir despesa',
+          err.error?.message || err.error || 'Não foi possível excluir a despesa.'
+        );
+      }
+    });
+  }
+
+
+
+  salvarTransacao(): void {
+    if (!this.dadosForm.contaId) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Conta obrigatória',
+        'Selecione uma conta bancária.'
+      );
+      return;
+    }
+
+    if (!this.dadosForm.categoriaId) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Categoria obrigatória',
+        'Selecione uma categoria.'
+      );
+      return;
+    }
+
+    const payload = {
+      descricao: this.dadosForm.descricao.trim(),
       valor: Number(this.dadosForm.valor),
       data: this.dadosForm.data + 'T00:00:00',
       categoriaId: Number(this.dadosForm.categoriaId),
       contaId: Number(this.dadosForm.contaId)
     };
 
-    this.http.post(`http://localhost:8080/api/transacoes/usuario/${this.usuarioId}`, payload)
-      .subscribe({
-        next: () => {
-          alert('Transação salva!');
-          this.carregarTransacoes();
-          this.carregarContas();
-          this.resetarFormulario();
-        },
-        error: (err) => {
-          console.error('Erro ao salvar transação:', err);
-          alert(err.error || 'Erro ao salvar transação.');
-        }
-      });
-  }
+    this.http.post(
+      `http://localhost:8080/api/transacoes/usuario/${this.usuarioId}`,
+      payload
+    ).subscribe({
+      next: () => {
+        this.mostrarNotificacao(
+          'sucesso',
+          'Transação salva!',
+          'A transação foi registrada com sucesso.'
+        );
 
-  selecionarArquivo(event: any): void {
-    const arquivoSelecionado = event.target.files[0];
-    if (arquivoSelecionado) {
-      this.arquivoOFX = arquivoSelecionado;
-    }
-  }
+        this.carregarTransacoes();
+        this.carregarContas();
+        this.resetarFormulario();
+      },
+      error: (err) => {
+        console.error('Erro ao salvar transação:', err);
 
-  importarOFX(): void {
-    if (!this.arquivoOFX) {
-      alert('Selecione um arquivo OFX.');
-      return;
-    }
-    if (!this.dadosForm.contaId) {
-      alert('Selecione uma conta bancária antes de importar o OFX.');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', this.arquivoOFX);
-    formData.append('contaId', this.dadosForm.contaId.toString());
-    formData.append('usuarioId', this.usuarioId.toString());
-
-    this.http.post('http://localhost:8080/api/ofx/upload', formData, { responseType: 'text' })
-      .subscribe({
-        next: (res) => {
-  alert(res);
-
-  this.carregarArquivosOfx();
-  this.carregarTransacoes();
-  this.carregarContas();
-
-  this.arquivoOFX = undefined as any;
-  this.dadosForm.contaId = '';
-
-  this.cdr.detectChanges();
-},
-        error: (err) => {
-          console.error('Erro ao importar OFX:', err);
-          const mensagem = err.error?.message || err.error || 'Erro ao importar OFX.';
-          alert(mensagem);
-        }
-      });
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao salvar transação',
+          err.error?.message || err.error || 'Não foi possível salvar a transação.'
+        );
+      }
+    });
   }
 
   resetarFormulario(): void {
@@ -566,13 +1030,25 @@ excluirArquivoOfx(arquivo: any): void {
       contaId: '',
       tipo: 'DESPESA'
     };
+
     this.cdr.detectChanges();
   }
+
+
 
   logout(): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('usuarioLogado');
-      this.router.navigate(['/login']);
+
+      this.mostrarNotificacao(
+        'sucesso',
+        'Sessão encerrada',
+        'Você saiu do CyberSoft com segurança.'
+      );
+
+      setTimeout(() => {
+        this.router.navigate(['/login']);
+      }, 700);
     }
   }
 }

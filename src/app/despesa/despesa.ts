@@ -93,9 +93,7 @@ export class Despesa implements OnInit {
     }
   }
 
-  // ==========================
-  // NOTIFICAÇÕES
-  // ==========================
+
 
   mostrarNotificacao(
     tipo: 'sucesso' | 'erro' | 'aviso',
@@ -123,9 +121,7 @@ export class Despesa implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // ==========================
-  // MODAL DE CONFIRMAÇÃO
-  // ==========================
+
 
   abrirConfirmacao(
     titulo: string,
@@ -167,18 +163,13 @@ export class Despesa implements OnInit {
     this.cancelarConfirmacao();
   }
 
-  // ==========================
-  // SIDEBAR
-  // ==========================
+
 
   toggleSidebar(): void {
     this.exibirSidebar = !this.exibirSidebar;
     this.cdr.detectChanges();
   }
 
-  // ==========================
-  // CARREGAMENTOS
-  // ==========================
 
   carregarDados(): void {
     this.carregarCategorias();
@@ -246,9 +237,6 @@ export class Despesa implements OnInit {
     });
   }
 
-  // ==========================
-  // CATEGORIA
-  // ==========================
 
   salvarCategoria(): void {
     if (!this.novaCategoriaNome.trim()) {
@@ -296,9 +284,6 @@ export class Despesa implements OnInit {
     });
   }
 
-  // ==========================
-  // CADASTRAR DESPESA
-  // ==========================
 
   salvarDespesa(): void {
     if (!this.dadosForm.descricao.trim()) {
@@ -394,9 +379,6 @@ export class Despesa implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // ==========================
-  // EDITAR DESPESA
-  // ==========================
 
   abrirEdicaoDespesa(item: any): void {
     this.despesaEditando = item;
@@ -551,9 +533,6 @@ export class Despesa implements OnInit {
     });
   }
 
-  // ==========================
-  // EXCLUIR DESPESA
-  // ==========================
 
   excluirDespesa(item: any): void {
     this.abrirConfirmacao(
@@ -589,9 +568,6 @@ export class Despesa implements OnInit {
     );
   }
 
-  // ==========================
-  // LOGOUT
-  // ==========================
 
   logout(): void {
     if (isPlatformBrowser(this.platformId)) {
