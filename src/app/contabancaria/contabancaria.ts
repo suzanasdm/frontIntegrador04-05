@@ -28,8 +28,25 @@ export class Contabancaria implements OnInit {
   exibirSidebar: boolean = false;
 
   contasBancarias: any[] = [];
-
   contaEditando: any = null;
+  contaParaExcluir: any = null;
+
+  notificacao = {
+    visivel: false,
+    tipo: 'sucesso' as 'sucesso' | 'erro' | 'aviso',
+    titulo: '',
+    mensagem: ''
+  };
+
+  private timeoutNotificacao: any;
+
+  confirmacao = {
+    visivel: false,
+    titulo: '',
+    mensagem: '',
+    textoConfirmar: 'Excluir',
+    textoCancelar: 'Cancelar'
+  };
 
   dadosForm = {
     banco: '' as BancoEnum | '',
@@ -73,6 +90,96 @@ export class Contabancaria implements OnInit {
     }
   }
 
+  mostrarNotificacao(
+    tipo: 'sucesso' | 'erro' | 'aviso',
+    titulo: string,
+    mensagem: string
+  ): void {
+    this.notificacao = {
+      visivel: true,
+      tipo,
+      titulo,
+      mensagem
+    };
+
+    this.cdr.detectChanges();
+
+    clearTimeout(this.timeoutNotificacao);
+
+    this.timeoutNotificacao = setTimeout(() => {
+      this.fecharNotificacao();
+    }, 3500);
+  }
+
+  fecharNotificacao(): void {
+    this.notificacao.visivel = false;
+    this.cdr.detectChanges();
+  }
+
+  abrirModalExcluirConta(conta: any): void {
+    this.contaParaExcluir = conta;
+
+    this.confirmacao = {
+      visivel: true,
+      titulo: 'Excluir conta bancária?',
+      mensagem: `Deseja realmente excluir a conta ${conta.banco} - ${conta.numeroConta}? Essa ação pode afetar receitas, despesas ou transações vinculadas.`,
+      textoConfirmar: 'Excluir',
+      textoCancelar: 'Cancelar'
+    };
+
+    this.cdr.detectChanges();
+  }
+
+  cancelarConfirmacao(): void {
+    this.contaParaExcluir = null;
+
+    this.confirmacao = {
+      visivel: false,
+      titulo: '',
+      mensagem: '',
+      textoConfirmar: 'Excluir',
+      textoCancelar: 'Cancelar'
+    };
+
+    this.cdr.detectChanges();
+  }
+
+  confirmarExclusaoConta(): void {
+    if (!this.contaParaExcluir) {
+      this.cancelarConfirmacao();
+      return;
+    }
+
+    const conta = this.contaParaExcluir;
+
+    this.http.delete(
+      `http://localhost:8080/api/contas/${conta.id}/usuario/${this.usuarioId}`
+    ).subscribe({
+      next: () => {
+        this.cancelarConfirmacao();
+
+        this.mostrarNotificacao(
+          'sucesso',
+          'Conta excluída!',
+          'A conta bancária foi removida com sucesso.'
+        );
+
+        this.carregarContas();
+      },
+      error: (err) => {
+        console.error('Erro ao excluir conta:', err);
+
+        this.cancelarConfirmacao();
+
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao excluir conta',
+          err.error?.message || err.error || 'Não foi possível excluir a conta.'
+        );
+      }
+    });
+  }
+
   toggleSidebar(): void {
     this.exibirSidebar = !this.exibirSidebar;
     this.cdr.detectChanges();
@@ -87,49 +194,84 @@ export class Contabancaria implements OnInit {
         },
         error: (err) => {
           console.error('Erro ao buscar contas:', err);
-          alert(err.error?.message || 'Erro ao carregar contas bancárias.');
+
+          this.mostrarNotificacao(
+            'erro',
+            'Erro ao carregar contas',
+            err.error?.message || 'Não foi possível buscar suas contas bancárias.'
+          );
         }
       });
   }
 
   cadastrar(): void {
     if (!this.dadosForm.banco) {
-      alert('Selecione o banco.');
+      this.mostrarNotificacao(
+        'aviso',
+        'Banco obrigatório',
+        'Selecione o banco da conta.'
+      );
       return;
     }
 
     if (!this.dadosForm.agencia.trim()) {
-      alert('Informe a agência.');
+      this.mostrarNotificacao(
+        'aviso',
+        'Agência obrigatória',
+        'Informe a agência da conta.'
+      );
       return;
     }
 
     if (!this.dadosForm.numeroConta.trim()) {
-      alert('Informe o número da conta.');
+      this.mostrarNotificacao(
+        'aviso',
+        'Número obrigatório',
+        'Informe o número da conta.'
+      );
       return;
     }
 
-    if (this.dadosForm.saldo === null || this.dadosForm.saldo === undefined || Number(this.dadosForm.saldo) < 0) {
-      alert('Informe um saldo maior ou igual a zero.');
+    if (
+      this.dadosForm.saldo === null ||
+      this.dadosForm.saldo === undefined ||
+      Number(this.dadosForm.saldo) < 0
+    ) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Saldo inválido',
+        'Informe um saldo maior ou igual a zero.'
+      );
       return;
     }
 
     const payload = {
       banco: this.dadosForm.banco,
-      agencia: this.dadosForm.agencia,
-      numeroConta: this.dadosForm.numeroConta,
+      agencia: this.dadosForm.agencia.trim(),
+      numeroConta: this.dadosForm.numeroConta.trim(),
       saldo: Number(this.dadosForm.saldo),
       usuarioId: this.usuarioId
     };
 
     this.http.post('http://localhost:8080/api/contas', payload).subscribe({
       next: () => {
-        alert('Conta cadastrada com sucesso!');
+        this.mostrarNotificacao(
+          'sucesso',
+          'Conta cadastrada!',
+          'A conta bancária foi cadastrada com sucesso.'
+        );
+
         this.resetarFormulario();
         this.carregarContas();
       },
       error: (err) => {
         console.error('Erro ao salvar conta:', err);
-        alert(err.error?.message || 'Erro ao salvar conta.');
+
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao cadastrar conta',
+          err.error?.message || 'Não foi possível cadastrar a conta bancária.'
+        );
       }
     });
   }
@@ -145,6 +287,12 @@ export class Contabancaria implements OnInit {
       saldo: conta.saldo || 0,
       usuarioId: this.usuarioId
     };
+
+    this.mostrarNotificacao(
+      'aviso',
+      'Editando conta',
+      `Você está editando a conta ${conta.banco} - ${conta.numeroConta}.`
+    );
 
     setTimeout(() => {
       const card = document.querySelector('.edit-card');
@@ -166,84 +314,114 @@ export class Contabancaria implements OnInit {
       usuarioId: this.usuarioId
     };
 
+    this.mostrarNotificacao(
+      'aviso',
+      'Edição cancelada',
+      'Nenhuma alteração foi salva.'
+    );
+
+    this.cdr.detectChanges();
+  }
+
+  private cancelarEdicaoSemMensagem(): void {
+    this.contaEditando = null;
+
+    this.formEdicao = {
+      id: null,
+      banco: '',
+      agencia: '',
+      numeroConta: '',
+      saldo: 0,
+      usuarioId: this.usuarioId
+    };
+
     this.cdr.detectChanges();
   }
 
   salvarEdicao(): void {
     if (!this.formEdicao.id) {
-      alert('Nenhuma conta selecionada para edição.');
+      this.mostrarNotificacao(
+        'aviso',
+        'Nenhuma conta selecionada',
+        'Selecione uma conta para editar.'
+      );
       return;
     }
 
     if (!this.formEdicao.banco) {
-      alert('Selecione o banco.');
+      this.mostrarNotificacao(
+        'aviso',
+        'Banco obrigatório',
+        'Selecione o banco da conta.'
+      );
       return;
     }
 
     if (!this.formEdicao.agencia.trim()) {
-      alert('Informe a agência.');
+      this.mostrarNotificacao(
+        'aviso',
+        'Agência obrigatória',
+        'Informe a agência da conta.'
+      );
       return;
     }
 
     if (!this.formEdicao.numeroConta.trim()) {
-      alert('Informe o número da conta.');
+      this.mostrarNotificacao(
+        'aviso',
+        'Número obrigatório',
+        'Informe o número da conta.'
+      );
       return;
     }
 
-    if (this.formEdicao.saldo === null || this.formEdicao.saldo === undefined || Number(this.formEdicao.saldo) < 0) {
-      alert('Informe um saldo maior ou igual a zero.');
+    if (
+      this.formEdicao.saldo === null ||
+      this.formEdicao.saldo === undefined ||
+      Number(this.formEdicao.saldo) < 0
+    ) {
+      this.mostrarNotificacao(
+        'aviso',
+        'Saldo inválido',
+        'Informe um saldo maior ou igual a zero.'
+      );
       return;
     }
 
     const payload = {
       banco: this.formEdicao.banco,
-      agencia: this.formEdicao.agencia,
-      numeroConta: this.formEdicao.numeroConta,
+      agencia: this.formEdicao.agencia.trim(),
+      numeroConta: this.formEdicao.numeroConta.trim(),
       saldo: Number(this.formEdicao.saldo),
       usuarioId: this.usuarioId
     };
 
-    this.http.put(`http://localhost:8080/api/contas/${this.formEdicao.id}`, payload)
-      .subscribe({
-        next: () => {
-          alert('Conta atualizada com sucesso!');
-          this.cancelarEdicao();
-          this.carregarContas();
-        },
-        error: (err) => {
-          console.error('Erro ao editar conta:', err);
-          alert(err.error?.message || 'Erro ao editar conta.');
-        }
-      });
+    this.http.put(
+      `http://localhost:8080/api/contas/${this.formEdicao.id}`,
+      payload
+    ).subscribe({
+      next: () => {
+        this.mostrarNotificacao(
+          'sucesso',
+          'Conta atualizada!',
+          'As informações da conta bancária foram salvas com sucesso.'
+        );
+
+        this.cancelarEdicaoSemMensagem();
+        this.carregarContas();
+      },
+      error: (err) => {
+        console.error('Erro ao editar conta:', err);
+
+        this.mostrarNotificacao(
+          'erro',
+          'Erro ao editar conta',
+          err.error?.message || 'Não foi possível editar a conta bancária.'
+        );
+      }
+    });
   }
 
- excluirConta(conta: any): void {
-  const confirmar = confirm(
-    `Deseja realmente excluir a conta ${conta.banco} - ${conta.numeroConta}?`
-  );
-
-  if (!confirmar) {
-    return;
-  }
-
-  this.http.delete(
-    `http://localhost:8080/api/contas/${conta.id}/usuario/${this.usuarioId}`
-  ).subscribe({
-    next: () => {
-      alert('Conta excluída com sucesso!');
-      this.carregarContas();
-    },
-    error: (err) => {
-      console.error('Erro ao excluir conta:', err);
-
-      alert(
-        err.error?.message ||
-        err.error ||
-        'Erro ao excluir conta.'
-      );
-    }
-  });
-}
   resetarFormulario(): void {
     this.dadosForm = {
       banco: '',
@@ -259,7 +437,16 @@ export class Contabancaria implements OnInit {
   logout(): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('usuarioLogado');
-      this.router.navigate(['/login']);
+
+      this.mostrarNotificacao(
+        'sucesso',
+        'Sessão encerrada',
+        'Você saiu do CyberSoft com segurança.'
+      );
+
+      setTimeout(() => {
+        this.router.navigate(['/login']);
+      }, 700);
     }
   }
 }
