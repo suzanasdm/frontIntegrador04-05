@@ -260,7 +260,86 @@
       </div>
 
     </div>
+     <div class="table-card">
+
+      <h2 class="table-title">
+        Acompanhamento dos Limites Mensais
+      </h2>
+
+      <div class="orcamentos-list">
+
+        <div
+          class="orcamento-item"
+          *ngFor="let item of listaOrcamentos"
+        >
+
+          <div class="orcamento-header">
+
+            <span class="orcamento-categoria">
+              {{ item.categoriaNome }}
+
+              <small class="orcamento-mes">
+                ({{ item.mesAno }})
+              </small>
+            </span>
+
+            <span
+              class="orcamento-valores"
+              [class.ultrapassado]="item.status === 'ULTRAPASSADO'"
+            >
+              {{ item.valorGasto | currency:'BRL' }}
+              /
+              {{ item.valorLimite | currency:'BRL' }}
+            </span>
+
+          </div>
+
+          <div class="progress-track">
+            <div
+              class="progress-bar"
+              [style.width.%]="calcularPorcentagem(item.valorGasto, item.valorLimite)"
+              [class.progress-danger]="item.status === 'ULTRAPASSADO'"
+              [class.progress-warning]="item.status === 'ATENCAO'"
+              [class.progress-success]="item.status === 'DENTRO_DO_LIMITE'"
+            ></div>
+          </div>
+
+          <div class="orcamento-info">
+
+            <span>
+              Usado:
+              {{ item.percentualUsado | number:'1.0-1' }}%
+            </span>
+
+            <span>
+              Restante:
+              {{ item.valorRestante | currency:'BRL' }}
+            </span>
+
+          </div>
+
+          <div
+            *ngIf="item.status === 'ULTRAPASSADO'"
+            class="orcamento-alert"
+          >
+            ⚠️ Você ultrapassou o limite definido para esta categoria!
+          </div>
+
+        </div>
+
+        <div
+          *ngIf="listaOrcamentos.length === 0"
+          class="empty-orcamentos"
+        >
+          Nenhum teto de gastos configurado para o período atual.
+        </div>
+
+      </div>
+
+    </div>
+
       <div class="meta-card">
+
 
   <div class="meta-card-header">
 
@@ -510,83 +589,6 @@
   </div>
 
 </div>
-    <div class="table-card">
-
-      <h2 class="table-title">
-        Acompanhamento dos Limites Mensais
-      </h2>
-
-      <div class="orcamentos-list">
-
-        <div
-          class="orcamento-item"
-          *ngFor="let item of listaOrcamentos"
-        >
-
-          <div class="orcamento-header">
-
-            <span class="orcamento-categoria">
-              {{ item.categoriaNome }}
-
-              <small class="orcamento-mes">
-                ({{ item.mesAno }})
-              </small>
-            </span>
-
-            <span
-              class="orcamento-valores"
-              [class.ultrapassado]="item.status === 'ULTRAPASSADO'"
-            >
-              {{ item.valorGasto | currency:'BRL' }}
-              /
-              {{ item.valorLimite | currency:'BRL' }}
-            </span>
-
-          </div>
-
-          <div class="progress-track">
-            <div
-              class="progress-bar"
-              [style.width.%]="calcularPorcentagem(item.valorGasto, item.valorLimite)"
-              [class.progress-danger]="item.status === 'ULTRAPASSADO'"
-              [class.progress-warning]="item.status === 'ATENCAO'"
-              [class.progress-success]="item.status === 'DENTRO_DO_LIMITE'"
-            ></div>
-          </div>
-
-          <div class="orcamento-info">
-
-            <span>
-              Usado:
-              {{ item.percentualUsado | number:'1.0-1' }}%
-            </span>
-
-            <span>
-              Restante:
-              {{ item.valorRestante | currency:'BRL' }}
-            </span>
-
-          </div>
-
-          <div
-            *ngIf="item.status === 'ULTRAPASSADO'"
-            class="orcamento-alert"
-          >
-            ⚠️ Você ultrapassou o limite definido para esta categoria!
-          </div>
-
-        </div>
-
-        <div
-          *ngIf="listaOrcamentos.length === 0"
-          class="empty-orcamentos"
-        >
-          Nenhum teto de gastos configurado para o período atual.
-        </div>
-
-      </div>
-
-    </div>
 
   </main>
 
